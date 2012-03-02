@@ -19,4 +19,9 @@ public class Configuration {
         enabled = state;
         return enabled;
     }
+    
+    public int StartDelay() {
+        int StartDelay = 20;
+        return StartDelay;
+    }
 }
