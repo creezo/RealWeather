@@ -15,12 +15,14 @@ import org.bukkit.entity.Player;
  * @author creezo
  */
 public class PlayerCheck {
+        private static Configuration configuration = new Configuration();
+        
     public static boolean checkPlayerInside(Player player) {
         boolean Inside = false;
         Location playerPosition = player.getLocation();
         int heigh = playerPosition.getBlockY();
         
-        player.chat(simpleConvert(heigh));
+        if(configuration.DebugMode()) player.chat(simpleConvert(heigh));
         
         Block block = playerPosition.getBlock();
         Block newBlock = null;
@@ -29,14 +31,12 @@ public class PlayerCheck {
             newBlock = newBlock.getRelative(0, 1, 0);
             if(newBlock.getTypeId() != 0) {
                 Inside = true;
-                String blockHeigh = simpleConvert(newBlock.getY());
-                //player.chat(blockHeigh);
                 break;
             }
-            //player.chat("Outside");
+            if(configuration.DebugMode()) player.chat("Outside");
             heigh = newBlock.getY();
         }
-        player.chat("Check end");
+        if(configuration.DebugMode()) player.chat("Check end");
         return Inside;
     }
     public static Biome checkPlayerBiome(Player player) {

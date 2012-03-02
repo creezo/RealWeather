@@ -1,0 +1,15 @@
+version: 1.0.2
+enable: true
+peaceful:
+  CheckDelay: 86400
+  StartDelay: 1
+easy:
+  CheckDelay: 10
+  StartDelay: 20
+medium:
+  CheckDelay: 8
+  StartDelay: 15
+hard:
+  CheckDelay: 6
+  StartDelay: 10
+debug-mode: true

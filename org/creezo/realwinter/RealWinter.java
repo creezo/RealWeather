@@ -12,9 +12,11 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class RealWinter extends JavaPlugin implements Listener {
     public static RealWinter TentoPlugin;
+    private Configuration configuration = new Configuration();
     public void Initialize(RealWinter instance) {
         TentoPlugin = instance;
     }
+    
     public final RealWinterPlayerListener playerlistener = new RealWinterPlayerListener();
     public final RealWinterWeatherListener weatherlistener = new RealWinterWeatherListener();
     public static final Logger log = Logger.getLogger("Minecraft");
@@ -24,6 +26,7 @@ public class RealWinter extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Initialize(this);
+        configuration.LoadConfig();
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
