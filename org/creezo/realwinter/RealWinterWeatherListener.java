@@ -9,9 +9,10 @@ import org.bukkit.event.weather.WeatherChangeEvent;
  * @author creezo
  */
 public class RealWinterWeatherListener implements Listener {
-
+    private Configuration configuration = new Configuration();
+    
     public void onWeatherChange(WeatherChangeEvent event) {
-        Bukkit.broadcastMessage("Weather Changed.");
+        if(configuration.DebugMode()) Bukkit.broadcastMessage("Weather Changed.");
         RealWinter.actualWeather = event.toWeatherState();
     }
 }

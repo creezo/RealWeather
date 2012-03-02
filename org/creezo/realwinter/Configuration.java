@@ -29,4 +29,9 @@ public class Configuration {
         int CheckDelay = 10;
         return CheckDelay;
     }
+    
+    public boolean DebugMode() {
+        boolean DebugMode = true;
+        return DebugMode;
+    }
 }

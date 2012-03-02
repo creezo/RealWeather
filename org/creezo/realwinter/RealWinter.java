@@ -18,8 +18,6 @@ public class RealWinter extends JavaPlugin implements Listener {
     public final RealWinterPlayerListener playerlistener = new RealWinterPlayerListener();
     public final RealWinterWeatherListener weatherlistener = new RealWinterWeatherListener();
     public static final Logger log = Logger.getLogger("Minecraft");
-    public static int startDelay = 20;
-    public static int interval = 10;
     public static int[] tid = new int[1000];
     public static boolean actualWeather = false;
     
