@@ -24,4 +24,9 @@ public class Configuration {
         int StartDelay = 20;
         return StartDelay;
     }
+    
+    public int CheckDelay() {
+        int CheckDelay = 10;
+        return CheckDelay;
+    }
 }
