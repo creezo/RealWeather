@@ -7,7 +7,6 @@ package org.creezo.realwinter;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
@@ -17,10 +16,11 @@ import org.bukkit.plugin.PluginDescriptionFile;
 public class Configuration {
     private boolean enabled;
     private RealWinter plugin;
+    
     public void Initialize(RealWinter instance) {
         plugin = instance;
     }
-    private String gameDifficulty = "peaceful";
+    public static String gameDifficulty = "peaceful";
 
     public void LoadConfig() {
         Initialize(RealWinter.TentoPlugin);
@@ -65,16 +65,14 @@ public class Configuration {
     }
     
     public int CheckDelay() {
+        Initialize(RealWinter.TentoPlugin);
         int CheckDelay = plugin.getConfig().getConfigurationSection(gameDifficulty).getInt("CheckDelay");
         return CheckDelay;
     }
     
     public boolean DebugMode() {
+        Initialize(RealWinter.TentoPlugin);
         boolean DebugMode = plugin.getConfig().getBoolean("debug-mode");
         return DebugMode;
     }
-    
-//    private String convertSimple(int i) {
-//        return "" + i;
-//    }
 }

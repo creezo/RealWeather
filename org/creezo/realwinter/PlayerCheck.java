@@ -22,7 +22,7 @@ public class PlayerCheck {
         Location playerPosition = player.getLocation();
         int heigh = playerPosition.getBlockY();
         
-        if(configuration.DebugMode()) player.chat(simpleConvert(heigh));
+        if(configuration.DebugMode()) player.chat("Heigh: " + simpleConvert(heigh));
         
         Block block = playerPosition.getBlock();
         Block newBlock = null;
@@ -31,9 +31,10 @@ public class PlayerCheck {
             newBlock = newBlock.getRelative(0, 1, 0);
             if(newBlock.getTypeId() != 0) {
                 Inside = true;
+                if(configuration.DebugMode()) player.chat("Inside");
                 break;
             }
-            if(configuration.DebugMode()) player.chat("Outside");
+
             heigh = newBlock.getY();
         }
         if(configuration.DebugMode()) player.chat("Check end");

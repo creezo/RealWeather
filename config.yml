@@ -1,4 +1,4 @@
-version: 1.0.2
+version: 1.0.3
 enable: true
 peaceful:
   CheckDelay: 86400
@@ -7,9 +7,9 @@ easy:
   CheckDelay: 10
   StartDelay: 20
 medium:
-  CheckDelay: 8
-  StartDelay: 15
+  CheckDelay: 7
+  StartDelay: 14
 hard:
-  CheckDelay: 6
-  StartDelay: 10
+  CheckDelay: 4
+  StartDelay: 8
 debug-mode: true

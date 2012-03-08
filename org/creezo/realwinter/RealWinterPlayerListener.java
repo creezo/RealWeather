@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class RealWinterPlayerListener implements Listener {
     private RealWinter plugin;
     private Configuration configuration = new Configuration();
-    private int startDelay = configuration.StartDelay();
+    private int startDelay;
     private int checkDelay = configuration.CheckDelay();
     public void Initialize(RealWinter instance) {
         plugin = instance;
@@ -26,6 +26,8 @@ public class RealWinterPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Initialize(RealWinter.TentoPlugin);
+        startDelay = configuration.StartDelay();
+        checkDelay = configuration.CheckDelay();
         final Player player = event.getPlayer();
         int PlayerID = player.getEntityId();
         RealWinter.actualWeather = event.getPlayer().getLocation().getBlock().getWorld().hasStorm();
@@ -35,14 +37,15 @@ public class RealWinterPlayerListener implements Listener {
                 @Override
             public void run() {
                 try {
-                    if(configuration.DebugMode()) Bukkit.broadcastMessage("Check");
+                    if(configuration.DebugMode()) player.chat("Check");
+                    if(configuration.DebugMode()) player.chat("Difficulty: " + player.getWorld().getDifficulty().name());
                     boolean isInside;
                     Biome PlayerBiome;
                     int wearingClothes;
                     RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                     if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
                         PlayerBiome = PlayerCheck.checkPlayerBiome(player);
-                        if(configuration.DebugMode()) Bukkit.broadcastMessage(PlayerBiome.name());
+                        if(configuration.DebugMode()) player.chat("Biome: " + PlayerBiome.name());
                         if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
                             wearingClothes = PlayerCheck.checkPlayerClothes(player);
                             if(wearingClothes != 4) {

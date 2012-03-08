@@ -2,7 +2,6 @@ package org.creezo.realwinter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,15 +9,15 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author creezo
  */
-public class RealWinter extends JavaPlugin implements Listener {
+public class RealWinter extends JavaPlugin {
     public static RealWinter TentoPlugin;
-    private Configuration configuration = new Configuration();
+    private Configuration configuration;
     public void Initialize(RealWinter instance) {
         TentoPlugin = instance;
     }
     
-    public final RealWinterPlayerListener playerlistener = new RealWinterPlayerListener();
-    public final RealWinterWeatherListener weatherlistener = new RealWinterWeatherListener();
+    public RealWinterPlayerListener playerlistener;
+    public RealWinterWeatherListener weatherlistener;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static int[] tid = new int[1000];
     public static boolean actualWeather = false;
@@ -26,8 +25,11 @@ public class RealWinter extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Initialize(this);
+        configuration = new Configuration();
         configuration.LoadConfig();
         PluginManager pm = getServer().getPluginManager();
+        playerlistener = new RealWinterPlayerListener();
+        weatherlistener = new RealWinterWeatherListener();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         log.log(Level.INFO, "RealWinter enabled.");
