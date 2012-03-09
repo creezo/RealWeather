@@ -75,4 +75,9 @@ public class Configuration {
         boolean DebugMode = plugin.getConfig().getBoolean("debug-mode");
         return DebugMode;
     }
+    
+    public int CheckRadius() {
+        int radius = plugin.getConfig().getInt("CheckRadius");
+        return radius;
+    }
 }

@@ -19,6 +19,7 @@ public class RealWinterPlayerListener implements Listener {
     private Configuration configuration = new Configuration();
     private int startDelay;
     private int checkDelay = configuration.CheckDelay();
+    private int CheckRadius = configuration.CheckRadius();
     public void Initialize(RealWinter instance) {
         plugin = instance;
     }
@@ -49,7 +50,7 @@ public class RealWinterPlayerListener implements Listener {
                         if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
                             wearingClothes = PlayerCheck.checkPlayerClothes(player);
                             if(wearingClothes != 4) {
-                                isInside = PlayerCheck.checkPlayerInside(player);
+                                isInside = PlayerCheck.checkPlayerInside(player, CheckRadius);
                                 if(isInside == false) {
                                     if(wearingClothes <= 3 && wearingClothes > 0) {
                                         player.damage(1);
@@ -71,13 +72,13 @@ public class RealWinterPlayerListener implements Listener {
         
     }
     
-    
-    
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerQuit(PlayerQuitEvent event) {
         int PlayerID = event.getPlayer().getEntityId();
         plugin.getServer().getScheduler().cancelTask(RealWinter.tid[PlayerID]);
     }
-        
-
+    private String ConvertDoubleToString(double number) {
+        String returningString = Double.toString(number);
+        return returningString;
+    }
 }

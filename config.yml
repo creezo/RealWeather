@@ -1,4 +1,4 @@
-version: 1.0.3
+version: 1.0.4
 enable: true
 peaceful:
   CheckDelay: 86400
@@ -12,4 +12,5 @@ medium:
 hard:
   CheckDelay: 4
   StartDelay: 8
+CheckRadius: 1
 debug-mode: true
