@@ -1,4 +1,4 @@
-version: 1.0.4
+version: 1.0.5
 enable: true
 peaceful:
   CheckDelay: 86400
@@ -12,5 +12,6 @@ medium:
 hard:
   CheckDelay: 4
   StartDelay: 8
-CheckRadius: 1
+CheckRadius: 2
+HouseRecognizer: cross
 debug-mode: true

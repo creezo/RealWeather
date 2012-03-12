@@ -17,9 +17,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class RealWinterPlayerListener implements Listener {
     private RealWinter plugin;
     private Configuration configuration = new Configuration();
-    private int startDelay;
-    private int checkDelay = configuration.CheckDelay();
-    private int CheckRadius = configuration.CheckRadius();
+    private int startDelay = configuration.StartDelay();
+    private int checkDelay;
+    private int CheckRadius;
     public void Initialize(RealWinter instance) {
         plugin = instance;
     }
@@ -27,8 +27,8 @@ public class RealWinterPlayerListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Initialize(RealWinter.TentoPlugin);
-        startDelay = configuration.StartDelay();
-        checkDelay = configuration.CheckDelay();
+        checkDelay = configuration.CheckDelay(RealWinter.TentoPlugin);
+        CheckRadius = configuration.CheckRadius(RealWinter.TentoPlugin);
         final Player player = event.getPlayer();
         int PlayerID = player.getEntityId();
         RealWinter.actualWeather = event.getPlayer().getLocation().getBlock().getWorld().hasStorm();
@@ -43,26 +43,32 @@ public class RealWinterPlayerListener implements Listener {
                     boolean isInside;
                     Biome PlayerBiome;
                     int wearingClothes;
+                    int heat;
                     RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                     if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
                         PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                         if(configuration.DebugMode()) player.chat("Biome: " + PlayerBiome.name());
                         if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
                             wearingClothes = PlayerCheck.checkPlayerClothes(player);
+                            if(configuration.DebugMode()) player.chat("Clothes check done");
                             if(wearingClothes != 4) {
-                                isInside = PlayerCheck.checkPlayerInside(player, CheckRadius);
-                                if(isInside == false) {
-                                    if(wearingClothes <= 3 && wearingClothes > 0) {
-                                        player.damage(1);
-                                    }
-                                    if(wearingClothes == 0) {
-                                        player.damage(2);
+                                heat = PlayerCheck.checkHeatAround(player);
+                                if(heat < 50) {
+                                    isInside = PlayerCheck.checkPlayerInside(player, CheckRadius);
+                                    if(configuration.DebugMode()) player.chat("Is Inside done");
+                                    if(isInside == false) {
+                                        if(wearingClothes <= 3 && wearingClothes > 0) {
+                                            player.damage(1);
+                                        }
+                                        if(wearingClothes == 0) {
+                                            player.damage(2);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    
+                    if(configuration.DebugMode()) player.chat("Check end");
                 } catch(Exception e) {
                     
                 } 

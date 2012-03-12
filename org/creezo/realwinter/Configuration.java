@@ -7,6 +7,7 @@ package org.creezo.realwinter;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 /**
@@ -15,39 +16,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
  */
 public class Configuration {
     private boolean enabled;
-    private RealWinter plugin;
-    
-    public void Initialize(RealWinter instance) {
-        plugin = instance;
-    }
-    public static String gameDifficulty = "peaceful";
 
-    public void LoadConfig() {
-        Initialize(RealWinter.TentoPlugin);
-        PluginDescriptionFile pdfFile = plugin.getDescription();
-        File oldConfigFile = new File("plugins/Realwinter/config_" + plugin.getConfig().getString("version", "old") + ".yml");
-        File configFile = new File("plugins/Realwinter/config.yml");
-        gameDifficulty = plugin.getServer().getWorld("world").getDifficulty().name().toLowerCase();
-        
-        if(!configFile.exists()) {
-            plugin.saveDefaultConfig();
-            plugin.log.log(Level.INFO, "[RealWinter] Default Config.yml copied.");
-        }
-        if(!pdfFile.getVersion().equals(plugin.getConfig().getString("version"))) {
-            RealWinter.log.log(Level.INFO, "[RealWinter] Version of config file doesn't match with current plugin version.");
-            plugin.getConfig().getDefaults();
-            try {
-                plugin.getConfig().save(oldConfigFile);
-                RealWinter.log.log(Level.INFO, "[RealWinter] Config version: " + plugin.getConfig().getString("version"));
-                RealWinter.log.log(Level.INFO, "[RealWinter] Plugin version: " + pdfFile.getVersion());
-                plugin.log.log(Level.INFO, "[RealWinter] Old Config.yml saved.");
-            } catch(IOException ex) {
-                RealWinter.log.log(Level.INFO, "[RealWinter] Saving of old config file failed. " + ex.getMessage());
-            }
-            configFile.delete();
-            plugin.saveDefaultConfig();
-        }
-    }
+    static String gameDifficulty = "peaceful";
 
     public boolean getEnabled() {
         enabled = plugin.getConfig().getBoolean("enable");
@@ -64,20 +34,23 @@ public class Configuration {
         return StartDelay;
     }
     
-    public int CheckDelay() {
-        Initialize(RealWinter.TentoPlugin);
-        int CheckDelay = plugin.getConfig().getConfigurationSection(gameDifficulty).getInt("CheckDelay");
+    public int CheckDelay(RealWinter pluginn) {
+        int CheckDelay = pluginn.getConfig().getConfigurationSection(gameDifficulty).getInt("CheckDelay");
         return CheckDelay;
     }
     
     public boolean DebugMode() {
-        Initialize(RealWinter.TentoPlugin);
         boolean DebugMode = plugin.getConfig().getBoolean("debug-mode");
         return DebugMode;
     }
     
-    public int CheckRadius() {
-        int radius = plugin.getConfig().getInt("CheckRadius");
+    public int CheckRadius(RealWinter pluginn) {
+        int radius = pluginn.getConfig().getInt("CheckRadius");
         return radius;
+    }
+    
+    public String HouseRecognizer() {
+        String HouseRecognizer = plugin.getConfig().getString("HouseRecognizer", "cross");
+        return HouseRecognizer;
     }
 }
