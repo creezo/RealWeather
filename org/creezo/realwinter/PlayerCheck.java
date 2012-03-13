@@ -5,7 +5,6 @@
 package org.creezo.realwinter;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -18,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class PlayerCheck {
-    private static Configuration configuration = new Configuration();
+    private static Configuration Config = RealWinter.Config;
         
     private static boolean CheckToTop(Block PlayerBlock, int MaxMapHeigh) {
         boolean IsUnderRoof = false;
@@ -39,14 +38,14 @@ public class PlayerCheck {
     public static boolean checkPlayerInside(Player player, int CheckRadius) {
         boolean Inside = false;
         boolean CheckOnce = true;
-        if(configuration.DebugMode()) player.chat(configuration.HouseRecognizer());
-        if("default".equals(configuration.HouseRecognizer())) {
-            if(configuration.DebugMode()) player.chat("default selected");
+        if(Config.DebugMode) player.chat(Config.HouseRecognizer);
+        if("default".equals(Config.HouseRecognizer)) {
+            if(Config.DebugMode) player.chat("default selected");
             Location playerPosition = player.getLocation();
             int heigh = playerPosition.getBlockY();
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(configuration.DebugMode()) player.chat("Heigh: " + ConvertIntToString(heigh));
+            if(Config.DebugMode) player.chat("Heigh: " + ConvertIntToString(heigh));
 
             Block NowCheckingBlock = playerPosition.getBlock();
             Block StartBlock = playerPosition.getBlock();
@@ -98,15 +97,15 @@ public class PlayerCheck {
             }
         }
         
-        if("cross".equals(configuration.HouseRecognizer())) {
-            if(configuration.DebugMode()) player.chat("cross selected");
+        if("cross".equals(Config.HouseRecognizer)) {
+            if(Config.DebugMode) player.chat("cross selected");
             Block RangeCheckBlock;
             Location playerPosition = player.getLocation();
             int heigh = playerPosition.getBlockY();
             Block playerPositionBlock = playerPosition.getBlock().getRelative(BlockFace.UP);
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(configuration.DebugMode()) player.chat("Heigh: " + ConvertIntToString(heigh));
+            if(Config.DebugMode) player.chat("Heigh: " + ConvertIntToString(heigh));
             
             for(int once = 1; once == 1; once++) {
                 if(CheckOnce == true) {
@@ -175,26 +174,26 @@ public class PlayerCheck {
     }
 
     public static int checkPlayerClothes(Player player) {
-        int clothesNumber = 0;
-        ItemStack nullStack = player.getInventory().getBoots();
-        player.chat(nullStack.toString());
-        player.chat("Boty");
-        if(player.getInventory().getBoots() == nullStack) {
-            player.chat("Boty chybi");
-            clothesNumber++;
-        }
-        player.chat("Chest");
-        if(player.getInventory().getChestplate().getTypeId() != 0) {
-            clothesNumber++;
-        }
-        player.chat("Helma");
-        if(player.getInventory().getHelmet().getTypeId() != 0) {
-            clothesNumber++;
-        }
-        player.chat("Kalhoty");
-        if(player.getInventory().getLeggings().getTypeId() != 0) {
-            clothesNumber++;
-        }
+        int clothesNumber = 1;
+//        ItemStack nullStack = player.getInventory().getBoots();
+//        player.chat(nullStack.toString());
+//        player.chat("Boty");
+//        if(player.getInventory().getBoots() == nullStack) {
+//            player.chat("Boty chybi");
+//            clothesNumber++;
+//        }
+//        player.chat("Chest");
+//        if(player.getInventory().getChestplate().getTypeId() != 0) {
+//            clothesNumber++;
+//        }
+//        player.chat("Helma");
+//        if(player.getInventory().getHelmet().getTypeId() != 0) {
+//            clothesNumber++;
+//        }
+//        player.chat("Kalhoty");
+//        if(player.getInventory().getLeggings().getTypeId() != 0) {
+//            clothesNumber++;
+//        }
         return clothesNumber;
     }
 

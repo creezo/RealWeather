@@ -14,4 +14,4 @@ hard:
   StartDelay: 8
 CheckRadius: 2
 HouseRecognizer: cross
-debug-mode: true
+debug-mode: false

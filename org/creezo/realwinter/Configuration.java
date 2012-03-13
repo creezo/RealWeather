@@ -4,53 +4,50 @@
  */
 package org.creezo.realwinter;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.configuration.InvalidConfigurationException;
 
 /**
  *
  * @author creezo
  */
 public class Configuration {
-    private boolean enabled;
+    public boolean enabled;
+    public int StartDelay;
+    public int CheckDelay;
+    public boolean DebugMode;
+    public int CheckRadius;
+    public String HouseRecognizer;
+    public String GameDifficulty = "peaceful";
 
-    static String gameDifficulty = "peaceful";
-
-    public boolean getEnabled() {
-        enabled = plugin.getConfig().getBoolean("enable");
-        return enabled;
-    }
-    
     public boolean setEnabled(boolean state) {
         enabled = state;
         return enabled;
     }
     
-    public int StartDelay() {
-        int StartDelay = plugin.getConfig().getConfigurationSection(gameDifficulty).getInt("StartDelay");
-        return StartDelay;
+    public void InitConfig(RealWinter plugin) {
+        RealWinter.log.log(Level.INFO, "[RealWinter] Loading Configuration.");
+        try {
+            try {
+                try {
+                    plugin.getConfig().load("plugins/Realwinter/config.yml");
+                } catch(InvalidConfigurationException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
+            } catch (FileNotFoundException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
+        } catch (IOException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
+        GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
+        String StartDelayDiff = GameDifficulty + ".StartDelay";
+        StartDelay = plugin.getConfig().getInt(StartDelayDiff, 20);
+        String CheckDelayDiff = GameDifficulty + ".CheckDelay";
+        CheckDelay = plugin.getConfig().getInt(CheckDelayDiff, 10);
+        DebugMode = plugin.getConfig().getBoolean("debug-mode");
+        CheckRadius = plugin.getConfig().getInt("CheckRadius");
+        HouseRecognizer = plugin.getConfig().getString("HouseRecognizer", "cross");
+        //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecognizer + " " + GameDifficulty);
     }
     
-    public int CheckDelay(RealWinter pluginn) {
-        int CheckDelay = pluginn.getConfig().getConfigurationSection(gameDifficulty).getInt("CheckDelay");
-        return CheckDelay;
-    }
-    
-    public boolean DebugMode() {
-        boolean DebugMode = plugin.getConfig().getBoolean("debug-mode");
-        return DebugMode;
-    }
-    
-    public int CheckRadius(RealWinter pluginn) {
-        int radius = pluginn.getConfig().getInt("CheckRadius");
-        return radius;
-    }
-    
-    public String HouseRecognizer() {
-        String HouseRecognizer = plugin.getConfig().getString("HouseRecognizer", "cross");
-        return HouseRecognizer;
+    private static String ConvertIntToString(int number) {
+        return "" + number;
     }
 }
