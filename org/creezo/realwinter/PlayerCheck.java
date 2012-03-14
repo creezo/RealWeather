@@ -4,6 +4,8 @@
  */
 package org.creezo.realwinter;
 
+import java.util.List;
+import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -18,6 +20,17 @@ import org.bukkit.inventory.ItemStack;
  */
 public class PlayerCheck {
     private static Configuration Config = RealWinter.Config;
+    private static List<ItemStack> AllowedBoots;
+    private static List<ItemStack> AllowedChestplate;
+    private static List<ItemStack> AllowedHelmet;
+    private static List<ItemStack> AllowedLeggings;
+    
+    public void PCheckInit() {
+        AllowedBoots = Config.AllowedBoots;
+        AllowedChestplate = Config.AllowedChestplate;
+        AllowedHelmet = Config.AllowedHelmet;
+        AllowedLeggings = Config.AllowedLeggings;
+    }
         
     private static boolean CheckToTop(Block PlayerBlock, int MaxMapHeigh) {
         boolean IsUnderRoof = false;
@@ -38,7 +51,6 @@ public class PlayerCheck {
     public static boolean checkPlayerInside(Player player, int CheckRadius) {
         boolean Inside = false;
         boolean CheckOnce = true;
-        if(Config.DebugMode) player.chat(Config.HouseRecognizer);
         if("default".equals(Config.HouseRecognizer)) {
             if(Config.DebugMode) player.chat("default selected");
             Location playerPosition = player.getLocation();
@@ -173,27 +185,65 @@ public class PlayerCheck {
         return BiomeType;
     }
 
-    public static int checkPlayerClothes(Player player) {
-        int clothesNumber = 1;
-//        ItemStack nullStack = player.getInventory().getBoots();
-//        player.chat(nullStack.toString());
-//        player.chat("Boty");
-//        if(player.getInventory().getBoots() == nullStack) {
-//            player.chat("Boty chybi");
-//            clothesNumber++;
-//        }
-//        player.chat("Chest");
-//        if(player.getInventory().getChestplate().getTypeId() != 0) {
-//            clothesNumber++;
-//        }
-//        player.chat("Helma");
-//        if(player.getInventory().getHelmet().getTypeId() != 0) {
-//            clothesNumber++;
-//        }
-//        player.chat("Kalhoty");
-//        if(player.getInventory().getLeggings().getTypeId() != 0) {
-//            clothesNumber++;
-//        }
+    public int checkPlayerClothes(Player player, RealWinter plugin) {
+        int clothesNumber = 0;
+        ItemStack WearBoots = player.getInventory().getBoots();
+        ItemStack WearChestplate = player.getInventory().getChestplate();
+        ItemStack WearHelmet = player.getInventory().getHelmet();
+        ItemStack WearLeggings = player.getInventory().getLeggings();
+        if(Config.DebugMode) {
+            try {
+                plugin.log.log(Level.INFO, "[RealWinter] Boots ID: " + ConvertIntToString(WearBoots.getTypeId()));
+            } catch(Exception ex) { 
+                //plugin.log.log(Level.INFO, ex.getMessage()) ;
+            }
+            try {
+                plugin.log.log(Level.INFO, "[RealWinter] Chestplate ID: " + ConvertIntToString(WearChestplate.getTypeId()));
+            } catch(Exception ex) { 
+                //plugin.log.log(Level.INFO, ex.getMessage()) ;
+            }
+            try {
+                plugin.log.log(Level.INFO, "[RealWinter] Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
+            } catch(Exception ex) { 
+                //plugin.log.log(Level.INFO, ex.getMessage()) ;
+            }
+            try {
+                plugin.log.log(Level.INFO, "[RealWinter] Leggings ID: " + ConvertIntToString(WearLeggings.getTypeId()));
+            } catch(Exception ex) { 
+                //plugin.log.log(Level.INFO, ex.getMessage()) ;
+            }
+        }
+        try {
+            for(int num = 0; num < AllowedBoots.size(); num++) {
+                if(AllowedBoots.get(num).getTypeId() == WearBoots.getTypeId()) clothesNumber++;
+            }
+        } catch(Exception ex) { 
+            plugin.log.log(Level.INFO, ex.getMessage()) ;
+        }
+        try {
+            for(int num = 0; num < AllowedChestplate.size(); num++) {
+                if(AllowedChestplate.get(num).getTypeId() == WearChestplate.getTypeId()) clothesNumber++;
+            }
+        } catch(Exception ex) { 
+            plugin.log.log(Level.INFO, ex.getMessage()) ;
+        }
+        try {
+            for(int num = 0; num < AllowedHelmet.size(); num++) {
+                if(AllowedHelmet.get(num).getTypeId() == WearHelmet.getTypeId()) clothesNumber++;
+            }
+        } catch(Exception ex) { 
+            plugin.log.log(Level.INFO, ex.getMessage()) ;
+        }
+        try {
+            for(int num = 0; num < AllowedLeggings.size(); num++) {
+                if(AllowedLeggings.get(num).getTypeId() == WearLeggings.getTypeId()) clothesNumber++;
+            }
+        } catch(Exception ex) { 
+            plugin.log.log(Level.INFO, ex.getMessage()) ;
+        }
+        if(Config.DebugMode) {
+            plugin.log.log(Level.INFO, "[RealWinter] Armors: " + ConvertIntToString(clothesNumber));
+        }
         return clothesNumber;
     }
 

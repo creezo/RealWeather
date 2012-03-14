@@ -1,6 +1,6 @@
 package org.creezo.realwinter;
 
-import java.util.logging.Level;
+import java.util.HashMap;
 import org.bukkit.GameMode;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
@@ -16,7 +16,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class RealWinterPlayerListener implements Listener {
     private RealWinter plugin;
     private static Configuration Config = RealWinter.Config;
+    private static PlayerCheck playerCheck = RealWinter.playerCheck;
     private boolean DebugMode = Config.DebugMode;
+    private HashMap<Integer, Integer> PlayerHashMap = RealWinter.PlayerHashMap;
     public void Initialize(RealWinter instance) {
         plugin = instance;
     }
@@ -24,16 +26,15 @@ public class RealWinterPlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Initialize(RealWinter.TentoPlugin);
-        //configuration.InitConfig(plugin);
         int StartDelay = Config.StartDelay;
         int CheckDelay = Config.CheckDelay;
         final int CheckRadius = Config.CheckRadius;
         final Player player = event.getPlayer();
         int PlayerID = player.getEntityId();
-        //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + Config.HouseRecognizer + " " + Config.GameDifficulty);
+        final int[] MissingArmorDamage = Config.MissingArmorDamage;
         RealWinter.actualWeather = event.getPlayer().getLocation().getBlock().getWorld().hasStorm();
         if(RealWinter.actualWeather == true) player.sendMessage("Bevare of frozen areas without clothes!");
-            RealWinter.tid[PlayerID] = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() { 
+            PlayerHashMap.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() { 
             
             @Override
             public void run() {
@@ -42,26 +43,39 @@ public class RealWinterPlayerListener implements Listener {
                     if(DebugMode) player.chat("Difficulty: " + player.getWorld().getDifficulty().name());
                     boolean isInside;
                     Biome PlayerBiome;
-                    int wearingClothes;
+                    int NumOfClothes;
                     int heat;
                     RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                     if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
                         PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                         if(DebugMode) player.chat("Biome: " + PlayerBiome.name());
                         if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
-                            wearingClothes = PlayerCheck.checkPlayerClothes(player);
+                            NumOfClothes = playerCheck.checkPlayerClothes(player, plugin);
                             if(DebugMode) player.chat("Clothes check done");
-                            if(wearingClothes != 4) {
+                            if(MissingArmorDamage[4] != 0) {
                                 heat = PlayerCheck.checkHeatAround(player);
                                 if(heat < 50) {
                                     isInside = PlayerCheck.checkPlayerInside(player, CheckRadius);
                                     if(DebugMode) player.chat("Is Inside done");
                                     if(isInside == false) {
-                                        if(wearingClothes <= 3 && wearingClothes > 0) {
-                                            player.damage(1);
-                                        }
-                                        if(wearingClothes == 0) {
-                                            player.damage(2);
+                                        switch(NumOfClothes) {
+                                            case 0:
+                                                player.damage(MissingArmorDamage[NumOfClothes]);
+                                                break;
+                                            case 1:
+                                                player.damage(MissingArmorDamage[NumOfClothes]);
+                                                break;
+                                            case 2:
+                                                player.damage(MissingArmorDamage[NumOfClothes]);
+                                                break;
+                                            case 3:
+                                                player.damage(MissingArmorDamage[NumOfClothes]);
+                                                break;
+                                            case 4:
+                                                player.damage(MissingArmorDamage[NumOfClothes]);
+                                                break;
+                                            default:
+                                                break;
                                         }
                                     }
                                 }
@@ -74,17 +88,15 @@ public class RealWinterPlayerListener implements Listener {
                 } 
             }
 
-        }, StartDelay * 20, CheckDelay * 20);
+        }, StartDelay * 20, CheckDelay * 20)));
         
     }
     
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         int PlayerID = event.getPlayer().getEntityId();
-        plugin.getServer().getScheduler().cancelTask(RealWinter.tid[PlayerID]);
+        Integer TaskID = PlayerHashMap.get(PlayerID);
+        plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
+        PlayerHashMap.remove(PlayerID);
     }
-//    private String ConvertDoubleToString(double number) {
-//        String returningString = Double.toString(number);
-//        return returningString;
-//    }
 }

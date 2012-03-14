@@ -2,6 +2,7 @@ package org.creezo.realwinter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -13,14 +14,14 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author creezo
  */
 public class RealWinter extends JavaPlugin {
-    
     public static RealWinter TentoPlugin;
     public RealWinterPlayerListener playerlistener;
     public RealWinterWeatherListener weatherlistener;
     public static final Logger log = Logger.getLogger("Minecraft");
-    public static int[] tid = new int[30000];
+    public static HashMap<Integer, Integer> PlayerHashMap;
     public static boolean actualWeather = false;
     public static Configuration Config;
+    public static PlayerCheck playerCheck;
     
     public void Initialize() {
         TentoPlugin = this;
@@ -29,19 +30,21 @@ public class RealWinter extends JavaPlugin {
     @Override
     public void onEnable() {
         Initialize();
-        
+
         Config = new Configuration();
         LoadConfig();
         Config.InitConfig(this);
-        
-        
+        Config.InitEquip(this);
+        playerCheck = new PlayerCheck();
+        playerCheck.PCheckInit();
+        PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+1);
         PluginManager pm = getServer().getPluginManager();
         playerlistener = new RealWinterPlayerListener();
         weatherlistener = new RealWinterWeatherListener();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         log.log(Level.INFO, "RealWinter enabled.");
-        }
+    }
     
     @Override
     public void onDisable() {

@@ -1,4 +1,4 @@
-version: 1.0.5
+version: 1.0.6
 enable: true
 peaceful:
   CheckDelay: 86400
@@ -12,6 +12,17 @@ medium:
 hard:
   CheckDelay: 4
   StartDelay: 8
+Armor:
+  Boots: [301, 305, 309, 313, 317]
+  Chestplate: [299, 303, 307, 311, 315]
+  Helmet: [298, 302, 306, 310, 314]
+  Leggings: [300, 304, 308, 312, 316]
+PlayerDamage:
+  FullArmor: 0
+  ThreePieces: 1
+  TwoPieces: 2
+  OnePiece: 2
+  NoArmor: 3
 CheckRadius: 2
 HouseRecognizer: cross
 debug-mode: false
