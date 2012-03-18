@@ -17,6 +17,7 @@ public class RealWinter extends JavaPlugin {
     public static RealWinter TentoPlugin;
     public RealWinterPlayerListener playerlistener;
     public RealWinterWeatherListener weatherlistener;
+    public RealWinterPlayerInteract playerinteract;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static HashMap<Integer, Integer> PlayerHashMap;
     public static boolean actualWeather = false;
@@ -41,15 +42,17 @@ public class RealWinter extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         playerlistener = new RealWinterPlayerListener();
         weatherlistener = new RealWinterWeatherListener();
+        playerinteract = new RealWinterPlayerInteract();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
-        log.log(Level.INFO, "RealWinter enabled.");
+        pm.registerEvents(playerinteract, this);
+        log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
     }
     
     @Override
     public void onDisable() {
         this.getServer().getScheduler().cancelAllTasks();
-        log.log(Level.INFO, "RealWinter Disabled!");
+        log.log(Level.INFO, "[RealWinter] RealWinter Disabled!");
     }
     
     private void LoadConfig() {

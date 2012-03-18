@@ -17,12 +17,14 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class Configuration {
-    public boolean enabled;
+    public boolean WinterEnabled;
+    public boolean DesertEnabled;
     public int StartDelay;
     public int CheckDelay;
     public boolean DebugMode;
     public int CheckRadius;
-    public String HouseRecognizer;
+    public String HouseRecoWinter;
+    public String HouseRecoDesert;
     public String GameDifficulty = "peaceful";
     public int MaxPlayers;
     public List<ItemStack> AllowedBoots = new ArrayList();
@@ -30,36 +32,44 @@ public class Configuration {
     public List<ItemStack> AllowedHelmet = new ArrayList();
     public List<ItemStack> AllowedLeggings = new ArrayList();
     public int[] MissingArmorDamage = new int[5];
+    public float DesertStaminaLostHelmet;
+    public float DesertStaminaLostNoHelmet;
+    public int ChecksPerFoodDecrease;
+    public int MessageDelay;
+    public float StaminaReplenish;
 
-    public boolean setEnabled(boolean state) {
-        enabled = state;
-        return enabled;
-    }
-    
     public void InitConfig(RealWinter plugin) {
         RealWinter.log.log(Level.INFO, "[RealWinter] Loading Configuration.");
         try {
             try {
                 try {
-                    plugin.getConfig().load("plugins/Realwinter/config.yml");
+                    plugin.getConfig().load("plugins/RealWinter/config.yml");
                 } catch(InvalidConfigurationException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
             } catch (FileNotFoundException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
         } catch (IOException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
         GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
+        WinterEnabled = plugin.getConfig().getBoolean("winter.enable", false);
+        DesertEnabled = plugin.getConfig().getBoolean("desert.enable", false);
         String StartDelayDiff = GameDifficulty + ".StartDelay";
         StartDelay = plugin.getConfig().getInt(StartDelayDiff, 20);
         String CheckDelayDiff = GameDifficulty + ".CheckDelay";
         CheckDelay = plugin.getConfig().getInt(CheckDelayDiff, 10);
         DebugMode = plugin.getConfig().getBoolean("debug-mode");
         CheckRadius = plugin.getConfig().getInt("CheckRadius");
-        HouseRecognizer = plugin.getConfig().getString("HouseRecognizer", "cross");
+        HouseRecoWinter = plugin.getConfig().getString("winter.HouseRecognizer", "cross");
+        HouseRecoDesert = plugin.getConfig().getString("desert.HouseRecognizer", "simple");
+        DesertStaminaLostHelmet = plugin.getConfig().getFloatList("desert.StaminaLost.WithHelmet").get(0);
+        DesertStaminaLostNoHelmet = plugin.getConfig().getFloatList("desert.StaminaLost.WithoutHelmet").get(0);
+        ChecksPerFoodDecrease = plugin.getConfig().getInt("desert.NumberOfCheckPerFoodLost", 5); 
+        MessageDelay = plugin.getConfig().getInt("NumberOfChecksPerWarningMessage", 5);
+        StaminaReplenish = plugin.getConfig().getFloatList("desert.StaminaReplenishWaterBottle").get(0);
         MaxPlayers = plugin.getServer().getMaxPlayers();
-        MissingArmorDamage[0] = plugin.getConfig().getInt("PlayerDamage.NoArmor", 0);
-        MissingArmorDamage[1] = plugin.getConfig().getInt("PlayerDamage.OnePiece", 1);
-        MissingArmorDamage[2] = plugin.getConfig().getInt("PlayerDamage.TwoPieces", 2);
-        MissingArmorDamage[3] = plugin.getConfig().getInt("PlayerDamage.ThreePieces", 2);
-        MissingArmorDamage[4] = plugin.getConfig().getInt("PlayerDamage.FullArmor", 3);
-        //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecognizer + " " + GameDifficulty);
+        MissingArmorDamage[0] = plugin.getConfig().getInt("winter.PlayerDamage.NoArmor", 3);
+        MissingArmorDamage[1] = plugin.getConfig().getInt("winter.PlayerDamage.OnePiece", 2);
+        MissingArmorDamage[2] = plugin.getConfig().getInt("winter.PlayerDamage.TwoPieces", 2);
+        MissingArmorDamage[3] = plugin.getConfig().getInt("winter.PlayerDamage.ThreePieces", 1);
+        MissingArmorDamage[4] = plugin.getConfig().getInt("winter.PlayerDamage.FullArmor", 0);
+        //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecoWinter + " " + GameDifficulty);
     }
     
     public void InitEquip(RealWinter plugin) {
