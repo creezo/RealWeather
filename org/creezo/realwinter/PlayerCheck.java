@@ -31,13 +31,14 @@ public class PlayerCheck {
         AllowedLeggings = Config.AllowedLeggings;
     }
         
-    private static boolean CheckToTop(Block PlayerBlock, int MaxMapHeigh) {
+    private static boolean CheckToTop(Block PlayerBlock, int MaxMapHeigh, Player player) {
         boolean IsUnderRoof = false;
         int heigh = PlayerBlock.getY();
         while(heigh < MaxMapHeigh) {
             PlayerBlock = PlayerBlock.getRelative(BlockFace.UP);
             if(PlayerBlock.getTypeId() != 0) {
                 //PlayerBlock.setTypeId(20);
+                if(Config.DebugGlassBlocks) player.sendBlockChange(PlayerBlock.getLocation(), 20, (byte)0);
                 IsUnderRoof = true;
                 break;
             }
@@ -52,7 +53,7 @@ public class PlayerCheck {
         boolean CheckOnce = true;
         if("simple".equals(Recognizer)) {
             if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] simple selected");
-            Inside = CheckToTop(player.getLocation().getBlock().getRelative(BlockFace.UP), player.getLocation().getWorld().getMaxHeight() - 1);
+            Inside = CheckToTop(player.getLocation().getBlock().getRelative(BlockFace.UP), player.getLocation().getWorld().getMaxHeight() - 1, player);
         } else if("default".equals(Recognizer)) {
             if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] default selected");
             Location playerPosition = player.getLocation();
@@ -66,7 +67,7 @@ public class PlayerCheck {
             for(int radius = 1; radius <= CheckRadius; radius++) {
                 if(CheckOnce == true) {
                     CheckOnce = false;
-                    Inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                    Inside = CheckToTop(NowCheckingBlock, MaxHeigh, player);
                     if(Inside == false) break;
                 }
 
@@ -78,28 +79,28 @@ public class PlayerCheck {
                     switch(side) {
                         case 1:
                             for(int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh, player);
                                 if(Inside == false) break;
                                 NowCheckingBlock = NowCheckingBlock.getRelative(BlockFace.EAST);
                             }
                             break;
                         case 2:
                             for(int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh, player);
                                 if(Inside == false) break;
                                 NowCheckingBlock = NowCheckingBlock.getRelative(BlockFace.SOUTH);
                             }
                             break;
                         case 3:
                             for(int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh, player);
                                 if(Inside == false) break;
                                 NowCheckingBlock = NowCheckingBlock.getRelative(BlockFace.WEST);
                             }
                             break;
                         case 4:
                             for(int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                Inside = CheckToTop(NowCheckingBlock, MaxHeigh, player);
                                 if(Inside == false) break;
                                 NowCheckingBlock = NowCheckingBlock.getRelative(BlockFace.NORTH);
                             }
@@ -120,11 +121,8 @@ public class PlayerCheck {
             if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Heigh: " + ConvertIntToString(heigh));
             
             for(int once = 1; once == 1; once++) {
-                if(CheckOnce == true) {
-                    CheckOnce = false;
-                    Inside = CheckToTop(playerPositionBlock, MaxHeigh);
-                    if(Inside == false) break;
-                }
+                Inside = CheckToTop(playerPositionBlock, MaxHeigh, player);
+                if(Inside == false) break;
 
                 int RangeToNorthSide = 0;
                 RangeCheckBlock = playerPositionBlock;
@@ -132,6 +130,7 @@ public class PlayerCheck {
                     if(RangeCheckBlock.getRelative(BlockFace.NORTH, range).getTypeId() == 0) {
                         RangeToNorthSide++;
                     } else {
+                        RealWinter.log.log(Level.INFO, "[RealWinter] North side: " + ConvertIntToString(RangeToNorthSide));
                         break;
                     }
                 }
@@ -170,7 +169,7 @@ public class PlayerCheck {
                 StartBlock = StartBlock.getRelative(BlockFace.EAST, RangeToEastSide);
                 for(int EastWestSize = 0 ; EastWestSize <= RangeToWestSide + RangeToEastSide ; EastWestSize++) {
                     for(int NorthSouthSize = 0 ; NorthSouthSize <= RangeToNorthSide + RangeToSouthSide ; NorthSouthSize++) {
-                        Inside = CheckToTop(StartBlock.getRelative(NorthSouthSize, 0, EastWestSize), MaxHeigh);
+                        Inside = CheckToTop(StartBlock.getRelative(NorthSouthSize, 0, EastWestSize), MaxHeigh, player);
                         if(Inside == false) break;
                     }
                     if(Inside == false) break;

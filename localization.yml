@@ -1,0 +1,36 @@
+version: 1.1.1
+#Localization file
+
+UseLanguage: english
+
+english:
+  description: English
+  biome:
+    winter:
+      #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
+      PlayerWarnOnLogin: "Bevare of frozen areas without clothes!"
+      WarningMessage: "It is too cold here. Hide somewhere, wear armor or find heat source to reduce freezeing."
+    desert:
+      WarningMessage: "It is too hot here. Hide somewhere or wear a helmet to reduce effects."
+
+czech:
+  description: Cestina
+  biome:
+    winter:
+      #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
+      PlayerWarnOnLogin: "Pozor je kruty mraz! Bylo by dobre se schovat nekam do tepla!"
+      WarningMessage: "Je ti prilis zima. Nekam se schovej nebo se teple oblec at nezmrzmes!"
+    desert:
+      WarningMessage: "Je ti prilis horko. nekam se schovej nebo si alespon zakryj hlavu a pravidelne doplnuj tekutiny z lahve vody."
+
+#You can add as many languages you want. To add new: simply uncomment this bellow and replace custom with your language. Use only one word for language name.
+#Bevare of special characters, because minecraft often doesn't know them. At the end replace english in UseLanguage with your.
+#
+#custom:
+#  description: Your custom title of language
+#  biome:
+#    winter:
+#      PlayerWarnOnLogin: "mssg"
+#      WarningMessage: "mssg"
+#    desert:
+#      WarningMessage: "mssg"

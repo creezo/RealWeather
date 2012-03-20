@@ -1,4 +1,4 @@
-version: 1.0.7
+version: 1.1.1
 
 #Winter biomes options
 winter:
@@ -14,15 +14,17 @@ winter:
     
 #Desert biome options
 desert:
-  enable: false
+  enable: true
   HouseRecognizer: simple
   NumberOfCheckPerFoodLost: 5
   StaminaLost:
-    WithHelmet: [0.1F]
-    WithoutHelmet: [0.3F]
+    WithHelmet: [0.05F]
+    WithoutHelmet: [0.15F]
   StaminaReplenishWaterBottle: [1.0F]
     
-#Settings related to difficulty in your main world.
+#Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
+WorldName:
+#example: WorldName: "my_world"
 peaceful:
   CheckDelay: 86400
   StartDelay: 1
@@ -45,4 +47,5 @@ Armor:
 
 #Chat related functions
 NumberOfChecksPerWarningMessage: 5
-debug-mode: true
+DebugMode: false
+DebugGlassBlocks: false

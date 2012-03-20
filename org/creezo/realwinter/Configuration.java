@@ -22,6 +22,7 @@ public class Configuration {
     public int StartDelay;
     public int CheckDelay;
     public boolean DebugMode;
+    public boolean DebugGlassBlocks;
     public int CheckRadius;
     public String HouseRecoWinter;
     public String HouseRecoDesert;
@@ -47,15 +48,21 @@ public class Configuration {
                 } catch(InvalidConfigurationException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
             } catch (FileNotFoundException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
         } catch (IOException e) { plugin.getServer().broadcastMessage(e.getMessage()); }
-        GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
+        DebugMode = plugin.getConfig().getBoolean("DebugMode", false);
+        DebugGlassBlocks = plugin.getConfig().getBoolean("DebugGlassBlocks", false);
+        if(plugin.getConfig().isString("WorldName")) {
+            GameDifficulty = plugin.getServer().getWorld(plugin.getConfig().getString("WorldName")).getDifficulty().name().toLowerCase();
+            RealWinter.log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Loaded difficulty ").append(GameDifficulty).append(" from world ").append(plugin.getConfig().getString("WorldName")).toString());
+        } else {
+            GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
+        }
         WinterEnabled = plugin.getConfig().getBoolean("winter.enable", false);
         DesertEnabled = plugin.getConfig().getBoolean("desert.enable", false);
         String StartDelayDiff = GameDifficulty + ".StartDelay";
         StartDelay = plugin.getConfig().getInt(StartDelayDiff, 20);
         String CheckDelayDiff = GameDifficulty + ".CheckDelay";
         CheckDelay = plugin.getConfig().getInt(CheckDelayDiff, 10);
-        DebugMode = plugin.getConfig().getBoolean("debug-mode");
-        CheckRadius = plugin.getConfig().getInt("CheckRadius");
+        CheckRadius = plugin.getConfig().getInt("winter.CheckRadius", 1);
         HouseRecoWinter = plugin.getConfig().getString("winter.HouseRecognizer", "cross");
         HouseRecoDesert = plugin.getConfig().getString("desert.HouseRecognizer", "simple");
         DesertStaminaLostHelmet = plugin.getConfig().getFloatList("desert.StaminaLost.WithHelmet").get(0);
@@ -73,7 +80,7 @@ public class Configuration {
     }
     
     public void InitEquip(RealWinter plugin) {
-        RealWinter.log.log(Level.INFO, "[RealWinter] Loading Armors.");
+        if(DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Loading Armors.");
         List<Integer> ListOfBoots = plugin.getConfig().getIntegerList("Armor.Boots");
         List<Integer> ListOfChestplate = plugin.getConfig().getIntegerList("Armor.Chestplate");
         List<Integer> ListOfHelmet = plugin.getConfig().getIntegerList("Armor.Helmet");

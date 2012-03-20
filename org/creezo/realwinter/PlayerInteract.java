@@ -5,8 +5,6 @@
 package org.creezo.realwinter;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author Dodec
  */
-public class RealWinterPlayerInteract implements Listener{
+public class PlayerInteract implements Listener{
     private Configuration Config = RealWinter.Config;
     private ItemStack ItemInHand;
     

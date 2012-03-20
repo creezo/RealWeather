@@ -9,7 +9,7 @@ import org.bukkit.event.weather.WeatherChangeEvent;
  *
  * @author creezo
  */
-public class RealWinterWeatherListener implements Listener {
+public class WeatherListener implements Listener {
     private Configuration Config = RealWinter.Config;
     
     @EventHandler

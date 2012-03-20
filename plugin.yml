@@ -1,3 +1,8 @@
 name: RealWinter
 main: org.creezo.realwinter.RealWinter
-version: 1.0.7
+version: 1.1.1
+author: creezo
+
+commands: 
+  realwinter:
+    aliases: rw
