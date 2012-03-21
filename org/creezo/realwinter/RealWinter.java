@@ -22,7 +22,6 @@ public class RealWinter extends JavaPlugin {
     public PlayerListener playerlistener;
     public WeatherListener weatherlistener;
     public PlayerInteract playerinteract;
-    //public PlayerCommand playercommand;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static HashMap<Integer, Integer> PlayerHashMap;
     public static boolean actualWeather = false;
@@ -54,11 +53,9 @@ public class RealWinter extends JavaPlugin {
         playerlistener = new PlayerListener();
         weatherlistener = new WeatherListener();
         playerinteract = new PlayerInteract();
-        //playercommand = new PlayerCommand(this);
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         pm.registerEvents(playerinteract, this);
-        //pm.registerEvents(playercommand, this);
         log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
     }
     
@@ -112,7 +109,7 @@ public class RealWinter extends JavaPlugin {
             } else {
                 if("help".equals(args[0])) {
                     Util.SendHelp(player);
-                } else if("version".equals(args[1])) {
+                } else if("version".equals(args[0])) {
                     Util.SendMessage(player, "RealWinter version: " + getDescription().getVersion());
                 }
             }
