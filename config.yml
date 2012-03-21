@@ -1,5 +1,6 @@
-version: 1.1.1
+version: 1.1.2
 
+GlobalEnable: true
 #Winter biomes options
 winter:
   enable: true
@@ -20,8 +21,10 @@ desert:
   StaminaLost:
     WithHelmet: [0.05F]
     WithoutHelmet: [0.15F]
+# WaterBottleEnabled sets if it is possible to replenish stamina with water bottle
+  WaterBottleEnabled: true
   StaminaReplenishWaterBottle: [1.0F]
-    
+  
 #Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
 WorldName:
 #example: WorldName: "my_world"

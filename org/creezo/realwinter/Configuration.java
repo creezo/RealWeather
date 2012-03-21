@@ -17,8 +17,10 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class Configuration {
+    public boolean GlobalEnable;
     public boolean WinterEnabled;
     public boolean DesertEnabled;
+    public boolean WaterBottleEnabled;
     public int StartDelay;
     public int CheckDelay;
     public boolean DebugMode;
@@ -38,8 +40,14 @@ public class Configuration {
     public int ChecksPerFoodDecrease;
     public int MessageDelay;
     public float StaminaReplenish;
+    
+    private RealWinter plugin;
 
-    public void InitConfig(RealWinter plugin) {
+    public Configuration(RealWinter plugin) {
+        this.plugin = plugin;
+    }
+    
+    public void InitConfig() {
         RealWinter.log.log(Level.INFO, "[RealWinter] Loading Configuration.");
         try {
             try {
@@ -56,8 +64,10 @@ public class Configuration {
         } else {
             GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
         }
+        GlobalEnable = plugin.getConfig().getBoolean("GlobalEnable", true);
         WinterEnabled = plugin.getConfig().getBoolean("winter.enable", false);
         DesertEnabled = plugin.getConfig().getBoolean("desert.enable", false);
+        WaterBottleEnabled = plugin.getConfig().getBoolean("desert.WaterBottleEnabled", true);
         String StartDelayDiff = GameDifficulty + ".StartDelay";
         StartDelay = plugin.getConfig().getInt(StartDelayDiff, 20);
         String CheckDelayDiff = GameDifficulty + ".CheckDelay";
@@ -107,6 +117,14 @@ public class Configuration {
             numOfArmors[3]++;
         }
         RealWinter.log.log(Level.INFO, "[RealWinter] Loaded " + ConvertIntToString(numOfArmors[0]) + " Boots, " + ConvertIntToString(numOfArmors[1]) + " Chestplates, " + ConvertIntToString(numOfArmors[2]) + " Helmets, " + ConvertIntToString(numOfArmors[3]) + " Leggings.");
+    }
+    
+    public void SaveAll() {
+        
+    }
+    
+    public void LoadAll() {
+        
     }
     
     private static String ConvertIntToString(int number) {

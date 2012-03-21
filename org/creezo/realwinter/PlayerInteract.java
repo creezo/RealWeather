@@ -22,7 +22,7 @@ public class PlayerInteract implements Listener{
     @EventHandler
     public synchronized void onPlayerInteract(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
-        //if(PlayerCheck.checkPlayerBiome(player).equals(Biome.DESERT)) {
+        if(Config.WaterBottleEnabled == true) {
             try {
                 ItemInHand = event.getItem();
                 int itemID = ItemInHand.getTypeId();
@@ -30,34 +30,34 @@ public class PlayerInteract implements Listener{
                 ItemInHand = new ItemStack(35, 1);
                 ItemInHand.setDurability((short)1);
             }
-            if(ItemInHand.getTypeId() == 373 && ItemInHand.getDurability() == 0) {
-                Thread WaterWait = new Thread(new Runnable() {
+        }
+        if(ItemInHand.getTypeId() == 373 && ItemInHand.getDurability() == 0 && Config.WaterBottleEnabled == true) {
+            Thread WaterWait = new Thread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        for(int i = 1; i == 1; i++) {
-                            try {
-                                Thread.sleep(1400);
-                            } catch (InterruptedException ex) {
-                                RealWinter.log.log(Level.SEVERE, ex.getLocalizedMessage());
-                            }
-                            if(player.getItemInHand().getTypeId() != 373) break;
-                            try {
-                                Thread.sleep(200);
-                            } catch (InterruptedException ex) {
-                                RealWinter.log.log(Level.SEVERE, ex.getLocalizedMessage());
-                            }
-                            if(player.getItemInHand().getTypeId() == 374)
-                            player.setSaturation(player.getSaturation() + Config.StaminaReplenish);
-                            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "Stamina Replenished to level: " + player.getSaturation());
+                @Override
+                public void run() {
+                    for(int i = 1; i == 1; i++) {
+                        try {
+                            Thread.sleep(1400);
+                        } catch (InterruptedException ex) {
+                            RealWinter.log.log(Level.SEVERE, ex.getLocalizedMessage());
                         }
+                        if(player.getItemInHand().getTypeId() != 373) break;
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ex) {
+                            RealWinter.log.log(Level.SEVERE, ex.getLocalizedMessage());
+                        }
+                        if(player.getItemInHand().getTypeId() == 374)
+                        player.setSaturation(player.getSaturation() + Config.StaminaReplenish);
+                        if(Config.DebugMode) RealWinter.log.log(Level.INFO, "Stamina Replenished to level: " + player.getSaturation());
                     }
-                });
-                WaterWait.setDaemon(true);
-                WaterWait.setName(player.getName());
-                WaterWait.start();
-            }
-        //}
+                }
+            });
+            WaterWait.setDaemon(true);
+            WaterWait.setName(player.getName());
+            WaterWait.start();
+        }
     }
     
     private static String ConvertIntToString(int number) {

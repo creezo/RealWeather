@@ -18,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author creezo
  */
 public class RealWinter extends JavaPlugin {
-    public static RealWinter TentoPlugin;
     public PlayerListener playerlistener;
     public WeatherListener weatherlistener;
     public PlayerInteract playerinteract;
@@ -29,18 +28,13 @@ public class RealWinter extends JavaPlugin {
     public static PlayerCheck playerCheck;
     public static Localization Localization;
     public static Utils Util;
-    
-    public void Initialize() {
-        TentoPlugin = this;
-    }
+    public static Commands Command;
 
     @Override
     public void onEnable() {
-        Initialize();
-
-        Config = new Configuration();
+        Config = new Configuration(this);
         LoadConfig();
-        Config.InitConfig(this);
+        Config.InitConfig();
         Config.InitEquip(this);
         Localization = new Localization();
         Localization.LoadLanguage(this);
@@ -50,12 +44,13 @@ public class RealWinter extends JavaPlugin {
         PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+1);
         Util = new Utils();
         PluginManager pm = getServer().getPluginManager();
-        playerlistener = new PlayerListener();
+        playerlistener = new PlayerListener(this);
         weatherlistener = new WeatherListener();
         playerinteract = new PlayerInteract();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         pm.registerEvents(playerinteract, this);
+        Command = new Commands(this, Config, playerlistener);
         log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
     }
     
@@ -69,7 +64,6 @@ public class RealWinter extends JavaPlugin {
         PluginDescriptionFile pdfFile = this.getDescription();
         File oldConfigFile = new File("plugins/RealWinter/config_" + getConfig().getString("version", "old") + ".yml");
         File configFile = new File("plugins/RealWinter/config.yml");
-        
         if(!configFile.exists()) {
             saveDefaultConfig();
             log.log(Level.INFO, "[RealWinter] Default Config.yml copied.");
@@ -110,7 +104,49 @@ public class RealWinter extends JavaPlugin {
                 if("help".equals(args[0])) {
                     Util.SendHelp(player);
                 } else if("version".equals(args[0])) {
-                    Util.SendMessage(player, "RealWinter version: " + getDescription().getVersion());
+                    Util.SendMessage(player, "RealWinter: version: " + getDescription().getVersion());
+                } else if("disable".equals(args[0])) {
+                    if(args.length == 1) {
+                        Command.Disable();
+                        Util.SendMessage(player, "RealWinter: globaly disabled!");
+                    } else if(args.length == 2) {
+                        if("all".equals(args[1])) {
+                            Command.Disable("all");
+                            Util.SendMessage(player, "RealWinter: all parts disabled!");
+                        } else if("winter".equals(args[1])) {
+                            Command.Disable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                        } else if("desert".equals(args[1])) {
+                            Command.Disable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                        } else if("waterbottle".equals(args[1])) {
+                            Command.Disable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                        } else {
+                            Util.SendMessage(player, "Can't disable non-existing part.");
+                        }
+                    }
+                } else if("enable".equals(args[0])) {
+                    if(args.length == 1) {
+                        Command.Enable();
+                        Util.SendMessage(player, "RealWinter: globaly enabled!");
+                    } else if(args.length == 2) {
+                        if("all".equals(args[1])) {
+                            Command.Enable("all");
+                            Util.SendMessage(player, "RealWinter: all parts enabled!");
+                        } else if("winter".equals(args[1])) {
+                            Command.Enable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                        } else if("desert".equals(args[1])) {
+                            Command.Enable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                        } else if("waterbottle".equals(args[1])) {
+                            Command.Enable(args[1]);
+                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                        } else {
+                            Util.SendMessage(player, "Can't enable non-existing part.");
+                        }
+                    }
                 }
             }
         }
