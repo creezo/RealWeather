@@ -36,8 +36,8 @@ public class RealWinter extends JavaPlugin {
         LoadConfig();
         Config.InitConfig();
         Config.InitEquip(this);
-        Localization = new Localization();
-        Localization.LoadLanguage(this);
+        Localization = new Localization(this);
+        Localization.FirstLoadLanguage();
         log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Language: ").append(Localization.LanguageDescription).toString());
         playerCheck = new PlayerCheck();
         playerCheck.PCheckInit();
@@ -50,7 +50,7 @@ public class RealWinter extends JavaPlugin {
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         pm.registerEvents(playerinteract, this);
-        Command = new Commands(this, Config, playerlistener);
+        Command = new Commands(this, Config, playerlistener, Localization);
         log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
     }
     
@@ -86,11 +86,9 @@ public class RealWinter extends JavaPlugin {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        log.log(Level.INFO, "Command");
         Player player = null;
         String comm = command.getName();
         if(sender instanceof Player) {
-            log.log(Level.INFO, "Instance of player");
             player = (Player) sender;
             if(!player.isOp()) {
                 Util.SendMessage(player, "You must be OP to perform this command!");
@@ -104,24 +102,24 @@ public class RealWinter extends JavaPlugin {
                 if("help".equals(args[0])) {
                     Util.SendHelp(player);
                 } else if("version".equals(args[0])) {
-                    Util.SendMessage(player, "RealWinter: version: " + getDescription().getVersion());
+                    Util.SendMessage(player, "Version: " + getDescription().getVersion());
                 } else if("disable".equals(args[0])) {
                     if(args.length == 1) {
                         Command.Disable();
-                        Util.SendMessage(player, "RealWinter: globaly disabled!");
+                        Util.SendMessage(player, "Globaly disabled!");
                     } else if(args.length == 2) {
                         if("all".equals(args[1])) {
                             Command.Disable("all");
-                            Util.SendMessage(player, "RealWinter: all parts disabled!");
+                            Util.SendMessage(player, "All parts disabled!");
                         } else if("winter".equals(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("desert".equals(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("waterbottle".equals(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" disabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else {
                             Util.SendMessage(player, "Can't disable non-existing part.");
                         }
@@ -129,22 +127,35 @@ public class RealWinter extends JavaPlugin {
                 } else if("enable".equals(args[0])) {
                     if(args.length == 1) {
                         Command.Enable();
-                        Util.SendMessage(player, "RealWinter: globaly enabled!");
+                        Util.SendMessage(player, "Globaly enabled!");
                     } else if(args.length == 2) {
                         if("all".equals(args[1])) {
                             Command.Enable("all");
-                            Util.SendMessage(player, "RealWinter: all parts enabled!");
+                            Util.SendMessage(player, "All parts enabled!");
                         } else if("winter".equals(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("desert".equals(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("waterbottle".equals(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "RealWinter: Part \"" + args[1] + "\" enabled!");
+                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else {
                             Util.SendMessage(player, "Can't enable non-existing part.");
+                        }
+                    }
+                } else if("lang".equals(args[0])) {
+                    if(args.length == 1) {
+                        Util.SendMessage(player, "Language: " + Localization.Language + ".");
+                    } else {
+                        if(args.length == 2) {
+                            boolean result = Command.Language(args[1]);
+                            if(result == true) {
+                                Util.SendMessage(player, "Language changed to: " + Localization.LanguageDescription + ".");
+                            } else {
+                                Util.SendMessage(player, "Language load error!");
+                            }
                         }
                     }
                 }

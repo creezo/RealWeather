@@ -15,10 +15,10 @@ import org.bukkit.entity.Player;
 public class Utils {
     public boolean SendMessage(Player player, String message) {
         try {
-            player.sendMessage(message);
+            player.sendMessage("RealWinter: " + message);
             return true;
         } catch (Exception e) {
-            RealWinter.log.log(Level.INFO, message);
+            RealWinter.log.log(Level.INFO, "[RealWinter] " + message);
             return false;
         }
     }

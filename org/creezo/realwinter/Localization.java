@@ -29,17 +29,26 @@ public class Localization {
     private String MissingEntry = "Missing field in localization";
     private FileConfiguration Localization;
     private File LocFile;
+    private final RealWinter plugin;
     
-    public void LoadLanguage(RealWinter plugin) {
+    public Localization(RealWinter plugin) {
+        this.plugin = plugin;
+    }
+    
+    public void FirstLoadLanguage() {
         LocFile = new File(plugin.getDataFolder(), "localization.yml");
         Localization = new YamlConfiguration();
         InitLocalFile(plugin);
         Language = Localization.getString("UseLanguage", "english");
-        WinterLoginMessage = Localization.getString(Language + ".biome.winter.PlayerWarnOnLogin", MissingEntry);
-        WinterWarnMessage = Localization.getString(Language + ".biome.winter.WarningMessage", MissingEntry);
-        DesertWarnMessage = Localization.getString(Language + ".biome.desert.WarningMessage", MissingEntry);
-        LanguageDescription = Localization.getString(Language + ".description", MissingEntry);
-        if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + Language);
+        LoadSpecificLang(Language);
+    }
+    
+    private void LoadSpecificLang(String language) {
+        WinterLoginMessage = Localization.getString(language + ".biome.winter.PlayerWarnOnLogin", MissingEntry);
+        WinterWarnMessage = Localization.getString(language + ".biome.winter.WarningMessage", MissingEntry);
+        DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry);
+        LanguageDescription = Localization.getString(language + ".description", MissingEntry);
+        if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + language);
     }
     
     private void InitLocalFile(RealWinter plugin) {
@@ -67,6 +76,27 @@ public class Localization {
         }
     }
     
+    public boolean LangExists(String lang) {
+        if(Localization.isConfigurationSection(lang)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean SetLanguage(String lang) {
+        try {
+            Localization.set("UseLanguage", (String)lang);
+            SaveLocalizationFields();
+            LoadSpecificLang(Localization.getString("UseLanguage"));
+            Language = Localization.getString("UseLanguage");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    
     private void copy(InputStream in, File file) {
         try {
             OutputStream out = new FileOutputStream(file);
@@ -90,11 +120,11 @@ public class Localization {
         }
     }
     
-//    public void SaveLocalization() {
-//        try {
-//            Localization.save(LocFile);
-//        } catch (Exception e) {
-//            RealWinter.log.log(Level.INFO, e.getMessage());
-//        }
-//    }
+    public void SaveLocalizationFields() {
+        try {
+            Localization.save(LocFile);
+        } catch (Exception e) {
+            RealWinter.log.log(Level.INFO, e.getMessage());
+        }
+    }
 }
