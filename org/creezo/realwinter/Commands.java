@@ -4,6 +4,8 @@
  */
 package org.creezo.realwinter;
 
+import java.util.logging.Level;
+
 /**
  *
  * @author creezo
@@ -12,11 +14,13 @@ public class Commands {
     private final RealWinter plugin;
     private final Configuration config;
     private final PlayerListener plistener;
+    private final Localization localization;
 
-    public Commands(RealWinter plugin, Configuration config, PlayerListener playerlistener) {
+    public Commands(RealWinter plugin, Configuration config, PlayerListener playerlistener, Localization Loc) {
         this.plugin = plugin;
         this.config = config;
         this.plistener = playerlistener;
+        this.localization = Loc;
     }
 
     public void Disable() {
@@ -55,4 +59,14 @@ public class Commands {
         }
     }
     
+    public boolean Language(String lang) {
+        if(!localization.LangExists(lang)) {
+            plugin.log.log(Level.INFO, "Language doesnt exists!");
+            return false;
+        }
+        if(!localization.SetLanguage(lang)) {
+            return false;
+        }
+        return true;
+    }
 }

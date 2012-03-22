@@ -130,7 +130,7 @@ public class PlayerCheck {
                     if(RangeCheckBlock.getRelative(BlockFace.NORTH, range).getTypeId() == 0) {
                         RangeToNorthSide++;
                     } else {
-                        RealWinter.log.log(Level.INFO, "[RealWinter] North side: " + ConvertIntToString(RangeToNorthSide));
+                        //RealWinter.log.log(Level.INFO, "[RealWinter] North side: " + ConvertIntToString(RangeToNorthSide));
                         break;
                     }
                 }
