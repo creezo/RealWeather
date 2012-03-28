@@ -39,7 +39,7 @@ public class RealWinter extends JavaPlugin {
         Localization = new Localization(this);
         Localization.FirstLoadLanguage();
         log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Language: ").append(Localization.LanguageDescription).toString());
-        playerCheck = new PlayerCheck();
+        playerCheck = new PlayerCheck(this);
         playerCheck.PCheckInit();
         PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+1);
         Util = new Utils();

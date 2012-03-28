@@ -61,7 +61,7 @@ public class Commands {
     
     public boolean Language(String lang) {
         if(!localization.LangExists(lang)) {
-            plugin.log.log(Level.INFO, "Language doesnt exists!");
+            plugin.log.log(Level.INFO, "Language doesn't exists!");
             return false;
         }
         if(!localization.SetLanguage(lang)) {

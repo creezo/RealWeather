@@ -26,6 +26,9 @@ public class Configuration {
     public boolean DebugMode;
     public boolean DebugGlassBlocks;
     public int CheckRadius;
+    public int HeatCheckRadius;
+    public int TempPeak;
+    public int InitialTemperature;
     public String HouseRecoWinter;
     public String HouseRecoDesert;
     public String GameDifficulty = "peaceful";
@@ -73,6 +76,9 @@ public class Configuration {
         String CheckDelayDiff = GameDifficulty + ".CheckDelay";
         CheckDelay = plugin.getConfig().getInt(CheckDelayDiff, 10);
         CheckRadius = plugin.getConfig().getInt("winter.CheckRadius", 1);
+        HeatCheckRadius = plugin.getConfig().getInt("winter.HeatCheckRadius", 1);
+        TempPeak = plugin.getConfig().getInt("winter.TempPeak", 50);
+        InitialTemperature = plugin.getConfig().getInt("winter.InitialTemperature", 0);
         HouseRecoWinter = plugin.getConfig().getString("winter.HouseRecognizer", "cross");
         HouseRecoDesert = plugin.getConfig().getString("desert.HouseRecognizer", "simple");
         DesertStaminaLostHelmet = plugin.getConfig().getFloatList("desert.StaminaLost.WithHelmet").get(0);

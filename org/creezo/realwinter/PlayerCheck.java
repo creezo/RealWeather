@@ -18,11 +18,16 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class PlayerCheck {
+    private final RealWinter plugin;
     private static Configuration Config = RealWinter.Config;
     private static List<ItemStack> AllowedBoots;
     private static List<ItemStack> AllowedChestplate;
     private static List<ItemStack> AllowedHelmet;
     private static List<ItemStack> AllowedLeggings;
+    
+    public PlayerCheck(RealWinter plugin) {
+        this.plugin = plugin;
+    }
     
     public void PCheckInit() {
         AllowedBoots = Config.AllowedBoots;
@@ -184,7 +189,7 @@ public class PlayerCheck {
         return BiomeType;
     }
 
-    public int checkPlayerClothes(Player player, RealWinter plugin) {
+    public int checkPlayerClothes(Player player) {
         int clothesNumber = 0;
         ItemStack WearBoots = player.getInventory().getBoots();
         ItemStack WearChestplate = player.getInventory().getChestplate();
@@ -246,7 +251,7 @@ public class PlayerCheck {
         return clothesNumber;
     }
     
-    public boolean GetPlayerHelmet(Player player, RealWinter plugin) {
+    public boolean GetPlayerHelmet(Player player) {
         boolean HasHelmet = false;
         ItemStack WearHelmet = player.getInventory().getHelmet();
         if(Config.DebugMode) {
@@ -266,10 +271,96 @@ public class PlayerCheck {
         return HasHelmet;
     }
 
-    public static int checkHeatAround(Player player) {
-        int heat = 49;
-        //player.getLocation().getBlock().getLightFromBlocks();
-        return heat;
+    public static int checkHeatAround(Player player, int HeatCheckRadius) {
+        if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Checking heat...");
+        //player.getLocation().getBlock().getTemperature();
+        int heatInt = Config.InitialTemperature;
+        double heatDouble = (double)heatInt;
+        double power = 0;
+        double rangeDouble = 0;
+        double zbytekDouble = 0;
+        double varOne = 0;
+        boolean cooler;
+        Block playerBlock = player.getLocation().getBlock();
+        Block startBlock = playerBlock.getRelative(HeatCheckRadius*(-1)-1, (HeatCheckRadius*(-1)), HeatCheckRadius*(-1)-1);
+        for(int x = 1 ; x <= (HeatCheckRadius*2)+1 ; x++) {
+            for(int z = 1 ; z <= (HeatCheckRadius*2)+1 ; z++) {
+                for(int y = 1 ; y <= (HeatCheckRadius*2) ; y++) {
+                    switch(startBlock.getRelative(x, y, z).getTypeId()) {
+                        case 10: //Lava
+                            power = 20;
+                            cooler = false;
+                            break;
+                        case 11: //Lava
+                            power = 20;
+                            cooler = false;
+                            break;
+                        case 35: //Wool block
+                            power = 2;
+                            cooler = false;
+                            break;
+                        case 50: //Torch
+                            power = 8;
+                            cooler = false;
+                            break;
+                        case 51: //Fire
+                            power = 10;
+                            cooler = false;
+                            break;
+                        case 62: //Burning furnace
+                            power = 10;
+                            cooler = false;
+                            break;
+                        case 78: //Snow
+                            power = -0.5d;
+                            cooler = true;
+                            break;
+                        case 79: //Ice block
+                            power = -2;
+                            cooler = true;
+                            break;
+                        case 80: //Snow block
+                            power = -1;
+                            cooler = true;
+                            break;
+                        default:
+                            power = 0;
+                            cooler = false;
+                            break;
+                    }
+                    if(power != 0) {
+                        rangeDouble = startBlock.getRelative(x, y, z).getLocation().distance(playerBlock.getLocation());
+                        //if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] From item in hand: " + ConvertDoubleToString(rangeDouble) + " : " + ConvertDoubleToString(1-(rangeDouble/(HeatCheckRadius*2))));
+                        varOne = power*(1-(rangeDouble/(HeatCheckRadius*2)));
+                        if(varOne >= 0.0d && cooler == false) {
+                            heatDouble += varOne;
+                        } else if(varOne <= 0.0d && cooler == true) {
+                            heatDouble += varOne;
+                        }
+                    }
+                }
+            }
+        }
+        switch(player.getItemInHand().getTypeId()) {
+                        case 50:
+                            power = 8;
+                            break;
+                        case 327:
+                            power = 20;
+                            break;
+                        default:
+                            power = 0;
+                            break;
+                    }
+                    if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] From item in hand: " + ConvertIntToString((int)power));
+                    heatInt += power;
+        heatInt += (int)heatDouble;
+        zbytekDouble = heatDouble - heatInt;
+        if(zbytekDouble >= 0.5d) {
+            heatInt++;
+        }
+        if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Total heat: " + ConvertIntToString(heatInt));
+        return heatInt;
     }
     
     private static String ConvertIntToString(int number) {
@@ -279,8 +370,8 @@ public class PlayerCheck {
     private static String ConvertDoubleToString(double number) {
         return "" + number;
     }
-    
-    private static String ConvertbyteToString(byte number) {
-        return "" + number;
-    }
+//    
+//    private static String ConvertbyteToString(byte number) {
+//        return "" + number;
+//    }
 }

@@ -33,8 +33,6 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
-        
-        //plugin.log.log(Level.INFO, ConvertFloatToString(PlayerEnergy));
         int PlayerID = player.getEntityId();
         final int[] MissingArmorDamage = Config.MissingArmorDamage;
         RealWinter.actualWeather = event.getPlayer().getLocation().getBlock().getWorld().hasStorm();
@@ -47,6 +45,7 @@ public class PlayerListener implements Listener {
                     try {
                         if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Check");
                         if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Difficulty: " + player.getWorld().getDifficulty().name());
+                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player stamina: " + ConvertFloatToString(player.getSaturation()));
                         boolean isInside;
                         Biome PlayerBiome;
                         int NumOfClothes;
@@ -57,13 +56,13 @@ public class PlayerListener implements Listener {
                                 PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
                                 if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
-                                    NumOfClothes = playerCheck.checkPlayerClothes(player, plugin);
+                                    NumOfClothes = playerCheck.checkPlayerClothes(player);
                                     if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Clothes check done");
                                     if(MissingArmorDamage[4] == 0 && NumOfClothes == 4) {
                                     if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] FullArmor damage set to 0. All armor pieces worn.");
                                     } else {
-                                        heat = PlayerCheck.checkHeatAround(player);
-                                        if(heat < 50) {
+                                        heat = PlayerCheck.checkHeatAround(player, Config.HeatCheckRadius);
+                                        if(heat < Config.TempPeak) {
                                             isInside = PlayerCheck.checkPlayerInside(player, Config.CheckRadius, Config.HouseRecoWinter);
                                             if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Is Inside done");
                                             if(isInside == false) {
@@ -105,7 +104,7 @@ public class PlayerListener implements Listener {
                                         isInside = PlayerCheck.checkPlayerInside(player, Config.CheckRadius, Config.HouseRecoDesert);
                                         if(isInside == false) {
                                             if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player is outside.");
-                                            boolean HasHelmet = playerCheck.GetPlayerHelmet(player, plugin);
+                                            boolean HasHelmet = playerCheck.GetPlayerHelmet(player);
                                             if(HasHelmet == true) {
                                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has helmet.");
                                                 if(player.getSaturation() > 0.1F) {

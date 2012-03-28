@@ -1,4 +1,4 @@
-version: 1.1.2
+version: 1.1.3
 
 GlobalEnable: true
 #Winter biomes options
@@ -6,6 +6,11 @@ winter:
   enable: true
   HouseRecognizer: cross
   CheckRadius: 2
+#Setting InitialTemperature higher causes you need less heat sources. Will be removed when Bukkit implements getTemperature().
+  InitialTemperature: 0
+#TempPeak is temperature where you take no damage if above. Will be removed or changed when I implement better solution :D.
+  TempPeak: 50
+  HeatCheckRadius: 3
   PlayerDamage:
     FullArmor: 0
     ThreePieces: 1
