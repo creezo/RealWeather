@@ -29,10 +29,18 @@ desert:
 # WaterBottleEnabled sets if it is possible to replenish stamina with water bottle
   WaterBottleEnabled: true
   StaminaReplenishWaterBottle: [1.0F]
-  
+
+# Global does not depend on biome
+global:
+  thirst:
+    enable: true
+    StaminaLost: [0.03F]
+    AffectedWorlds: [world, world_nether, world_the_end]
+
 #Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
 WorldName:
 #example: WorldName: "my_world"
+AffectedWorlds: [world, world_nether, world_the_end]
 peaceful:
   CheckDelay: 86400
   StartDelay: 1
@@ -46,7 +54,7 @@ hard:
   CheckDelay: 4
   StartDelay: 8
   
-#Write down here IDs of items which can proteck you. You can add here your IDs of items from mods.
+#Write down here IDs of items which can protect you. You can add here your IDs of items from mods.
 Armor:
   Boots: [301, 305, 309, 313, 317]
   Chestplate: [299, 303, 307, 311, 315]

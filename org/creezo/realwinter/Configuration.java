@@ -21,6 +21,7 @@ public class Configuration {
     public boolean WinterEnabled;
     public boolean DesertEnabled;
     public boolean WaterBottleEnabled;
+    public boolean GlobalThirstEnabled;
     public int StartDelay;
     public int CheckDelay;
     public boolean DebugMode;
@@ -37,13 +38,16 @@ public class Configuration {
     public List<ItemStack> AllowedChestplate = new ArrayList();
     public List<ItemStack> AllowedHelmet = new ArrayList();
     public List<ItemStack> AllowedLeggings = new ArrayList();
+    public List<String> AllowedWorlds = new ArrayList();
     public int[] MissingArmorDamage = new int[5];
     public float DesertStaminaLostHelmet;
     public float DesertStaminaLostNoHelmet;
     public int ChecksPerFoodDecrease;
     public int MessageDelay;
     public float StaminaReplenish;
-    
+    public float ThirstStaminaLost;
+    public List<String> ThirstAllowedWorlds = new ArrayList();
+   
     private RealWinter plugin;
 
     public Configuration(RealWinter plugin) {
@@ -71,6 +75,7 @@ public class Configuration {
         WinterEnabled = plugin.getConfig().getBoolean("winter.enable", false);
         DesertEnabled = plugin.getConfig().getBoolean("desert.enable", false);
         WaterBottleEnabled = plugin.getConfig().getBoolean("desert.WaterBottleEnabled", true);
+        GlobalThirstEnabled = plugin.getConfig().getBoolean("global.thirst.enable", true);
         String StartDelayDiff = GameDifficulty + ".StartDelay";
         StartDelay = plugin.getConfig().getInt(StartDelayDiff, 20);
         String CheckDelayDiff = GameDifficulty + ".CheckDelay";
@@ -92,6 +97,9 @@ public class Configuration {
         MissingArmorDamage[2] = plugin.getConfig().getInt("winter.PlayerDamage.TwoPieces", 2);
         MissingArmorDamage[3] = plugin.getConfig().getInt("winter.PlayerDamage.ThreePieces", 1);
         MissingArmorDamage[4] = plugin.getConfig().getInt("winter.PlayerDamage.FullArmor", 0);
+        AllowedWorlds = plugin.getConfig().getStringList("AffectedWorlds");
+        ThirstStaminaLost = plugin.getConfig().getFloatList("global.thirst.StaminaLost").get(0);
+        ThirstAllowedWorlds = plugin.getConfig().getStringList("global.thirst.AffectedWorlds");
         //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecoWinter + " " + GameDifficulty);
     }
     

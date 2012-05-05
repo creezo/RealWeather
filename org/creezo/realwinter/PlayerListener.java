@@ -52,7 +52,7 @@ public class PlayerListener implements Listener {
                         int heat;
                         RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                         if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
-                            if(Config.WinterEnabled && player.hasPermission("relwinter.immune.winter")) {
+                            if(Config.WinterEnabled && Config.AllowedWorlds.contains(player.getLocation().getWorld().getName()) && player.hasPermission("relwinter.immune.winter")) {
                                 PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
                                 if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
@@ -96,7 +96,7 @@ public class PlayerListener implements Listener {
                                 }
                             }
                         } else if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == false) {
-                            if(Config.DesertEnabled && player.hasPermission("relwinter.immune.desert")) {
+                            if(Config.DesertEnabled && Config.AllowedWorlds.contains(player.getLocation().getWorld().getName()) && player.hasPermission("relwinter.immune.desert")) {
                                 PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
                                 if(PlayerBiome == Biome.DESERT || PlayerBiome == Biome.DESERT_HILLS) {
@@ -107,8 +107,8 @@ public class PlayerListener implements Listener {
                                             boolean HasHelmet = playerCheck.GetPlayerHelmet(player);
                                             if(HasHelmet == true) {
                                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has helmet.");
-                                                if(player.getSaturation() > 0.1F) {
-                                                    player.setSaturation(player.getSaturation() - 0.1F);
+                                                if(player.getSaturation() > Config.DesertStaminaLostHelmet) {
+                                                    player.setSaturation(player.getSaturation() - Config.DesertStaminaLostHelmet);
                                                     if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                                 } else { player.setSaturation(0.0F); }
                                             } else if(HasHelmet == false) {
@@ -117,8 +117,8 @@ public class PlayerListener implements Listener {
                                                     player.sendMessage(Loc.DesertWarnMessage);
                                                     RepeatingMessage = MessageDelay;
                                                 } else { RepeatingMessage--; }
-                                                if(player.getSaturation() > 0.3F) {
-                                                    player.setSaturation(player.getSaturation() - 0.3F);
+                                                if(player.getSaturation() > Config.DesertStaminaLostNoHelmet) {
+                                                    player.setSaturation(player.getSaturation() - Config.DesertStaminaLostNoHelmet);
                                                     if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                                 } else { player.setSaturation(0.0F);
                                                     if(player.getFoodLevel() > 1) {
@@ -134,6 +134,14 @@ public class PlayerListener implements Listener {
                                         }
                                     }
                                 }
+                            }
+                        }
+                        if(player.getGameMode().equals(GameMode.SURVIVAL)) {
+                            if(Config.GlobalThirstEnabled && Config.ThirstAllowedWorlds.contains(player.getLocation().getWorld().getName()) && player.hasPermission("relwinter.immune.thirst")) {
+                                if(player.getSaturation() > Config.ThirstStaminaLost) {
+                                    player.setSaturation(player.getSaturation() - Config.ThirstStaminaLost);
+                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                                } else { player.setSaturation(0.0F); }
                             }
                         }
                         if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Check end");

@@ -2,13 +2,11 @@ name: RealWinter
 main: org.creezo.realwinter.RealWinter
 version: 1.1.4
 author: creezo
-
 commands: 
   rw:
     permission: realwinter.player
   rwadmin:
     permission: realwinter.admin
-
 permissions:
   realwinter.*:
     description: Gives you all permissions.
@@ -23,10 +21,13 @@ permissions:
     default: op
   realwinter.immune:
     description: Makes player immune to all RW effects.
-    default: false
+    default: true
   realwinter.immune.winter:
     description: Makes player immune to freezing.
     default: true
   realwinter.immune.desert:
     description: Makes player immune exhausting in desert.
+    default: true
+  realwinter.immune.thirst:
+    description: Makes player immune to global thirst.
     default: true
