@@ -38,7 +38,7 @@ public class Localization {
     public void FirstLoadLanguage() {
         LocFile = new File(plugin.getDataFolder(), "localization.yml");
         Localization = new YamlConfiguration();
-        InitLocalFile(plugin);
+        InitLocalFile();
         Language = Localization.getString("UseLanguage", "english");
         LoadSpecificLang(Language);
     }
@@ -51,7 +51,7 @@ public class Localization {
         if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + language);
     }
     
-    private void InitLocalFile(RealWinter plugin) {
+    private void InitLocalFile() {
         PluginDescriptionFile pdfFile = plugin.getDescription();
         if(!LocFile.exists()) {
             LocFile.getParentFile().mkdirs();

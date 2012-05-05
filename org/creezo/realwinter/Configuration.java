@@ -51,7 +51,7 @@ public class Configuration {
     }
     
     public void InitConfig() {
-        RealWinter.log.log(Level.INFO, "[RealWinter] Loading Configuration.");
+        plugin.log.log(Level.INFO, "[RealWinter] Loading Configuration.");
         try {
             try {
                 try {
@@ -63,7 +63,7 @@ public class Configuration {
         DebugGlassBlocks = plugin.getConfig().getBoolean("DebugGlassBlocks", false);
         if(plugin.getConfig().isString("WorldName")) {
             GameDifficulty = plugin.getServer().getWorld(plugin.getConfig().getString("WorldName")).getDifficulty().name().toLowerCase();
-            RealWinter.log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Loaded difficulty ").append(GameDifficulty).append(" from world ").append(plugin.getConfig().getString("WorldName")).toString());
+            plugin.log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Loaded difficulty ").append(GameDifficulty).append(" from world ").append(plugin.getConfig().getString("WorldName")).toString());
         } else {
             GameDifficulty = plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase();
         }
@@ -95,8 +95,8 @@ public class Configuration {
         //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecoWinter + " " + GameDifficulty);
     }
     
-    public void InitEquip(RealWinter plugin) {
-        if(DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Loading Armors.");
+    public void InitEquip() {
+        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Loading Armors.");
         List<Integer> ListOfBoots = plugin.getConfig().getIntegerList("Armor.Boots");
         List<Integer> ListOfChestplate = plugin.getConfig().getIntegerList("Armor.Chestplate");
         List<Integer> ListOfHelmet = plugin.getConfig().getIntegerList("Armor.Helmet");
@@ -122,7 +122,7 @@ public class Configuration {
             AllowedLeggings.add(IStack);
             numOfArmors[3]++;
         }
-        RealWinter.log.log(Level.INFO, "[RealWinter] Loaded " + ConvertIntToString(numOfArmors[0]) + " Boots, " + ConvertIntToString(numOfArmors[1]) + " Chestplates, " + ConvertIntToString(numOfArmors[2]) + " Helmets, " + ConvertIntToString(numOfArmors[3]) + " Leggings.");
+        plugin.log.log(Level.INFO, "[RealWinter] Loaded " + ConvertIntToString(numOfArmors[0]) + " Boots, " + ConvertIntToString(numOfArmors[1]) + " Chestplates, " + ConvertIntToString(numOfArmors[2]) + " Helmets, " + ConvertIntToString(numOfArmors[3]) + " Leggings.");
     }
     
     public void SaveAll() {

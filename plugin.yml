@@ -4,15 +4,29 @@ version: 1.1.3
 author: creezo
 
 commands: 
-  realwinter:
-    aliases: rw
-    permission: realwinter.command
+  rw:
+    permission: realwinter.player
+  rwadmin:
+    permission: realwinter.admin
 
 permissions:
   realwinter.*:
-    description: Access to RealWinter.
+    description: Gives you all permissions.
     children:
-      realwinter.command: true
-  realwinter.command:
-    description: Grants ability to use RealWinter commands.
+        realwinter.admin: true
+        realwinter.player: true
+  realwinter.player:
+    description: Grants ability to use RealWinter player informative commands.
+    default: true
+  realwinter.admin:
+    description: Grants ability to use RealWinter admin commands.
     default: op
+  realwinter.immune:
+    description: Makes player immune to all RW effects.
+    default: false
+  realwinter.immune.winter:
+    description: Makes player immune to freezing.
+    default: true
+  realwinter.immune.desert:
+    description: Makes player immune exhausting in desert.
+    default: true

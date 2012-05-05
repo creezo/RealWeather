@@ -41,25 +41,25 @@ public class PlayerListener implements Listener {
 
             @Override
             public void run() {
-                    if(Config.GlobalEnable) {
+                    if(Config.GlobalEnable && player.hasPermission("relwinter.immune")) {
                     try {
                         if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Check");
                         if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Difficulty: " + player.getWorld().getDifficulty().name());
-                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player stamina: " + ConvertFloatToString(player.getSaturation()));
+                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                         boolean isInside;
                         Biome PlayerBiome;
                         int NumOfClothes;
                         int heat;
                         RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                         if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
-                            if(Config.WinterEnabled) {
+                            if(Config.WinterEnabled && player.hasPermission("relwinter.immune.winter")) {
                                 PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
                                 if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
                                     NumOfClothes = playerCheck.checkPlayerClothes(player);
                                     if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Clothes check done");
                                     if(MissingArmorDamage[4] == 0 && NumOfClothes == 4) {
-                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] FullArmor damage set to 0. All armor pieces worn.");
+                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] FullArmor damage set to 0. All armor pieces worn.");
                                     } else {
                                         heat = PlayerCheck.checkHeatAround(player, Config.HeatCheckRadius);
                                         if(heat < Config.TempPeak) {
@@ -96,7 +96,7 @@ public class PlayerListener implements Listener {
                                 }
                             }
                         } else if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == false) {
-                            if(Config.DesertEnabled) {
+                            if(Config.DesertEnabled && player.hasPermission("relwinter.immune.desert")) {
                                 PlayerBiome = PlayerCheck.checkPlayerBiome(player);
                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
                                 if(PlayerBiome == Biome.DESERT || PlayerBiome == Biome.DESERT_HILLS) {
@@ -109,7 +109,7 @@ public class PlayerListener implements Listener {
                                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has helmet.");
                                                 if(player.getSaturation() > 0.1F) {
                                                     player.setSaturation(player.getSaturation() - 0.1F);
-                                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + ConvertFloatToString(player.getSaturation()));
+                                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                                 } else { player.setSaturation(0.0F); }
                                             } else if(HasHelmet == false) {
                                                 if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has not helmet.");
@@ -119,7 +119,7 @@ public class PlayerListener implements Listener {
                                                 } else { RepeatingMessage--; }
                                                 if(player.getSaturation() > 0.3F) {
                                                     player.setSaturation(player.getSaturation() - 0.3F);
-                                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + ConvertFloatToString(player.getSaturation()));
+                                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                                 } else { player.setSaturation(0.0F);
                                                     if(player.getFoodLevel() > 1) {
                                                         if(RepeatingFoodDecrease == 1) {
@@ -127,7 +127,7 @@ public class PlayerListener implements Listener {
                                                             RepeatingFoodDecrease = RepeatingFoodDecreaseDelay;
                                                         } else { RepeatingFoodDecrease--; }
 
-                                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Food level(1-20): " + ConvertIntToString(player.getFoodLevel()));
+                                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
                                                     }
                                                 }
                                             }
@@ -151,13 +151,5 @@ public class PlayerListener implements Listener {
         Integer TaskID = PlayerHashMap.get(PlayerID);
         plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
         PlayerHashMap.remove(PlayerID);
-    }
-    
-    private static String ConvertIntToString(int number) {
-        return "" + number;
-    }
-    
-    private static String ConvertFloatToString(float number) {
-        return "" + number;
     }
 }

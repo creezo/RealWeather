@@ -35,7 +35,7 @@ public class RealWinter extends JavaPlugin {
         Config = new Configuration(this);
         LoadConfig();
         Config.InitConfig();
-        Config.InitEquip(this);
+        Config.InitEquip();
         Localization = new Localization(this);
         Localization.FirstLoadLanguage();
         log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Language: ").append(Localization.LanguageDescription).toString());
@@ -90,17 +90,54 @@ public class RealWinter extends JavaPlugin {
         String comm = command.getName();
         if(sender instanceof Player) {
             player = (Player) sender;
-            if(!player.isOp()) {
-                Util.SendMessage(player, "You must be OP to perform this command!");
-                return true;
-            }
         }
-        if("realwinter".equals(comm)) {
+        if("rw".equals(comm)) {
             if(args.length == 0) {
                 Util.SendMessage(player, "No arguments set. Try '/rw help'.");
             } else {
                 if("help".equals(args[0])) {
                     Util.SendHelp(player);
+                } else if("version".equals(args[0])) {
+                    Util.SendMessage(player, "Version: " + getDescription().getVersion());
+                } else if("heat".equals(args[0])) {
+                    if(sender instanceof Player) {
+                        int heat = playerCheck.checkHeatAround(player, Config.HeatCheckRadius);
+                        Util.SendMessage(player, "Temperature in your position: " + Util.ConvertIntToString(heat));
+                    } else {
+                        Util.SendMessage(player, "Can not be executed from console.");
+                    }
+                } else if("stamina".equals(args[0])) {
+                    if(sender instanceof Player) {
+                        float stamina = player.getSaturation();
+                        Util.SendMessage(player, "Your stamina: " + Util.ConvertFloatToString(stamina));
+                    } else {
+                        try {
+                            if(!args[1].isEmpty()) {
+                                Player plr = getServer().getPlayerExact(args[1]);
+                                Util.SendMessage(player, "Stamina: " + Util.ConvertFloatToString(plr.getSaturation()));
+                            }
+                        } catch(ArrayIndexOutOfBoundsException e) {
+                            Util.SendMessage(player, "Yout must set player name in console to view his stamina!");
+                        } catch(Exception e) {
+                            Util.SendMessage(player, "Player name not valid.");
+                        }
+                    }
+                } else {
+                    Util.SendMessage(player, "Invalid command!");
+                }
+            }
+        }
+        
+        if("rwadmin".equals(comm)) {
+            if(!sender.isOp() && !sender.hasPermission("realwinter.admin")) {
+                Util.SendMessage(player, "You must be OP to perform this command!");
+                return true;
+            }
+            if(args.length == 0) {
+                Util.SendMessage(player, "No arguments set. Try '/rwadmin help'.");
+            } else {
+                if("help".equals(args[0])) {
+                    Util.SendAdminHelp(player);
                 } else if("version".equals(args[0])) {
                     Util.SendMessage(player, "Version: " + getDescription().getVersion());
                 } else if("disable".equals(args[0])) {
@@ -158,6 +195,8 @@ public class RealWinter extends JavaPlugin {
                             }
                         }
                     }
+                } else {
+                    Util.SendMessage(player, "Invalid command!");
                 }
             }
         }

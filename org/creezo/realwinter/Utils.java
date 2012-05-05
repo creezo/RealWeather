@@ -6,6 +6,7 @@ package org.creezo.realwinter;
 
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -15,7 +16,7 @@ import org.bukkit.entity.Player;
 public class Utils {
     public boolean SendMessage(Player player, String message) {
         try {
-            player.sendMessage("RealWinter: " + message);
+            player.sendMessage(ChatColor.GOLD + "RealWinter: " + message);
             return true;
         } catch (Exception e) {
             RealWinter.log.log(Level.INFO, "[RealWinter] " + message);
@@ -24,6 +25,7 @@ public class Utils {
     }
     
     public boolean SendHelp(Player player) {
+        String helpMssg = "";
         try {
             player.sendMessage("Help message");
             return true;
@@ -31,5 +33,24 @@ public class Utils {
             RealWinter.log.log(Level.INFO, "Help message");
             return false;
         }
+    }
+
+    public boolean SendAdminHelp(Player player) {
+        String helpMssg = "";
+        try {
+            player.sendMessage("Admin help message");
+            return true;
+        } catch (Exception e) {
+            RealWinter.log.log(Level.INFO, "Admin help message");
+            return false;
+        }
+    }
+    
+    public static String ConvertIntToString(int number) {
+        return "" + number;
+    }
+    
+    public static String ConvertFloatToString(float number) {
+        return "" + number;
     }
 }

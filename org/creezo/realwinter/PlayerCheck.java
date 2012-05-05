@@ -359,6 +359,11 @@ public class PlayerCheck {
         if(zbytekDouble >= 0.5d) {
             heatInt++;
         }
+        if(player.getWorld().getTime() >= 1000 && player.getWorld().getTime() < 12000) {
+            heatInt += 10;
+        } else {
+            heatInt -= 10;
+        }
         if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Total heat: " + ConvertIntToString(heatInt));
         return heatInt;
     }
