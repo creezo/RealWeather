@@ -1,4 +1,4 @@
-version: 1.1.4
+version: 1.1.5
 #Localization file
 
 UseLanguage: english
@@ -11,6 +11,7 @@ english:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
       PlayerWarnOnLogin: "Bevare of frozen areas without clothes!"
       WarningMessage: "It is too cold here. Hide somewhere, wear armor or find heat source to reduce freezeing."
+      FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing."
     desert:
       WarningMessage: "It is too hot here. Hide somewhere or wear a helmet to reduce effects."
 
@@ -22,6 +23,7 @@ german:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
       PlayerWarnOnLogin: "In kalten Regionen kannst du erfrieren!"
       WarningMessage: "Es ist zu kalt! Geh in ein Haus, such eine Warmequelle oder zieh dir was warmes an!"
+      FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing. ---Translate me---"
     desert:
       WarningMessage: "Es ist zu heiS hier! Geh in Schatten oder setz dir ein Helm auf, um dich abzukuhlen."
 
@@ -33,6 +35,7 @@ czech:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
       PlayerWarnOnLogin: "Pozor je kruty mraz! Bylo by dobre se schovat nekam do tepla!"
       WarningMessage: "Je ti prilis zima. Nekam se schovej nebo se teple oblec at nezmrzmes!"
+      FrozenInIce: "Zamrznul si v ledu. Musis pockat az prestane snezit."
     desert:
       WarningMessage: "Je ti prilis horko. nekam se schovej nebo si alespon zakryj hlavu a pravidelne doplnuj tekutiny z lahve vody."
 
@@ -45,5 +48,6 @@ czech:
 #    winter:
 #      PlayerWarnOnLogin: "mssg"
 #      WarningMessage: "mssg"
+#      FrozenInIce: "mssg"
 #    desert:
 #      WarningMessage: "mssg"

@@ -13,13 +13,11 @@ import java.util.logging.Level;
 public class Commands {
     private final RealWinter plugin;
     private final Configuration config;
-    private final PlayerListener plistener;
     private final Localization localization;
 
-    public Commands(RealWinter plugin, Configuration config, PlayerListener playerlistener, Localization Loc) {
+    public Commands(RealWinter plugin, Configuration config, Localization Loc) {
         this.plugin = plugin;
         this.config = config;
-        this.plistener = playerlistener;
         this.localization = Loc;
     }
 

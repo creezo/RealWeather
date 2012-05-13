@@ -1,4 +1,4 @@
-version: 1.1.4
+version: 1.1.5
 
 GlobalEnable: true
 #Winter biomes options
@@ -9,8 +9,13 @@ winter:
 #Setting InitialTemperature higher causes you need less heat sources. Will be removed when Bukkit implements getTemperature().
   InitialTemperature: 0
 #TempPeak is temperature where you take no damage if above. Will be removed or changed when I implement better solution :D.
-  TempPeak: 50
+  TempPeak: 30
   HeatCheckRadius: 3
+#If you set CanKillPlayer to false, you can not be KILLED by freezing.
+  CanKillPlayer: false
+#Set true if you want to make Ice Block from a player with really low health
+#In use with 'CanKillPlayer: false' makes great effect :D
+  PlayerIceBlock: true
   PlayerDamage:
     FullArmor: 0
     ThreePieces: 1

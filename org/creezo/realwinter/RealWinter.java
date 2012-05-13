@@ -2,10 +2,14 @@ package org.creezo.realwinter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,14 +25,21 @@ public class RealWinter extends JavaPlugin {
     public PlayerListener playerlistener;
     public WeatherListener weatherlistener;
     public PlayerInteract playerinteract;
+    public PlayerDamage playerdamage;
+    public PlayerMove playermove;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static HashMap<Integer, Integer> PlayerHashMap;
+    public static HashMap<Integer, Boolean> PlayerIceHashMap;
+    public static HashMap<Integer, Block> IceBlock;
+    public static List<Material> Mats = new ArrayList();
     public static boolean actualWeather = false;
     public static Configuration Config;
     public static PlayerCheck playerCheck;
     public static Localization Localization;
-    public static Utils Util;
+    public static Utils Utils;
     public static Commands Command;
+    
+    public int StatsTask;
 
     @Override
     public void onEnable() {
@@ -41,17 +52,36 @@ public class RealWinter extends JavaPlugin {
         log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Language: ").append(Localization.LanguageDescription).toString());
         playerCheck = new PlayerCheck(this);
         playerCheck.PCheckInit();
-        PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+1);
-        Util = new Utils();
+        PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
+        PlayerIceHashMap = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
+        IceBlock = new HashMap<Integer, Block>(getServer().getMaxPlayers()+5);
+        Utils = new Utils();
+        Utils.addMats();
+        for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
+            Player player = getServer().getOnlinePlayers()[i];
+            PlayerIceHashMap.put(player.getEntityId(), playerCheck.isInIce(player));
+            if(playerCheck.isInIce(player)) {
+                IceBlock.put(player.getEntityId(), player.getLocation().getBlock());
+            }
+        }
         PluginManager pm = getServer().getPluginManager();
         playerlistener = new PlayerListener(this);
-        weatherlistener = new WeatherListener();
-        playerinteract = new PlayerInteract();
+        weatherlistener = new WeatherListener(this);
+        playerinteract = new PlayerInteract(this);
+        playerdamage = new PlayerDamage(this);
+        playermove = new PlayerMove();
         pm.registerEvents(playerlistener, this);
         pm.registerEvents(weatherlistener, this);
         pm.registerEvents(playerinteract, this);
-        Command = new Commands(this, Config, playerlistener, Localization);
+        pm.registerEvents(playerdamage, this);
+        pm.registerEvents(playermove, this);
+        for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
+            Player player = getServer().getOnlinePlayers()[i];
+            PlayerHashMap.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this, player), Config.StartDelay * 20, Config.CheckDelay * 20)));
+        }
+        Command = new Commands(this, Config, Localization);
         log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
+        StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 30 * 20, 4 * 60 * 20);
     }
     
     @Override
@@ -91,112 +121,116 @@ public class RealWinter extends JavaPlugin {
         if(sender instanceof Player) {
             player = (Player) sender;
         }
-        if("rw".equals(comm)) {
+        if("rw".equalsIgnoreCase(comm)) {
+           if(!sender.hasPermission("realwinter.player")) {
+                Utils.SendMessage(player, "You must have permissions to perform this command!");
+                return true;
+            }
             if(args.length == 0) {
-                Util.SendMessage(player, "No arguments set. Try '/rw help'.");
+                Utils.SendMessage(player, "No arguments set. Try '/rw help'.");
             } else {
-                if("help".equals(args[0])) {
-                    Util.SendHelp(player);
-                } else if("version".equals(args[0])) {
-                    Util.SendMessage(player, "Version: " + getDescription().getVersion());
-                } else if("heat".equals(args[0])) {
+                if("help".equalsIgnoreCase(args[0])) {
+                    Utils.SendHelp(player);
+                } else if("version".equalsIgnoreCase(args[0])) {
+                    Utils.SendMessage(player, "Version: " + getDescription().getVersion());
+                } else if("heat".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
                         int heat = playerCheck.checkHeatAround(player, Config.HeatCheckRadius);
-                        Util.SendMessage(player, "Temperature in your position: " + Util.ConvertIntToString(heat));
+                        Utils.SendMessage(player, "Temperature in your position: " + Utils.ConvertIntToString(heat));
                     } else {
-                        Util.SendMessage(player, "Can not be executed from console.");
+                        Utils.SendMessage(player, "Can not be executed from console.");
                     }
-                } else if("stamina".equals(args[0])) {
+                } else if("stamina".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
                         float stamina = player.getSaturation();
-                        Util.SendMessage(player, "Your stamina: " + Util.ConvertFloatToString(stamina));
+                        Utils.SendMessage(player, "Your stamina: " + Utils.ConvertFloatToString(stamina));
                     } else {
                         try {
                             if(!args[1].isEmpty()) {
                                 Player plr = getServer().getPlayerExact(args[1]);
-                                Util.SendMessage(player, "Stamina: " + Util.ConvertFloatToString(plr.getSaturation()));
+                                Utils.SendMessage(player, "Stamina: " + Utils.ConvertFloatToString(plr.getSaturation()));
                             }
                         } catch(ArrayIndexOutOfBoundsException e) {
-                            Util.SendMessage(player, "Yout must set player name in console to view his stamina!");
+                            Utils.SendMessage(player, "Yout must set player name in console to view his stamina!");
                         } catch(Exception e) {
-                            Util.SendMessage(player, "Player name not valid.");
+                            Utils.SendMessage(player, "Player name not valid.");
                         }
                     }
                 } else {
-                    Util.SendMessage(player, "Invalid command!");
+                    Utils.SendMessage(player, "Invalid command!");
                 }
             }
         }
         
-        if("rwadmin".equals(comm)) {
+        if("rwadmin".equalsIgnoreCase(comm)) {
             if(!sender.isOp() && !sender.hasPermission("realwinter.admin")) {
-                Util.SendMessage(player, "You must be OP to perform this command!");
+                Utils.SendMessage(player, "You must be OP to perform this command!");
                 return true;
             }
             if(args.length == 0) {
-                Util.SendMessage(player, "No arguments set. Try '/rwadmin help'.");
+                Utils.SendMessage(player, "No arguments set. Try '/rwadmin help'.");
             } else {
-                if("help".equals(args[0])) {
-                    Util.SendAdminHelp(player);
+                if("help".equalsIgnoreCase(args[0])) {
+                    Utils.SendAdminHelp(player);
                 } else if("version".equals(args[0])) {
-                    Util.SendMessage(player, "Version: " + getDescription().getVersion());
+                    Utils.SendMessage(player, "Version: " + getDescription().getVersion());
                 } else if("disable".equals(args[0])) {
                     if(args.length == 1) {
                         Command.Disable();
-                        Util.SendMessage(player, "Globaly disabled!");
+                        Utils.SendMessage(player, "Globaly disabled!");
                     } else if(args.length == 2) {
-                        if("all".equals(args[1])) {
+                        if("all".equalsIgnoreCase(args[1])) {
                             Command.Disable("all");
-                            Util.SendMessage(player, "All parts disabled!");
-                        } else if("winter".equals(args[1])) {
+                            Utils.SendMessage(player, "All parts disabled!");
+                        } else if("winter".equalsIgnoreCase(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
-                        } else if("desert".equals(args[1])) {
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                        } else if("desert".equalsIgnoreCase(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
-                        } else if("waterbottle".equals(args[1])) {
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                        } else if("waterbottle".equalsIgnoreCase(args[1])) {
                             Command.Disable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else {
-                            Util.SendMessage(player, "Can't disable non-existing part.");
+                            Utils.SendMessage(player, "Can't disable non-existing part.");
                         }
                     }
-                } else if("enable".equals(args[0])) {
+                } else if("enable".equalsIgnoreCase(args[0])) {
                     if(args.length == 1) {
                         Command.Enable();
-                        Util.SendMessage(player, "Globaly enabled!");
+                        Utils.SendMessage(player, "Globaly enabled!");
                     } else if(args.length == 2) {
-                        if("all".equals(args[1])) {
+                        if("all".equalsIgnoreCase(args[1])) {
                             Command.Enable("all");
-                            Util.SendMessage(player, "All parts enabled!");
-                        } else if("winter".equals(args[1])) {
+                            Utils.SendMessage(player, "All parts enabled!");
+                        } else if("winter".equalsIgnoreCase(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
-                        } else if("desert".equals(args[1])) {
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                        } else if("desert".equalsIgnoreCase(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
-                        } else if("waterbottle".equals(args[1])) {
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                        } else if("waterbottle".equalsIgnoreCase(args[1])) {
                             Command.Enable(args[1]);
-                            Util.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else {
-                            Util.SendMessage(player, "Can't enable non-existing part.");
+                            Utils.SendMessage(player, "Can't enable non-existing part.");
                         }
                     }
-                } else if("lang".equals(args[0])) {
+                } else if("lang".equalsIgnoreCase(args[0])) {
                     if(args.length == 1) {
-                        Util.SendMessage(player, "Language: " + Localization.Language + ".");
+                        Utils.SendMessage(player, "Language: " + Localization.Language + ".");
                     } else {
                         if(args.length == 2) {
                             boolean result = Command.Language(args[1]);
                             if(result == true) {
-                                Util.SendMessage(player, "Language changed to: " + Localization.LanguageDescription + ".");
+                                Utils.SendMessage(player, "Language changed to: " + Localization.LanguageDescription + ".");
                             } else {
-                                Util.SendMessage(player, "Language load error!");
+                                Utils.SendMessage(player, "Language load error!");
                             }
                         }
                     }
                 } else {
-                    Util.SendMessage(player, "Invalid command!");
+                    Utils.SendMessage(player, "Invalid command!");
                 }
             }
         }

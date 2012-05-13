@@ -47,7 +47,9 @@ public class Configuration {
     public float StaminaReplenish;
     public float ThirstStaminaLost;
     public List<String> ThirstAllowedWorlds = new ArrayList();
-   
+    public boolean WinterKill;
+    public boolean PlayerIceBlock;
+
     private RealWinter plugin;
 
     public Configuration(RealWinter plugin) {
@@ -83,6 +85,8 @@ public class Configuration {
         CheckRadius = plugin.getConfig().getInt("winter.CheckRadius", 1);
         HeatCheckRadius = plugin.getConfig().getInt("winter.HeatCheckRadius", 1);
         TempPeak = plugin.getConfig().getInt("winter.TempPeak", 50);
+        WinterKill = plugin.getConfig().getBoolean("winter.CanKillPlayer", true);
+        PlayerIceBlock = plugin.getConfig().getBoolean("winter.PlayerIceBlock", false);
         InitialTemperature = plugin.getConfig().getInt("winter.InitialTemperature", 0);
         HouseRecoWinter = plugin.getConfig().getString("winter.HouseRecognizer", "cross");
         HouseRecoDesert = plugin.getConfig().getString("desert.HouseRecognizer", "simple");

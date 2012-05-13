@@ -22,6 +22,7 @@ public class Localization {
     public String Language;
     public String WinterWarnMessage;
     public String WinterLoginMessage;
+    public String WinterInIceBlock;
     public String DesertWarnMessage;
     public String LanguageDescription;
     
@@ -46,6 +47,7 @@ public class Localization {
     private void LoadSpecificLang(String language) {
         WinterLoginMessage = Localization.getString(language + ".biome.winter.PlayerWarnOnLogin", MissingEntry);
         WinterWarnMessage = Localization.getString(language + ".biome.winter.WarningMessage", MissingEntry);
+        WinterInIceBlock = Localization.getString(language + ".biome.winter.FrozenInIce", MissingEntry);
         DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry);
         LanguageDescription = Localization.getString(language + ".description", MissingEntry);
         if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + language);

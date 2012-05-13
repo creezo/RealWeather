@@ -4,10 +4,16 @@
  */
 package org.creezo.realwinter;
 
+import java.util.HashMap;
 import java.util.logging.Level;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -18,6 +24,13 @@ import org.bukkit.inventory.ItemStack;
 public class PlayerInteract implements Listener{
     private Configuration Config = RealWinter.Config;
     private ItemStack ItemInHand;
+    private HashMap<Integer, Boolean> PlayerIceHashMap = RealWinter.PlayerIceHashMap;
+    private HashMap<Integer, Block> IceBlock = RealWinter.IceBlock;
+    private final RealWinter plugin;
+    
+    public PlayerInteract(RealWinter plugin) {
+        this.plugin = plugin;
+    }
     
     @EventHandler
     public synchronized void onPlayerInteract(PlayerInteractEvent event) {
@@ -59,7 +72,45 @@ public class PlayerInteract implements Listener{
             WaterWait.start();
         }
     }
-//    private static String ConvertIntToString(int number) {
-//        return "" + number;
-//    }
+    
+    @EventHandler
+    public void onPlayerDestroyBlock(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        if(PlayerIceHashMap.get(player.getEntityId())) {
+            event.setCancelled(true);
+        } else {
+            if(IceBlock.containsValue(block) && block.getType().equals(Material.ICE)) {
+                event.setCancelled(true);
+                block.setType(Material.AIR);
+                block.getRelative(BlockFace.UP).setType(Material.AIR);
+                for(int i=0;i<plugin.getServer().getOnlinePlayers().length;i++) {
+                    if(block.equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
+                        PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
+                        IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
+                    }
+                }
+            } else if(IceBlock.containsValue(block.getRelative(BlockFace.DOWN)) && block.getType().equals(Material.ICE)) {
+                event.setCancelled(true);
+                block.setType(Material.AIR);
+                if(block.getRelative(BlockFace.DOWN).getType().equals(Material.ICE)) {
+                    block.getRelative(BlockFace.DOWN).setType(Material.AIR);
+                }
+                for(int i=0;i<plugin.getServer().getOnlinePlayers().length;i++) {
+                    if(block.getRelative(BlockFace.DOWN).equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
+                        PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
+                        IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
+                    }
+                }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onBlockMelt(BlockPhysicsEvent event) {
+        Block block = event.getBlock();
+        if(IceBlock.containsValue(block) || IceBlock.containsValue(block.getRelative(BlockFace.DOWN))) {
+            event.setCancelled(true);
+        }
+    }
 }

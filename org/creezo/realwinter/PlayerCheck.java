@@ -7,6 +7,7 @@ package org.creezo.realwinter;
 import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -368,15 +369,14 @@ public class PlayerCheck {
         return heatInt;
     }
     
+    public boolean isInIce(Player player) {
+        if(player.getLocation().getBlock().getType().equals(Material.ICE)) {
+            return true;
+        }
+        return false;
+    }
+    
     private static String ConvertIntToString(int number) {
         return "" + number;
     }
-    
-    private static String ConvertDoubleToString(double number) {
-        return "" + number;
-    }
-//    
-//    private static String ConvertbyteToString(byte number) {
-//        return "" + number;
-//    }
 }
