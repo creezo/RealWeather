@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realwinter;
 
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Random;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  *
@@ -17,6 +14,7 @@ import org.bukkit.entity.Player;
  */
 public class Utils {
     private List<Material> Mats = RealWinter.Mats;
+    private static Configuration Config = RealWinter.Config;
     
     public void addMats() {
         Mats.add(Material.AIR);
@@ -38,7 +36,7 @@ public class Utils {
             player.sendMessage(ChatColor.GOLD + "RealWinter: " + message);
             return true;
         } catch (Exception e) {
-            RealWinter.log.log(Level.INFO, "[RealWinter] " + message);
+            RealWinter.log("" + message);
             return false;
         }
     }
@@ -48,18 +46,50 @@ public class Utils {
             player.sendMessage(ChatColor.GOLD + "Commands: /rw stamina, /rw heat, /rw version");
             return true;
         } catch (Exception e) {
-            RealWinter.log.log(Level.INFO, "Help message");
+            RealWinter.log("Help message --- see help in game console");
             return false;
         }
     }
 
     public boolean SendAdminHelp(Player player) {
         try {
-            player.sendMessage(ChatColor.GOLD + "Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin version, /rwadmin lang [language]");
+            player.sendMessage(ChatColor.GOLD + "Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language]");
             return true;
         } catch (Exception e) {
-            RealWinter.log.log(Level.INFO, "Admin help message");
+            RealWinter.log("Admin help message --- see help in game console");
             return false;
+        }
+    }
+    
+    public static void PlayerPoisoner(Player player, int probablity, boolean IsGrass) {
+        Random random = new Random();
+        if(random.nextInt(100) < probablity) {
+            int Type = random.nextInt(100)+1;
+            int Duration = Config.getVariables().getBiomes().getJungle().getInsectBiteDuration() - ((int)player.getFoodLevel() + (int)player.getSaturation());
+            int PoisonDuration = Config.getVariables().getBiomes().getJungle().getInsectPoisonDuration();
+            PotionEffectType PEffect = PotionEffectType.SLOW;
+            if(Type >= 1 && Type <= 6) {
+                PEffect = PotionEffectType.BLINDNESS;
+                player.addPotionEffect(PEffect.createEffect(80 * Duration, 1), IsGrass);
+            } else if(Type >= 7 && Type <= 12) {
+                PEffect = PotionEffectType.CONFUSION;
+                player.addPotionEffect(PEffect.createEffect(80 * Duration, 1), IsGrass);
+            } else if(Type >= 13 && Type <= 45) {
+                PEffect = PotionEffectType.WEAKNESS;
+                player.addPotionEffect(PEffect.createEffect(40 * Duration, 1), IsGrass);
+            } else if(Type >= 46 && Type <= 100) {
+                PEffect = PotionEffectType.SLOW;
+                player.addPotionEffect(PEffect.createEffect(40 * Duration, 1), IsGrass);
+            }
+            if(probablity == 100) {
+                player.sendMessage(ChatColor.YELLOW + "You have been"+ChatColor.GREEN+" poisoned"+ChatColor.YELLOW+" by insect which causes "+ChatColor.GREEN+PEffect.getName());
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "You have been"+ChatColor.GREEN+" poisoned"+ChatColor.YELLOW+" by silverfish which causes "+ChatColor.GREEN+PEffect.getName());
+            }
+            if(random.nextInt(100) <= 4) {
+                PEffect = PotionEffectType.POISON;
+                player.addPotionEffect(PEffect.createEffect(40 * PoisonDuration, 1), IsGrass);
+            }
         }
     }
     

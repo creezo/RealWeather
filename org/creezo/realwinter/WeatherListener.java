@@ -26,7 +26,7 @@ public class WeatherListener implements Listener {
         
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent event) {
-        if(Config.DebugMode) Bukkit.broadcastMessage("Weather Changed.");
+        if(Config.getVariables().isDebugMode()) Bukkit.broadcastMessage("Weather Changed.");
         RealWinter.actualWeather = event.toWeatherState();
         if(!event.toWeatherState()) {
             for(int i=0;i<plugin.getServer().getOnlinePlayers().length;i++) {

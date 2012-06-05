@@ -1,47 +1,6 @@
-version: 1.1.5
+version: 1.1.6
 
 GlobalEnable: true
-#Winter biomes options
-winter:
-  enable: true
-  HouseRecognizer: cross
-  CheckRadius: 2
-#Setting InitialTemperature higher causes you need less heat sources. Will be removed when Bukkit implements getTemperature().
-  InitialTemperature: 0
-#TempPeak is temperature where you take no damage if above. Will be removed or changed when I implement better solution :D.
-  TempPeak: 30
-  HeatCheckRadius: 3
-#If you set CanKillPlayer to false, you can not be KILLED by freezing.
-  CanKillPlayer: false
-#Set true if you want to make Ice Block from a player with really low health
-#In use with 'CanKillPlayer: false' makes great effect :D
-  PlayerIceBlock: true
-  PlayerDamage:
-    FullArmor: 0
-    ThreePieces: 1
-    TwoPieces: 2
-    OnePiece: 2
-    NoArmor: 3
-    
-#Desert biome options
-desert:
-  enable: true
-  HouseRecognizer: simple
-  NumberOfCheckPerFoodLost: 5
-  StaminaLost:
-    WithHelmet: [0.05F]
-    WithoutHelmet: [0.15F]
-# WaterBottleEnabled sets if it is possible to replenish stamina with water bottle
-  WaterBottleEnabled: true
-  StaminaReplenishWaterBottle: [1.0F]
-
-# Global does not depend on biome
-global:
-  thirst:
-    enable: true
-    StaminaLost: [0.03F]
-    AffectedWorlds: [world, world_nether, world_the_end]
-
 #Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
 WorldName:
 #example: WorldName: "my_world"
@@ -52,7 +11,7 @@ peaceful:
 easy:
   CheckDelay: 10
   StartDelay: 20
-medium:
+normal:
   CheckDelay: 7
   StartDelay: 14
 hard:
@@ -65,6 +24,11 @@ Armor:
   Chestplate: [299, 303, 307, 311, 315]
   Helmet: [298, 302, 306, 310, 314]
   Leggings: [300, 304, 308, 312, 316]
+
+Statistics:
+  ShowMyServerOnList: false
+  ServerName:
+  Comment:
 
 #Chat related functions
 NumberOfChecksPerWarningMessage: 5

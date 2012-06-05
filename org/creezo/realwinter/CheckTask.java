@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realwinter;
 
-import java.util.logging.Level;
+import java.util.HashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.block.Biome;
@@ -18,14 +14,16 @@ public class CheckTask implements Runnable {
     private final RealWinter plugin;
     private static Configuration Config = RealWinter.Config;
     private static PlayerCheck playerCheck = RealWinter.playerCheck;
-    private boolean DebugMode = Config.DebugMode;
+    private boolean DebugMode = Config.getVariables().isDebugMode();
+    private static Utils Utils = RealWinter.Utils;
     private int RepeatingMessage = 1;
-    private int MessageDelay = Config.MessageDelay;
+    private int MessageDelay = Config.getVariables().getMessageDelay();
     private int RepeatingFoodDecrease = 1;
-    private int RepeatingFoodDecreaseDelay = Config.ChecksPerFoodDecrease;
+    private int RepeatingFoodDecreaseDelay = Config.getVariables().getBiomes().getDesert().getChecksPerFoodDecrease();
     private Localization Loc = RealWinter.Localization;
-    private int[] MissingArmorDamage = Config.MissingArmorDamage;
+    private int[] MissingArmorDamage = Config.getVariables().getBiomes().getWinter().getMissingArmorDamage();
     private final Player player;
+    private HashMap<Integer, Integer> PlayerHealthBuffer = RealWinter.PlayerHealthBuffer;
 
     public CheckTask(RealWinter plugin, Player Player) {
         this.plugin = plugin;
@@ -33,33 +31,33 @@ public class CheckTask implements Runnable {
     }
 
     @Override
-    public void run() {
-            if(Config.GlobalEnable && !player.hasPermission("realwinter.immune")) {
+    public synchronized void run() {
+            if(Config.getVariables().isGlobalEnable() && !player.hasPermission("realwinter.immune")) {
             try {
-                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Check");
-                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Difficulty: " + player.getWorld().getDifficulty().name());
-                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                if(DebugMode) plugin.log("Check");
+                if(DebugMode) plugin.log("Difficulty: " + player.getWorld().getDifficulty().name());
+                if(DebugMode) plugin.log("Player stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                 boolean isInside;
                 Biome PlayerBiome;
                 int NumOfClothes;
                 int heat;
                 RealWinter.actualWeather = player.getLocation().getWorld().hasStorm();
                 if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == true) {
-                    if(Config.WinterEnabled && Config.AllowedWorlds.contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.winter")) {
+                    if(Config.getVariables().getBiomes().getWinter().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.winter")) {
                         PlayerBiome = PlayerCheck.checkPlayerBiome(player);
-                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
+                        if(DebugMode) plugin.log("Biome: " + PlayerBiome.name());
                         if(PlayerBiome == Biome.FROZEN_OCEAN || PlayerBiome == Biome.FROZEN_RIVER || PlayerBiome == Biome.ICE_DESERT || PlayerBiome == Biome.ICE_MOUNTAINS || PlayerBiome == Biome.ICE_PLAINS || PlayerBiome == Biome.TUNDRA || PlayerBiome == Biome.TAIGA || PlayerBiome == Biome.TAIGA_HILLS) {
                             NumOfClothes = playerCheck.checkPlayerClothes(player);
-                            if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Clothes check done");
+                            if(DebugMode) plugin.log("Clothes check done");
                             if(MissingArmorDamage[4] == 0 && NumOfClothes == 4) {
-                                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] FullArmor damage set to 0. All armor pieces worn.");
+                                if(DebugMode) plugin.log("FullArmor damage set to 0. All armor pieces worn.");
                             } else {
-                                heat = PlayerCheck.checkHeatAround(player, Config.HeatCheckRadius);
-                                if(heat < Config.TempPeak) {
-                                    isInside = PlayerCheck.checkPlayerInside(player, Config.CheckRadius, Config.HouseRecoWinter);
-                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Is Inside done");
+                                heat = PlayerCheck.checkHeatAround(player, Config.getVariables().getBiomes().getWinter().getHeatCheckRadius());
+                                if(heat < Config.getVariables().getBiomes().getWinter().getTempPeak()) {
+                                    isInside = PlayerCheck.checkPlayerInside(player, Config.getVariables().getBiomes().getWinter().getCheckRadius(), Config.getVariables().getBiomes().getWinter().getHouseRecoWinter());
+                                    if(DebugMode) plugin.log("Is Inside done");
                                     if(isInside == false && !RealWinter.PlayerIceHashMap.get(player.getEntityId())) {
-                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Is Inside = false");
+                                        if(DebugMode) plugin.log("Is Inside = false");
                                         if(RepeatingMessage == 1) {
                                             player.sendMessage(ChatColor.GOLD + Loc.WinterWarnMessage);
                                             RepeatingMessage = MessageDelay;
@@ -67,74 +65,89 @@ public class CheckTask implements Runnable {
                                         switch(NumOfClothes) {
                                             case 0:
                                                 if((player.getHealth() - MissingArmorDamage[NumOfClothes]) >= 1) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
-                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.WinterKill) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                                                    DMGBuffer += MissingArmorDamage[NumOfClothes];
+                                                    PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
+                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
                                                 }
                                                 break;
                                             case 1:
                                                 if((player.getHealth() - MissingArmorDamage[NumOfClothes]) >= 1) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
-                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.WinterKill) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                                                    DMGBuffer += MissingArmorDamage[NumOfClothes];
+                                                    PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
+                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
                                                 }
                                                 break;
                                             case 2:
                                                 if((player.getHealth() - MissingArmorDamage[NumOfClothes]) >= 1) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
-                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.WinterKill) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                                                    DMGBuffer += MissingArmorDamage[NumOfClothes];
+                                                    PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
+                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
                                                 }
                                                 break;
                                             case 3:
                                                 if((player.getHealth() - MissingArmorDamage[NumOfClothes]) >= 1) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
-                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.WinterKill) {
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                                                    DMGBuffer += MissingArmorDamage[NumOfClothes];
+                                                    PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
+                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
                                                     player.damage(MissingArmorDamage[NumOfClothes]);
                                                 }
                                                 break;
                                             case 4:
                                                 if((player.getHealth() - MissingArmorDamage[NumOfClothes]) >= 1) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
-                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.WinterKill) {
-                                                    player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
+                                                    int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                                                    DMGBuffer += MissingArmorDamage[NumOfClothes];
+                                                    PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
+                                                } else if((player.getHealth() - MissingArmorDamage[NumOfClothes]) <= 0 && Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
+                                                    //player.damage(MissingArmorDamage[NumOfClothes]);
                                                 }
                                                 break;
                                             default:
                                                 break;
                                         }
-                                        DamageEvent DamageEvent = new DamageEvent(player, MissingArmorDamage[NumOfClothes], player.getHealth());
-                                        plugin.getServer().getPluginManager().callEvent(DamageEvent);
+                                        //DamageEvent DamageEvent = new DamageEvent(player, MissingArmorDamage[NumOfClothes], player.getHealth());
+                                        //plugin.getServer().getPluginManager().callEvent(DamageEvent);
                                     }
                                 }
                             }
                         }
                     }
                 } else if(player.getGameMode().equals(GameMode.SURVIVAL) && RealWinter.actualWeather == false) {
-                    if(Config.DesertEnabled && Config.AllowedWorlds.contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.desert")) {
+                    if(Config.getVariables().getBiomes().getDesert().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.desert")) {
                         PlayerBiome = PlayerCheck.checkPlayerBiome(player);
-                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Biome: " + PlayerBiome.name());
+                        if(DebugMode) plugin.log("Biome: " + PlayerBiome.name());
                         if(PlayerBiome == Biome.DESERT || PlayerBiome == Biome.DESERT_HILLS) {
                             if(player.getWorld().getTime() >= 2500 && player.getWorld().getTime() < 10000) {
-                                isInside = PlayerCheck.checkPlayerInside(player, Config.CheckRadius, Config.HouseRecoDesert);
+                                isInside = PlayerCheck.checkPlayerInside(player, 1, Config.getVariables().getBiomes().getDesert().getHouseRecognizer());
                                 if(isInside == false) {
-                                    if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player is outside.");
+                                    if(DebugMode) plugin.log("Player is outside.");
                                     boolean HasHelmet = playerCheck.GetPlayerHelmet(player);
                                     if(HasHelmet == true) {
-                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has helmet.");
-                                        if(player.getSaturation() > Config.DesertStaminaLostHelmet) {
-                                            player.setSaturation(player.getSaturation() - Config.DesertStaminaLostHelmet);
-                                            if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                                        if(DebugMode) plugin.log("Player has helmet.");
+                                        if(player.getSaturation() > Config.getVariables().getBiomes().getDesert().getStaminaLostHelmet()) {
+                                            player.setSaturation(player.getSaturation() - Config.getVariables().getBiomes().getDesert().getStaminaLostHelmet());
+                                            if(DebugMode) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                         } else { player.setSaturation(0.0F); }
                                     } else if(HasHelmet == false) {
-                                        if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Player has not helmet.");
+                                        if(DebugMode) plugin.log("Player has not helmet.");
                                         if(RepeatingMessage == 1) {
                                             player.sendMessage(ChatColor.GOLD + Loc.DesertWarnMessage);
                                             RepeatingMessage = MessageDelay;
                                         } else { RepeatingMessage--; }
-                                        if(player.getSaturation() > Config.DesertStaminaLostNoHelmet) {
-                                            player.setSaturation(player.getSaturation() - Config.DesertStaminaLostNoHelmet);
-                                            if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                                        if(player.getSaturation() > Config.getVariables().getBiomes().getDesert().getStaminaLostNoHelmet()) {
+                                            player.setSaturation(player.getSaturation() - Config.getVariables().getBiomes().getDesert().getStaminaLostNoHelmet());
+                                            if(DebugMode) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                                         } else { player.setSaturation(0.0F);
                                             if(player.getFoodLevel() > 1) {
                                                 if(RepeatingFoodDecrease == 1) {
@@ -142,7 +155,7 @@ public class CheckTask implements Runnable {
                                                     RepeatingFoodDecrease = RepeatingFoodDecreaseDelay;
                                                 } else { RepeatingFoodDecrease--; }
 
-                                                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
+                                                if(DebugMode) plugin.log("Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
                                             }
                                         }
                                     }
@@ -152,14 +165,28 @@ public class CheckTask implements Runnable {
                     }
                 }
                 if(player.getGameMode().equals(GameMode.SURVIVAL)) {
-                    if(Config.GlobalThirstEnabled && Config.ThirstAllowedWorlds.contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.thirst")) {
-                        if(player.getSaturation() > Config.ThirstStaminaLost) {
-                            player.setSaturation(player.getSaturation() - Config.ThirstStaminaLost);
-                            if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                    if(Config.getVariables().getBiomes().getGlobal().isThirstEnabled() && Config.getVariables().getBiomes().getGlobal().getThirstAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.thirst")) {
+                        if(player.getSaturation() > Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost()) {
+                            player.setSaturation(player.getSaturation() - Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost());
+                            if(DebugMode) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                         } else { player.setSaturation(0.0F); }
                     }
+                    if(Config.getVariables().getBiomes().getJungle().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realwinter.immune.jungle")) {
+                        PlayerBiome = PlayerCheck.checkPlayerBiome(player);
+                        if(PlayerBiome.equals(Biome.JUNGLE) || PlayerBiome.equals(Biome.JUNGLE_HILLS)) {
+                            //PlayerIsInJungle.contains(player);
+                            if(player.getLocation().getY() >= 60) {
+                                if(DebugMode) plugin.log("Looking for tall grass...");
+                                boolean IsGrass = PlayerCheck.checkRandomGrass(player, Config.getVariables().getBiomes().getJungle().getInsectJumpRange(), Config.getVariables().getBiomes().getJungle().getChanceMultiplier());
+                                if(IsGrass) {
+                                    if(DebugMode) plugin.log("Found.");
+                                    Utils.PlayerPoisoner(player, 100, IsGrass);
+                                }
+                            }
+                        }
+                    }
                 }
-                if(DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Check end");
+                if(DebugMode) plugin.log("Check end");
             } catch(Exception e) {
                 plugin.getServer().broadcastMessage(e.getMessage());
             }

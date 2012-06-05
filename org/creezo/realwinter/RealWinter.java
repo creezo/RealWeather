@@ -1,7 +1,6 @@
 package org.creezo.realwinter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,8 +27,10 @@ public class RealWinter extends JavaPlugin {
     public PlayerMove playermove;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static HashMap<Integer, Integer> PlayerHashMap;
+    public static List<Player> PlayerHealthControler;
     public static HashMap<Integer, Boolean> PlayerIceHashMap;
     public static HashMap<Integer, Block> IceBlock;
+    public static HashMap<Integer, Integer> PlayerHealthBuffer;
     public static List<Material> Mats = new ArrayList();
     public static boolean actualWeather = false;
     public static Configuration Config;
@@ -47,14 +47,17 @@ public class RealWinter extends JavaPlugin {
         LoadConfig();
         Config.InitConfig();
         Config.InitEquip();
+        Config.SaveAll();
         Localization = new Localization(this);
         Localization.FirstLoadLanguage();
-        log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] Language: ").append(Localization.LanguageDescription).toString());
+        log("Language: " + Localization.LanguageDescription);
         playerCheck = new PlayerCheck(this);
         playerCheck.PCheckInit();
         PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
         PlayerIceHashMap = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
         IceBlock = new HashMap<Integer, Block>(getServer().getMaxPlayers()+5);
+        PlayerHealthControler = new ArrayList(getServer().getMaxPlayers()+5);
+        PlayerHealthBuffer = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
         Utils = new Utils();
         Utils.addMats();
         for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
@@ -63,6 +66,11 @@ public class RealWinter extends JavaPlugin {
             if(playerCheck.isInIce(player)) {
                 IceBlock.put(player.getEntityId(), player.getLocation().getBlock());
             }
+            PlayerHealthControler PHControl = new PlayerHealthControler(player, this);
+            Thread PlayerThread = new Thread(PHControl);
+            PlayerThread.setDaemon(true);
+            PlayerThread.start();
+            PlayerHealthControler.add(player);
         }
         PluginManager pm = getServer().getPluginManager();
         playerlistener = new PlayerListener(this);
@@ -77,41 +85,31 @@ public class RealWinter extends JavaPlugin {
         pm.registerEvents(playermove, this);
         for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
             Player player = getServer().getOnlinePlayers()[i];
-            PlayerHashMap.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this, player), Config.StartDelay * 20, Config.CheckDelay * 20)));
+            PlayerHashMap.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
         }
         Command = new Commands(this, Config, Localization);
         log.log(Level.INFO, "[RealWinter] RealWinter enabled.");
-        StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 30 * 20, 4 * 60 * 20);
+        StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 30 * 20, 9 * 60 * 20);
     }
     
     @Override
     public void onDisable() {
         this.getServer().getScheduler().cancelAllTasks();
+        PlayerHealthControler.clear();
         log.log(Level.INFO, "[RealWinter] RealWinter Disabled!");
     }
     
+    public static void log(String mssg) {
+        log.log(Level.INFO, (new StringBuilder()).append("[RealWinter] ").append(mssg).toString());
+    }
+    
     private void LoadConfig() {
-        PluginDescriptionFile pdfFile = this.getDescription();
-        File oldConfigFile = new File("plugins/RealWinter/config_" + getConfig().getString("version", "old") + ".yml");
         File configFile = new File("plugins/RealWinter/config.yml");
         if(!configFile.exists()) {
             saveDefaultConfig();
-            log.log(Level.INFO, "[RealWinter] Default Config.yml copied.");
+            log.log(Level.INFO, "[RealWinter] Default config.yml copied.");
         }
-        if(!pdfFile.getVersion().equals(getConfig().getString("version"))) {
-            log.log(Level.INFO, "[RealWinter] Version of config file doesn't match with current plugin version.");
-            getConfig().getDefaults();
-            try {
-                getConfig().save(oldConfigFile);
-                log.log(Level.INFO, "[RealWinter] Config version: " + this.getConfig().getString("version"));
-                log.log(Level.INFO, "[RealWinter] Plugin version: " + pdfFile.getVersion());
-                log.log(Level.INFO, "[RealWinter] Old Config.yml saved.");
-            } catch(IOException ex) {
-                log.log(Level.INFO, "[RealWinter] Saving of old config file failed. " + ex.getMessage());
-            }
-            configFile.delete();
-            saveDefaultConfig();
-        }
+        getConfig().getDefaults();
     }
     
     @Override
@@ -135,7 +133,7 @@ public class RealWinter extends JavaPlugin {
                     Utils.SendMessage(player, "Version: " + getDescription().getVersion());
                 } else if("heat".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
-                        int heat = playerCheck.checkHeatAround(player, Config.HeatCheckRadius);
+                        int heat = playerCheck.checkHeatAround(player, Config.getVariables().getBiomes().getWinter().getHeatCheckRadius());
                         Utils.SendMessage(player, "Temperature in your position: " + Utils.ConvertIntToString(heat));
                     } else {
                         Utils.SendMessage(player, "Can not be executed from console.");
@@ -174,6 +172,15 @@ public class RealWinter extends JavaPlugin {
                     Utils.SendAdminHelp(player);
                 } else if("version".equals(args[0])) {
                     Utils.SendMessage(player, "Version: " + getDescription().getVersion());
+                } else if("save".equals(args[0])) {
+                    if(Config.SaveAll()) {
+                        Utils.SendMessage(player, "Configuration saved.");
+                    } else {
+                        Utils.SendMessage(player, "Error in saving. See console for stack trace.");
+                    }
+                } else if("load".equals(args[0])) {
+                    Config.LoadAll();
+                    Utils.SendMessage(player, "Tried to load configuration");
                 } else if("disable".equals(args[0])) {
                     if(args.length == 1) {
                         Command.Disable();
@@ -186,6 +193,12 @@ public class RealWinter extends JavaPlugin {
                             Command.Disable(args[1]);
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("desert".equalsIgnoreCase(args[1])) {
+                            Command.Disable(args[1]);
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                        } else if("jungle".equalsIgnoreCase(args[1])) {
+                            Command.Disable(args[1]);
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                        } else if("thirst".equalsIgnoreCase(args[1])) {
                             Command.Disable(args[1]);
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("waterbottle".equalsIgnoreCase(args[1])) {
@@ -207,6 +220,12 @@ public class RealWinter extends JavaPlugin {
                             Command.Enable(args[1]);
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("desert".equalsIgnoreCase(args[1])) {
+                            Command.Enable(args[1]);
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                        } else if("jungle".equalsIgnoreCase(args[1])) {
+                            Command.Enable(args[1]);
+                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                        } else if("thirst".equalsIgnoreCase(args[1])) {
                             Command.Enable(args[1]);
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("waterbottle".equalsIgnoreCase(args[1])) {

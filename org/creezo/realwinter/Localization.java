@@ -50,7 +50,7 @@ public class Localization {
         WinterInIceBlock = Localization.getString(language + ".biome.winter.FrozenInIce", MissingEntry);
         DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry);
         LanguageDescription = Localization.getString(language + ".description", MissingEntry);
-        if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + language);
+        if(Config.getVariables().isDebugMode()) plugin.log.log(Level.INFO, "[RealWinter] Localization loaded: " + language);
     }
     
     private void InitLocalFile() {

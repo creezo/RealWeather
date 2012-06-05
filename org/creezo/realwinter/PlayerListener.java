@@ -1,6 +1,7 @@
 package org.creezo.realwinter;
 
 import java.util.HashMap;
+import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -19,6 +20,7 @@ public class PlayerListener implements Listener {
     private static Configuration Config = RealWinter.Config;
     private static PlayerCheck playerCheck = RealWinter.playerCheck;
     private HashMap<Integer, Integer> PlayerHashMap = RealWinter.PlayerHashMap;
+    private List<Player> PlayerHealthControler = RealWinter.PlayerHealthControler;
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWinter.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWinter.IceBlock;
     private Localization Loc = RealWinter.Localization;
@@ -38,7 +40,12 @@ public class PlayerListener implements Listener {
         } else {
             PlayerIceHashMap.put(PlayerID, false);
         }
-        PlayerHashMap.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new CheckTask(plugin, player), Config.StartDelay * 20, Config.CheckDelay * 20)));
+        PlayerHashMap.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new CheckTask(plugin, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
+        PlayerHealthControler PHControl = new PlayerHealthControler(player, plugin);
+        Thread PlayerThread = new Thread(PHControl);
+        PlayerThread.setDaemon(true);
+        PlayerThread.start();
+        PlayerHealthControler.add(player);
     }
     
     @EventHandler
@@ -47,6 +54,7 @@ public class PlayerListener implements Listener {
         try {
             Integer TaskID = PlayerHashMap.get(PlayerID);
             plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
+            PlayerHealthControler.remove(event.getPlayer());
             PlayerHashMap.remove(PlayerID);
             if(PlayerIceHashMap.get(PlayerID)) {
                 Player player = event.getPlayer();
@@ -55,8 +63,6 @@ public class PlayerListener implements Listener {
                 if(player.getLocation().getBlock().getRelative(BlockFace.UP).getType().equals(Material.ICE)) player.getLocation().getBlock().getRelative(BlockFace.UP).setType(Material.AIR);
             }
             PlayerIceHashMap.remove(PlayerID);
-        } catch (NullPointerException ex) {
-            
-        }
+        } catch (NullPointerException ex) {}
     }
 }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realwinter;
 
 import java.util.HashMap;
@@ -24,16 +20,18 @@ public class PlayerMove implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        if(PlayerIceHashMap.get(player.getEntityId())) {
-            if(player.getLocation().distanceSquared(IceBlock.get(player.getEntityId()).getLocation()) <= 4) {
-                event.setTo(event.getFrom());
-            } else {
-                PlayerIceHashMap.remove(player.getEntityId());
-                Block Block = IceBlock.get(player.getEntityId());
-                if(Block.getLocation().getBlock().getType().equals(Material.ICE)) Block.getLocation().getBlock().setType(Material.AIR);
-                if(Block.getLocation().getBlock().getRelative(BlockFace.UP).getType().equals(Material.ICE)) Block.getLocation().getBlock().getRelative(BlockFace.UP).setType(Material.AIR);
-                IceBlock.remove(player.getEntityId());
+        try {
+            if(PlayerIceHashMap.get(player.getEntityId())) {
+                if(player.getLocation().distanceSquared(IceBlock.get(player.getEntityId()).getLocation()) <= 4) {
+                    event.setTo(event.getFrom());
+                } else {
+                    PlayerIceHashMap.remove(player.getEntityId());
+                    Block Block = IceBlock.get(player.getEntityId());
+                    if(Block.getLocation().getBlock().getType().equals(Material.ICE)) Block.getLocation().getBlock().setType(Material.AIR);
+                    if(Block.getLocation().getBlock().getRelative(BlockFace.UP).getType().equals(Material.ICE)) Block.getLocation().getBlock().getRelative(BlockFace.UP).setType(Material.AIR);
+                    IceBlock.remove(player.getEntityId());
+                }
             }
-        }
+        } catch(NullPointerException ex) { }
     }
 }

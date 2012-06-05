@@ -5,7 +5,7 @@
 package org.creezo.realwinter;
 
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -25,18 +25,31 @@ public class PlayerCheck {
     private static List<ItemStack> AllowedChestplate;
     private static List<ItemStack> AllowedHelmet;
     private static List<ItemStack> AllowedLeggings;
+    private static boolean DebugMode;
     
     public PlayerCheck(RealWinter plugin) {
         this.plugin = plugin;
     }
     
     public void PCheckInit() {
-        AllowedBoots = Config.AllowedBoots;
-        AllowedChestplate = Config.AllowedChestplate;
-        AllowedHelmet = Config.AllowedHelmet;
-        AllowedLeggings = Config.AllowedLeggings;
+        AllowedBoots = Config.getVariables().getAllowedBoots();
+        AllowedChestplate = Config.getVariables().getAllowedChestplate();
+        AllowedHelmet = Config.getVariables().getAllowedHelmet();
+        AllowedLeggings = Config.getVariables().getAllowedLeggings();
+        DebugMode = Config.getVariables().isDebugMode();
     }
-        
+    
+    static boolean checkRandomGrass(Player player, int range, int tries) {
+        Random random = new Random();
+        for(int i = 0; i < tries;i++) {
+            Block thisBlock = player.getLocation().getBlock().getRelative(random.nextInt((range*2)+1)-range, random.nextInt((range*2)+1)-range, random.nextInt((range*2)+1)-range);
+            if(thisBlock.getTypeId() == 31) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private static boolean CheckToTop(Block PlayerBlock, int MaxMapHeigh, Player player) {
         boolean IsUnderRoof = false;
         int heigh = PlayerBlock.getY();
@@ -44,7 +57,7 @@ public class PlayerCheck {
             PlayerBlock = PlayerBlock.getRelative(BlockFace.UP);
             if(PlayerBlock.getTypeId() != 0) {
                 //PlayerBlock.setTypeId(20);
-                if(Config.DebugGlassBlocks) player.sendBlockChange(PlayerBlock.getLocation(), 20, (byte)0);
+                if(Config.getVariables().isDebugGlassBlocks()) player.sendBlockChange(PlayerBlock.getLocation(), 20, (byte)0);
                 IsUnderRoof = true;
                 break;
             }
@@ -58,15 +71,15 @@ public class PlayerCheck {
         boolean Inside = false;
         boolean CheckOnce = true;
         if("simple".equals(Recognizer)) {
-            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] simple selected");
+            if(DebugMode) RealWinter.log("simple selected");
             Inside = CheckToTop(player.getLocation().getBlock().getRelative(BlockFace.UP), player.getLocation().getWorld().getMaxHeight() - 1, player);
         } else if("default".equals(Recognizer)) {
-            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] default selected");
+            if(Config.getVariables().isDebugMode()) RealWinter.log("default selected");
             Location playerPosition = player.getLocation();
             int heigh = playerPosition.getBlockY();
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Heigh: " + ConvertIntToString(heigh));
+            if(DebugMode) RealWinter.log("Heigh: " + ConvertIntToString(heigh));
 
             Block NowCheckingBlock = playerPosition.getBlock();
             Block StartBlock = playerPosition.getBlock();
@@ -117,14 +130,14 @@ public class PlayerCheck {
                 if(Inside == false) break;
             }
         } else if("cross".equals(Recognizer)) {
-            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] cross selected");
+            if(DebugMode) RealWinter.log("cross selected");
             Block RangeCheckBlock;
             Location playerPosition = player.getLocation();
             int heigh = playerPosition.getBlockY();
             Block playerPositionBlock = playerPosition.getBlock().getRelative(BlockFace.UP);
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Heigh: " + ConvertIntToString(heigh));
+            if(DebugMode) RealWinter.log("Heigh: " + ConvertIntToString(heigh));
             
             for(int once = 1; once == 1; once++) {
                 Inside = CheckToTop(playerPositionBlock, MaxHeigh, player);
@@ -196,24 +209,24 @@ public class PlayerCheck {
         ItemStack WearChestplate = player.getInventory().getChestplate();
         ItemStack WearHelmet = player.getInventory().getHelmet();
         ItemStack WearLeggings = player.getInventory().getLeggings();
-        if(Config.DebugMode) {
+        if(DebugMode) {
             try {
-                plugin.log.log(Level.INFO, "[RealWinter] Boots ID: " + ConvertIntToString(WearBoots.getTypeId()));
+                plugin.log("Boots ID: " + ConvertIntToString(WearBoots.getTypeId()));
             } catch(Exception ex) { 
                 //plugin.log.log(Level.INFO, ex.getMessage()) ;
             }
             try {
-                plugin.log.log(Level.INFO, "[RealWinter] Chestplate ID: " + ConvertIntToString(WearChestplate.getTypeId()));
+                plugin.log("Chestplate ID: " + ConvertIntToString(WearChestplate.getTypeId()));
             } catch(Exception ex) { 
                 //plugin.log.log(Level.INFO, ex.getMessage()) ;
             }
             try {
-                plugin.log.log(Level.INFO, "[RealWinter] Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
+                plugin.log("Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
             } catch(Exception ex) { 
                 //plugin.log.log(Level.INFO, ex.getMessage()) ;
             }
             try {
-                plugin.log.log(Level.INFO, "[RealWinter] Leggings ID: " + ConvertIntToString(WearLeggings.getTypeId()));
+                plugin.log("Leggings ID: " + ConvertIntToString(WearLeggings.getTypeId()));
             } catch(Exception ex) { 
                 //plugin.log.log(Level.INFO, ex.getMessage()) ;
             }
@@ -223,31 +236,31 @@ public class PlayerCheck {
                 if(AllowedBoots.get(num).getTypeId() == WearBoots.getTypeId()) clothesNumber++;
             }
         } catch(Exception ex) { 
-            if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] No Boots. " + ex.getMessage()) ;
+            if(DebugMode) plugin.log("No Boots. " + ex.getMessage()) ;
         }
         try {
             for(int num = 0; num < AllowedChestplate.size(); num++) {
                 if(AllowedChestplate.get(num).getTypeId() == WearChestplate.getTypeId()) clothesNumber++;
             }
         } catch(Exception ex) { 
-            if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] No Chestplate. " + ex.getMessage()) ;
+            if(DebugMode) plugin.log("No Chestplate. " + ex.getMessage()) ;
         }
         try {
             for(int num = 0; num < AllowedHelmet.size(); num++) {
                 if(AllowedHelmet.get(num).getTypeId() == WearHelmet.getTypeId()) clothesNumber++;
             }
         } catch(Exception ex) { 
-            if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] No Helmet. " + ex.getMessage()) ;
+            if(DebugMode) plugin.log("No Helmet. " + ex.getMessage()) ;
         }
         try {
             for(int num = 0; num < AllowedLeggings.size(); num++) {
                 if(AllowedLeggings.get(num).getTypeId() == WearLeggings.getTypeId()) clothesNumber++;
             }
         } catch(Exception ex) { 
-            if(Config.DebugMode) plugin.log.log(Level.INFO, "[RealWinter] No Leggings. " + ex.getMessage()) ;
+            if(DebugMode) plugin.log("No Leggings. " + ex.getMessage()) ;
         }
-        if(Config.DebugMode) {
-            plugin.log.log(Level.INFO, "[RealWinter] Armors: " + ConvertIntToString(clothesNumber));
+        if(DebugMode) {
+            plugin.log("Armors: " + ConvertIntToString(clothesNumber));
         }
         return clothesNumber;
     }
@@ -255,9 +268,9 @@ public class PlayerCheck {
     public boolean GetPlayerHelmet(Player player) {
         boolean HasHelmet = false;
         ItemStack WearHelmet = player.getInventory().getHelmet();
-        if(Config.DebugMode) {
+        if(DebugMode) {
             try {
-                plugin.log.log(Level.INFO, "[RealWinter] Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
+                plugin.log("Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
             } catch(Exception ex) {
                 //plugin.log.log(Level.INFO, ex.getMessage());
             }
@@ -273,9 +286,9 @@ public class PlayerCheck {
     }
 
     public static int checkHeatAround(Player player, int HeatCheckRadius) {
-        if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Checking heat...");
+        if(DebugMode) RealWinter.log("Checking heat...");
         //player.getLocation().getBlock().getTemperature();
-        int heatInt = Config.InitialTemperature;
+        int heatInt = Config.getVariables().getBiomes().getWinter().getInitialTemperature();
         double heatDouble = (double)heatInt;
         double power = 0;
         double rangeDouble = 0;
@@ -331,7 +344,7 @@ public class PlayerCheck {
                     }
                     if(power != 0) {
                         rangeDouble = startBlock.getRelative(x, y, z).getLocation().distance(playerBlock.getLocation());
-                        //if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] From item in hand: " + ConvertDoubleToString(rangeDouble) + " : " + ConvertDoubleToString(1-(rangeDouble/(HeatCheckRadius*2))));
+                        //if(DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] From item in hand: " + ConvertDoubleToString(rangeDouble) + " : " + ConvertDoubleToString(1-(rangeDouble/(HeatCheckRadius*2))));
                         varOne = power*(1-(rangeDouble/(HeatCheckRadius*2)));
                         if(varOne >= 0.0d && cooler == false) {
                             heatDouble += varOne;
@@ -353,7 +366,7 @@ public class PlayerCheck {
                             power = 0;
                             break;
                     }
-                    if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] From item in hand: " + ConvertIntToString((int)power));
+                    if(DebugMode) RealWinter.log("From item in hand: " + ConvertIntToString((int)power));
                     heatInt += power;
         heatInt += (int)heatDouble;
         zbytekDouble = heatDouble - heatInt;
@@ -365,7 +378,7 @@ public class PlayerCheck {
         } else {
             heatInt -= 10;
         }
-        if(Config.DebugMode) RealWinter.log.log(Level.INFO, "[RealWinter] Total heat: " + ConvertIntToString(heatInt));
+        if(DebugMode) RealWinter.log("Total heat: " + ConvertIntToString(heatInt));
         return heatInt;
     }
     

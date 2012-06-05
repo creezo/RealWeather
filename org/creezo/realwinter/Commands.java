@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realwinter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 
 /**
@@ -22,38 +20,59 @@ public class Commands {
     }
 
     public void Disable() {
-        config.GlobalEnable = false;
+        plugin.getConfig().set("GlobalEnable", false);
+        try {
+            plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException ex) {
+            plugin.log.log(Level.SEVERE, null, ex);
+        }
     }
     
     public void Disable(String part) {
         if("all".equals(part)) {
-            config.WinterEnabled = false;
-            config.DesertEnabled = false;
-            config.WaterBottleEnabled = false;
+            config.getVariables().getBiomes().getWinter().setEnabled(false);
+            config.getVariables().getBiomes().getDesert().setEnabled(false);
+            config.getVariables().getBiomes().getJungle().setEnabled(false);
+            config.getVariables().getBiomes().getGlobal().setReplenishEnabled(false);
+            config.getVariables().getBiomes().getGlobal().setThirstEnabled(false);
         } else if("desert".equals(part)) {
-            config.DesertEnabled = false;
+            config.getVariables().getBiomes().getDesert().setEnabled(false);
+        } else if("jungle".equals(part)) {
+            config.getVariables().getBiomes().getJungle().setEnabled(false);
         } else if("winter".equals(part)) {
-            config.WinterEnabled = false;
+            config.getVariables().getBiomes().getWinter().setEnabled(false);
+        } else if("thirst".equals(part)) {
+            config.getVariables().getBiomes().getGlobal().setThirstEnabled(false);
         } else if("waterbottle".equals(part)) {
-            config.WaterBottleEnabled = false;
+            config.getVariables().getBiomes().getGlobal().setReplenishEnabled(false);
         }
     }
     
     public void Enable() {
-        config.GlobalEnable = true;
+        plugin.getConfig().set("GlobalEnable", true);
+        try {
+            plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException ex) {
+            plugin.log.log(Level.SEVERE, null, ex);
+        }
     }
     
     public void Enable(String part) {
         if("all".equals(part)) {
-            config.WinterEnabled = true;
-            config.DesertEnabled = true;
-            config.WaterBottleEnabled = true;
+            config.getVariables().getBiomes().getWinter().setEnabled(true);
+            config.getVariables().getBiomes().getDesert().setEnabled(true);
+            config.getVariables().getBiomes().getJungle().setEnabled(true);
+            config.getVariables().getBiomes().getGlobal().setReplenishEnabled(true);
         } else if("desert".equals(part)) {
-            config.DesertEnabled = true;
+            config.getVariables().getBiomes().getDesert().setEnabled(true);
+        } else if("jungle".equals(part)) {
+            config.getVariables().getBiomes().getJungle().setEnabled(true);
         } else if("winter".equals(part)) {
-            config.WinterEnabled = true;
+            config.getVariables().getBiomes().getWinter().setEnabled(true);
+        } else if("thirst".equals(part)) {
+            config.getVariables().getBiomes().getGlobal().setThirstEnabled(true);
         } else if("waterbottle".equals(part)) {
-            config.WaterBottleEnabled = true;
+            config.getVariables().getBiomes().getGlobal().setReplenishEnabled(true);
         }
     }
     

@@ -1,0 +1,8 @@
+# Jungle biome options
+enable: true
+InsectJumpRange: 3
+ChanceMultiplier: 1
+DefaultNegativeEffectDuration: 60
+PoisonDuration: 8
+SilverFishChance: 5
+SilverFishPoisonChance: 15
