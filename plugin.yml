@@ -1,0 +1,45 @@
+name: RealWeather
+main: org.creezo.realweather.RealWeather
+version: 1.1.7
+author: creezo
+softdepent: [Multiverse-Core]
+
+commands: 
+  rw:
+    description: 'Basic player commands.'
+    permission: realweather.player
+    permission-message: 'You dont have permission - realweather.player'
+    usage: 'Usage: /rw <command>'
+  rwadmin:
+    description: 'Administration commands.'
+    permission: realweather.admin
+    permission-message: 'You dont have permission - realweather.admin'
+    usage: 'Usage: /rwadmin <command>'
+
+permissions:
+  realweather.*:
+    description: 'Gives you all permissions. Including immune!'
+    children:
+        realweather.admin: true
+        realweather.player: true
+  realweather.player:
+    description: 'Grants ability to use RealWeather player informative commands.'
+    default: op
+  realweather.admin:
+    description: 'Grants ability to use RealWeather admin commands.'
+    default: op
+  realweather.immune:
+    description: 'Makes player immune to all RW effects.'
+    default: false
+  realweather.immune.winter:
+    description: 'Makes player immune to freezing.'
+    default: false
+  realweather.immune.desert:
+    description: 'Makes player immune exhausting in desert.'
+    default: false
+  realweather.immune.thirst:
+    description: 'Makes player immune to global thirst.'
+    default: false
+  realweather.immune.jungle:
+    description: 'Makes player immune to jungle insect.'
+    default: false

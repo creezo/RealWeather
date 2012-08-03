@@ -1,0 +1,9 @@
+# Global does not depend on biome
+thirst:
+  enable: true
+  StaminaLost: [0.03F]
+  AffectedWorlds: [world, world_nether, world_the_end]
+staminareplenish:
+  # WaterBottleEnabled sets if it is possible to replenish stamina with water bottle
+  enable: true
+  StaminaReplenishWaterBottle: [1.0F]

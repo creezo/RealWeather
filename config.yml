@@ -1,0 +1,37 @@
+version: 1.1.6
+
+GlobalEnable: true
+#Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
+WorldName:
+#example: WorldName: "my_world"
+AffectedWorlds: [world, world_nether, world_the_end]
+peaceful:
+  CheckDelay: 86400
+  StartDelay: 1
+easy:
+  CheckDelay: 10
+  StartDelay: 20
+normal:
+  CheckDelay: 7
+  StartDelay: 14
+hard:
+  CheckDelay: 4
+  StartDelay: 8
+  
+#Write down here IDs of items which can protect you. You can add here your IDs of items from mods.
+Armor:
+  Boots: [301, 305, 309, 313, 317]
+  Chestplate: [299, 303, 307, 311, 315]
+  Helmet: [298, 302, 306, 310, 314]
+  Leggings: [300, 304, 308, 312, 316]
+
+Statistics:
+  ShowMyServerOnList: false
+  ServerName:
+  Comment:
+  ServerAddress:
+
+#Chat related functions
+NumberOfChecksPerWarningMessage: 5
+DebugMode: false
+DebugGlassBlocks: false
