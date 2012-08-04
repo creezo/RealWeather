@@ -285,14 +285,12 @@ public class PlayerCheck {
         return HasHelmet;
     }
 
-    public static int checkHeatAround(Player player, int HeatCheckRadius) {
+    public static double checkHeatAround(Player player, int HeatCheckRadius) {
         if(DebugMode) RealWeather.log("Checking heat...");
         //player.getLocation().getBlock().getTemperature();
-        int heatInt = Config.getVariables().getBiomes().getWinter().getInitialTemperature();
-        double heatDouble = (double)heatInt;
-        double power = 0;
+        double Temperature = 0;
+        double BlockPower = 0;
         double rangeDouble = 0;
-        double zbytekDouble = 0;
         double varOne = 0;
         boolean cooler;
         Block playerBlock = player.getLocation().getBlock();
@@ -302,84 +300,74 @@ public class PlayerCheck {
                 for(int y = 1 ; y <= (HeatCheckRadius*2) ; y++) {
                     switch(startBlock.getRelative(x, y, z).getTypeId()) {
                         case 10: //Lava
-                            power = 20;
+                            BlockPower = 20;
                             cooler = false;
                             break;
                         case 11: //Lava
-                            power = 20;
+                            BlockPower = 20;
                             cooler = false;
                             break;
                         case 35: //Wool block
-                            power = 2;
+                            BlockPower = 2;
                             cooler = false;
                             break;
                         case 50: //Torch
-                            power = 8;
+                            BlockPower = 8;
                             cooler = false;
                             break;
                         case 51: //Fire
-                            power = 10;
+                            BlockPower = 10;
                             cooler = false;
                             break;
                         case 62: //Burning furnace
-                            power = 10;
+                            BlockPower = 10;
                             cooler = false;
                             break;
                         case 78: //Snow
-                            power = -0.5d;
+                            BlockPower = -0.5d;
                             cooler = true;
                             break;
                         case 79: //Ice block
-                            power = -2;
+                            BlockPower = -2;
                             cooler = true;
                             break;
                         case 80: //Snow block
-                            power = -1;
+                            BlockPower = -1;
                             cooler = true;
                             break;
                         default:
-                            power = 0;
+                            BlockPower = 0;
                             cooler = false;
                             break;
                     }
-                    if(power != 0) {
+                    if(BlockPower != 0) {
                         rangeDouble = startBlock.getRelative(x, y, z).getLocation().distance(playerBlock.getLocation());
                         //if(DebugMode) RealWeather.log.log(Level.INFO, "[RealWeather] From item in hand: " + ConvertDoubleToString(rangeDouble) + " : " + ConvertDoubleToString(1-(rangeDouble/(HeatCheckRadius*2))));
-                        varOne = power*(1-(rangeDouble/(HeatCheckRadius*2)));
+                        varOne = BlockPower*(1-(rangeDouble/(HeatCheckRadius*2)));
                         if(varOne >= 0.0d && cooler == false) {
-                            heatDouble += varOne;
+                            Temperature += varOne;
                         } else if(varOne <= 0.0d && cooler == true) {
-                            heatDouble += varOne;
+                            Temperature += varOne;
                         }
                     }
                 }
             }
         }
         switch(player.getItemInHand().getTypeId()) {
-                        case 50:
-                            power = 8;
-                            break;
-                        case 327:
-                            power = 20;
-                            break;
-                        default:
-                            power = 0;
-                            break;
-                    }
-                    if(DebugMode) RealWeather.log("From item in hand: " + ConvertIntToString((int)power));
-                    heatInt += power;
-        heatInt += (int)heatDouble;
-        zbytekDouble = heatDouble - heatInt;
-        if(zbytekDouble >= 0.5d) {
-            heatInt++;
+            case 50: //Torch
+                BlockPower = 8;
+                break;
+            case 327:
+                BlockPower = 20;
+                break;
+            default:
+                BlockPower = 0;
+                break;
         }
-        if(player.getWorld().getTime() >= 1000 && player.getWorld().getTime() < 12000) {
-            heatInt += 10;
-        } else {
-            heatInt -= 10;
-        }
-        if(DebugMode) RealWeather.log("Total heat: " + ConvertIntToString(heatInt));
-        return heatInt;
+        if(DebugMode) RealWeather.log("From item in hand: " + ConvertIntToString((int)BlockPower));
+        Temperature += BlockPower;
+        if(DebugMode) RealWeather.log("Total heat from blocks and items: " + Temperature);
+        return Temperature;
     }
     
     public boolean isInIce(Player player) {

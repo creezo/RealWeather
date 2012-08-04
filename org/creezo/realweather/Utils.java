@@ -15,7 +15,10 @@ import org.bukkit.potion.PotionEffectType;
 public class Utils {
     private List<Material> Mats = RealWeather.Mats;
     private static Configuration Config = RealWeather.Config;
-    
+    private final RealWeather plugin;
+    Utils(RealWeather plugin) {
+        this.plugin = plugin;
+    }
     public void addMats() {
         Mats.add(Material.AIR);
         Mats.add(Material.CROPS);
@@ -43,7 +46,7 @@ public class Utils {
     
     public boolean SendHelp(Player player) {
         try {
-            player.sendMessage(ChatColor.GOLD + "Commands: /rw stamina, /rw heat, /rw version");
+            player.sendMessage(ChatColor.GOLD + "Commands: /rw stamina, /rw temp, /rw forecast, /rw version");
             return true;
         } catch (Exception e) {
             RealWeather.log("Help message --- see help in game console");
@@ -99,5 +102,34 @@ public class Utils {
     
     public static String ConvertFloatToString(float number) {
         return "" + number;
+    }
+    public String DoForecast(int Temp) {
+        String Message;
+        switch (Temp) {
+            case -5:
+            case -4:
+                Message ="Forecast for today: Very low temperatures.";
+                break;
+            case -3:
+            case -2:
+                Message ="Forecast for today: Low temperatures.";
+                break;
+            case -1:
+            case 0:
+            case 1:
+                Message ="Forecast for today: Nice day.";
+                break;
+            case 2:
+            case 3:
+                Message ="Forecast for today: High temperatures.";
+                break;
+            case 4:
+            case 5:
+                Message ="Forecast for today: Very high temperatures.";
+                break;
+            default:
+                Message ="RealWeather: Bad number in forecast!";
+        }
+        return Message;
     }
 }

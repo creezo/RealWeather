@@ -76,9 +76,6 @@ public class Configurations {
             public void setHouseRecoWinter(String HouseRecoWinter) {
                 WinterConf.set("HouseRecognizer", HouseRecoWinter);
             }
-            public void setHeatCheckRadius(int HeatCheckRadius) {
-                WinterConf.set("HeatCheckRadius", HeatCheckRadius);
-            }
             public void setCheckRadius(int CheckRadius) {
                 WinterConf.set("CheckRadius", CheckRadius);
             }
@@ -108,9 +105,6 @@ public class Configurations {
             }
             public String getHouseRecoWinter() {
                 return WinterConf.getString("HouseRecognizer");
-            }
-            public int getHeatCheckRadius() {
-                return WinterConf.getInt("HeatCheckRadius");
             }
             public int getCheckRadius() {
                 return WinterConf.getInt("CheckRadius");
@@ -224,6 +218,30 @@ public class Configurations {
             public float getStaminaReplenishAmount() {
                 return GlobalConf.getFloatList("staminareplenish.StaminaReplenishWaterBottle").get(0);
             }
+            public int getBiomeAverageTemp(String biom) {
+                return GlobalConf.getInt("BiomesAverageTemp."+biom);
+            }
+            public int getBiomesWeatherTempModifier(String mod) {
+                return GlobalConf.getInt("BiomesWeatherTempModifier."+mod);
+            }
+            public int getHeatCheckRadius() {
+                return GlobalConf.getInt("HeatCheckRadius");
+            }
+            public int getPlayerHeat() {
+                return GlobalConf.getInt("PlayerHeat");
+            }
+            public int getFreezeUnder() {
+                return GlobalConf.getInt("FreezeUnder");
+            }
+            public int getOverheatOver() {
+                return GlobalConf.getInt("OverheatOver");
+            }
+            public int getTopTemp() {
+                return GlobalConf.getInt("MaxMapHeightTemperatureModifier");
+            }
+            public int getSeaLevel() {
+                return GlobalConf.getInt("SeaLevel");
+            }
             public void setThirstEnabled(boolean ThirstEnable) {
                 GlobalConf.set("thirst.enable", ThirstEnable);
             }
@@ -242,6 +260,27 @@ public class Configurations {
                 List<Float> list = new ArrayList();
                 list.add(Amount);
                 GlobalConf.set("staminareplenish.StaminaReplenishWaterBottle", list);
+            }
+            public void setBiomesWeatherTempModifier(String mod, int num) {
+                GlobalConf.set("BiomesWeatherTempModifier."+mod, num);
+            }
+            public void setHeatCheckRadius(int HeatCheckRadius) {
+                GlobalConf.set("HeatCheckRadius", HeatCheckRadius);
+            }
+            public void setPlayerHeat(int heat) {
+                GlobalConf.set("PlayerHeat", heat);
+            }
+            public void setFreezeUnder(int temp) {
+                GlobalConf.set("FreezeUnder", temp);
+            }
+            public void setOverheatOver(int temp) {
+                GlobalConf.set("OverheatOver", temp);
+            }
+            public void setTopTemp(int temp) {
+                GlobalConf.set("MaxMapHeightTemperatureModifier", temp);
+            }
+            public void setSeaLevel(int level) {
+                GlobalConf.set("SeaLevel", level);
             }
         }
     }

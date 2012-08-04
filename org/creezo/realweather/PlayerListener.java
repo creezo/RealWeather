@@ -19,7 +19,8 @@ public class PlayerListener implements Listener {
     private final RealWeather plugin;
     private static Configuration Config = RealWeather.Config;
     private static PlayerCheck playerCheck = RealWeather.playerCheck;
-    private HashMap<Integer, Integer> PlayerHashMap = RealWeather.PlayerHashMap;
+    private HashMap<Integer, Integer> PlayerTemperatureThreads = RealWeather.PlayerTemperatureThreads;
+    private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
     private List<Player> PlayerHealthControler = RealWeather.PlayerHealthControler;
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
@@ -40,22 +41,24 @@ public class PlayerListener implements Listener {
         } else {
             PlayerIceHashMap.put(PlayerID, false);
         }
-        PlayerHashMap.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new CheckTask(plugin, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
+        PlayerTemperatureThreads.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new TempThread(plugin, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
         PlayerHealthControler PHControl = new PlayerHealthControler(player, plugin);
         Thread PlayerThread = new Thread(PHControl);
         PlayerThread.setDaemon(true);
         PlayerThread.start();
         PlayerHealthControler.add(player);
+        PlayerHeatShow.put(PlayerID, Boolean.FALSE);
     }
     
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         int PlayerID = event.getPlayer().getEntityId();
         try {
-            Integer TaskID = PlayerHashMap.get(PlayerID);
+            Integer TaskID = PlayerTemperatureThreads.get(PlayerID);
             plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
             PlayerHealthControler.remove(event.getPlayer());
-            PlayerHashMap.remove(PlayerID);
+            PlayerHeatShow.remove(PlayerID);
+            PlayerTemperatureThreads.remove(PlayerID);
             if(PlayerIceHashMap.get(PlayerID)) {
                 Player player = event.getPlayer();
                 IceBlock.remove(player.getEntityId());

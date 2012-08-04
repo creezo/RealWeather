@@ -24,7 +24,7 @@ permissions:
         realweather.player: true
   realweather.player:
     description: 'Grants ability to use RealWeather player informative commands.'
-    default: op
+    default: true
   realweather.admin:
     description: 'Grants ability to use RealWeather admin commands.'
     default: op

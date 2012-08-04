@@ -7,3 +7,43 @@ staminareplenish:
   # WaterBottleEnabled sets if it is possible to replenish stamina with water bottle
   enable: true
   StaminaReplenishWaterBottle: [1.0F]
+FreezeUnder: 7
+OverheatOver: 30
+HeatCheckRadius: 3
+PlayerHeat: 1
+MaxMapHeightTemperatureModifier: -10
+SeaLevel: 62
+BiomesAverageTemp:
+  RAINFOREST: 25
+  SWAMPLAND: 15
+  SEASONAL_FOREST: 17
+  FOREST: 15
+  SAVANNA: 20
+  SHRUBLAND: 15
+  TAIGA: 0
+  DESERT: 30
+  PLAINS: 15
+  ICE_DESERT: 0
+  TUNDRA: 0
+  HELL: 30
+  SKY: 15
+  OCEAN: 15
+  RIVER: 15
+  EXTREME_HILLS: 10
+  FROZEN_OCEAN: 5
+  FROZEN_RIVER: 0
+  ICE_PLAINS: 0
+  ICE_MOUNTAINS: -5
+  MUSHROOM_ISLAND: 15
+  MUSHROOM_SHORE: 15
+  BEACH: 15
+  DESERT_HILLS: 25
+  FOREST_HILLS: 10
+  TAIGA_HILLS: -5
+  SMALL_MOUNTAINS: 12
+  JUNGLE: 30
+  JUNGLE_HILLS: 25
+BiomesWeatherTempModifier:
+  Light: 5
+  Medium: 8
+  Hard: 12

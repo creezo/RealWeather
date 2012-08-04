@@ -1,5 +1,7 @@
 package org.creezo.realweather;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.bukkit.ChatColor;
@@ -53,23 +55,28 @@ public class PlayerDamage implements Listener {
     
     @EventHandler
     public void onPlayerDamageFromIceBlock(EntityDamageEvent event) {
-        if(event.getEntity() instanceof Player && (event.getCause().equals(DamageCause.SUFFOCATION) || event.getCause().equals(DamageCause.FALL) || event.getCause().equals(DamageCause.ENTITY_ATTACK) || event.getCause().equals(DamageCause.PROJECTILE))) {
-            Player player = (Player) event.getEntity();
-            try {
-                if(PlayerIceHashMap.get(player.getEntityId())) {
-                    event.setCancelled(true);
+        Entity[] ents = plugin.getServer().getOnlinePlayers();
+        List<Entity> Lents = new ArrayList();
+        Lents.addAll(Arrays.asList(ents));
+        if(Lents.contains(event.getEntity())) {
+            if(event.getCause().equals(DamageCause.SUFFOCATION) || event.getCause().equals(DamageCause.FALL) || event.getCause().equals(DamageCause.ENTITY_ATTACK) || event.getCause().equals(DamageCause.PROJECTILE)) {
+                Player player = (Player) event.getEntity();
+                try {
+                    if(PlayerIceHashMap.get(player.getEntityId())) {
+                        event.setCancelled(true);
+                    }
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
             }
-        }
-        if(event.getEntity() instanceof Player && (event.getCause().equals(DamageCause.ENTITY_ATTACK))) {
-            Player player = (Player) event.getEntity();
-            if(player.getLocation().getBlock().getBiome().equals(Biome.JUNGLE) || player.getLocation().getBlock().getBiome().equals(Biome.JUNGLE_HILLS)) {
-                if (event instanceof EntityDamageByEntityEvent) {
-                    EntityDamageByEntityEvent edbeEvent = (EntityDamageByEntityEvent)event;
-                    Entity damager = edbeEvent.getDamager();
-                    if(damager.getType().equals(EntityType.SILVERFISH)) {
-                        Utils.PlayerPoisoner(player, Config.getVariables().getBiomes().getJungle().getSilverFishPoisonChance(), true);
+            if(event.getCause().equals(DamageCause.ENTITY_ATTACK)) {
+                Player player = (Player) event.getEntity();
+                if(player.getLocation().getBlock().getBiome().equals(Biome.JUNGLE) || player.getLocation().getBlock().getBiome().equals(Biome.JUNGLE_HILLS)) {
+                    if (event instanceof EntityDamageByEntityEvent) {
+                        EntityDamageByEntityEvent edbeEvent = (EntityDamageByEntityEvent)event;
+                        Entity damager = edbeEvent.getDamager();
+                        if(damager.getType().equals(EntityType.SILVERFISH)) {
+                            Utils.PlayerPoisoner(player, Config.getVariables().getBiomes().getJungle().getSilverFishPoisonChance(), true);
+                        }
                     }
                 }
             }

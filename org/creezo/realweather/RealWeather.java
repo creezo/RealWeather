@@ -26,7 +26,8 @@ public class RealWeather extends JavaPlugin {
     public PlayerDamage playerdamage;
     public PlayerMove playermove;
     public static final Logger log = Logger.getLogger("Minecraft");
-    public static HashMap<Integer, Integer> PlayerHashMap;
+    public static HashMap<Integer, Integer> PlayerTemperatureThreads;
+    public static HashMap<Integer, Boolean> PlayerHeatShow;
     public static List<Player> PlayerHealthControler;
     public static HashMap<Integer, Boolean> PlayerIceHashMap;
     public static HashMap<Integer, Block> IceBlock;
@@ -38,6 +39,7 @@ public class RealWeather extends JavaPlugin {
     public static Localization Localization;
     public static Utils Utils;
     public static Commands Command;
+    public static int ForecastTemp = 0;
     
     public int StatsTask;
 
@@ -53,12 +55,13 @@ public class RealWeather extends JavaPlugin {
         log("Language: " + Localization.LanguageDescription);
         playerCheck = new PlayerCheck(this);
         playerCheck.PCheckInit();
-        PlayerHashMap = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
+        PlayerTemperatureThreads = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
+        PlayerHeatShow = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
         PlayerIceHashMap = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
         IceBlock = new HashMap<Integer, Block>(getServer().getMaxPlayers()+5);
         PlayerHealthControler = new ArrayList(getServer().getMaxPlayers()+5);
         PlayerHealthBuffer = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
-        Utils = new Utils();
+        Utils = new Utils(this);
         Utils.addMats();
         for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
             Player player = getServer().getOnlinePlayers()[i];
@@ -85,9 +88,11 @@ public class RealWeather extends JavaPlugin {
         pm.registerEvents(playermove, this);
         for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
             Player player = getServer().getOnlinePlayers()[i];
-            PlayerHashMap.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new CheckTask(this, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
+            PlayerTemperatureThreads.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TempThread(this, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
+            PlayerHeatShow.put(player.getEntityId(), false);
         }
         Command = new Commands(this, Config, Localization);
+        this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new ForecastThread(this), 10*20, 50*20);
         log.log(Level.INFO, "[RealWeather] RealWeather enabled.");
         StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 10 * 20, 9 * 60 * 20);
     }
@@ -96,6 +101,7 @@ public class RealWeather extends JavaPlugin {
     public void onDisable() {
         this.getServer().getScheduler().cancelAllTasks();
         PlayerHealthControler.clear();
+        PlayerHeatShow.clear();
         log.log(Level.INFO, "[RealWeather] RealWeather Disabled!");
     }
     
@@ -131,10 +137,17 @@ public class RealWeather extends JavaPlugin {
                     Utils.SendHelp(player);
                 } else if("version".equalsIgnoreCase(args[0])) {
                     Utils.SendMessage(player, "Version: " + getDescription().getVersion());
-                } else if("heat".equalsIgnoreCase(args[0])) {
+                } else if("forecast".equalsIgnoreCase(args[0])) {
+                    Utils.SendMessage(player, Utils.DoForecast(ForecastTemp));
+                } else if("temp".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
-                        int heat = playerCheck.checkHeatAround(player, Config.getVariables().getBiomes().getWinter().getHeatCheckRadius());
-                        Utils.SendMessage(player, "Temperature in your position: " + Utils.ConvertIntToString(heat));
+                        if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.FALSE)) {
+                            PlayerHeatShow.put(player.getEntityId(), Boolean.TRUE);
+                            Utils.SendMessage(player, "Temperature will be displayed.");
+                        } else {
+                            PlayerHeatShow.put(player.getEntityId(), Boolean.FALSE);
+                            Utils.SendMessage(player, "Temperature will be hidden.");
+                        }
                     } else {
                         Utils.SendMessage(player, "Can not be executed from console.");
                     }

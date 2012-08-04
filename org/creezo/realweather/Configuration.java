@@ -186,7 +186,6 @@ public class Configuration {
         }
         if(!WinterConf.contains("enable")) WinterConf.set("enable", false);
         if(!WinterConf.contains("CheckRadius")) WinterConf.set("CheckRadius", (int) 2);
-        if(!WinterConf.contains("HeatCheckRadius")) WinterConf.set("HeatCheckRadius", (int) 3);
         if(!WinterConf.contains("TempPeak")) WinterConf.set("TempPeak", (int) 50);
         if(!WinterConf.contains("CanKillPlayer")) WinterConf.set("CanKillPlayer", false);
         if(!WinterConf.contains("PlayerIceBlock")) WinterConf.set("PlayerIceBlock", true);
@@ -262,10 +261,23 @@ public class Configuration {
             GlobalConf.set("thirst.AffectedWorlds", list);
         }
         if(!GlobalConf.contains("staminareplenish.enable")) GlobalConf.set("staminareplenish.enable", true);
+        if(!GlobalConf.contains("BiomesWeatherTempModifier.Light")) GlobalConf.set("BiomesWeatherTempModifier.Light", 5);
+        if(!GlobalConf.contains("BiomesWeatherTempModifier.Medium")) GlobalConf.set("BiomesWeatherTempModifier.Medium", 8);
+        if(!GlobalConf.contains("BiomesWeatherTempModifier.Hard")) GlobalConf.set("BiomesWeatherTempModifier.Hard", 12);
+        if(!GlobalConf.contains("HeatCheckRadius")) GlobalConf.set("HeatCheckRadius", (int) 3);
+        if(!GlobalConf.contains("PlayerHeat")) GlobalConf.set("PlayerHeat", (int) 1);
+        if(!GlobalConf.contains("FreezeUnder")) GlobalConf.set("FreezeUnder", (int) 7);
+        if(!GlobalConf.contains("OverheatOver")) GlobalConf.set("OverheatOver", (int) 30);
+        if(!GlobalConf.contains("SeaLevel")) GlobalConf.set("SeaLevel", (int) 62);
+        if(!GlobalConf.contains("MaxMapHeightTemperatureModifier")) GlobalConf.set("MaxMapHeightTemperatureModifier", (int) -10);
         if(!GlobalConf.contains("staminareplenish.StaminaReplenishWaterBottle")) {
             List<Float> list = new ArrayList();
             list.add(1.00F);
             GlobalConf.set("staminareplenish.StaminaReplenishWaterBottle", list);
+        }
+        if(!GlobalConf.contains("BiomesAverageTemp")) {
+            GlobalConf.createSection("BiomesAverageTemp");
+            plugin.log.log(Level.SEVERE, "Biomes Average Temperatures are missing in Global.yml");
         }
     }
     
