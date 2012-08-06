@@ -36,7 +36,7 @@ public class Utils {
     }
     public boolean SendMessage(Player player, String message) {
         try {
-            player.sendMessage(ChatColor.GOLD + "RealWinter: " + message);
+            player.sendMessage(ChatColor.GOLD + "RealWeather: " + message);
             return true;
         } catch (Exception e) {
             RealWeather.log("" + message);

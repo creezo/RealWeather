@@ -7,10 +7,5 @@ CanKillPlayer: false
 #Set true if you want to make Ice Block from a player with really low health
 #In use with 'CanKillPlayer: false' makes great effect :D
 PlayerIceBlock: true
-PlayerDamage:
-  FullArmor: 0
-  ThreePieces: 1
-  TwoPieces: 2
-  OnePiece: 2
-  NoArmor: 3
+PlayerDamage: 4
     

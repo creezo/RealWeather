@@ -21,7 +21,7 @@ public class PlayerListener implements Listener {
     private static PlayerCheck playerCheck = RealWeather.playerCheck;
     private HashMap<Integer, Integer> PlayerTemperatureThreads = RealWeather.PlayerTemperatureThreads;
     private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
-    private List<Player> PlayerHealthControler = RealWeather.PlayerHealthControler;
+    //private HashMap<Integer, Boolean> PlayerClientMod = RealWeather.PlayerClientMod;
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
     private Localization Loc = RealWeather.Localization;
@@ -42,12 +42,8 @@ public class PlayerListener implements Listener {
             PlayerIceHashMap.put(PlayerID, false);
         }
         PlayerTemperatureThreads.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new TempThread(plugin, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
-        PlayerHealthControler PHControl = new PlayerHealthControler(player, plugin);
-        Thread PlayerThread = new Thread(PHControl);
-        PlayerThread.setDaemon(true);
-        PlayerThread.start();
-        PlayerHealthControler.add(player);
         PlayerHeatShow.put(PlayerID, Boolean.FALSE);
+        //PlayerClientMod.put(PlayerID, Boolean.FALSE);
     }
     
     @EventHandler
@@ -56,8 +52,8 @@ public class PlayerListener implements Listener {
         try {
             Integer TaskID = PlayerTemperatureThreads.get(PlayerID);
             plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
-            PlayerHealthControler.remove(event.getPlayer());
             PlayerHeatShow.remove(PlayerID);
+            //PlayerClientMod.remove(PlayerID);
             PlayerTemperatureThreads.remove(PlayerID);
             if(PlayerIceHashMap.get(PlayerID)) {
                 Player player = event.getPlayer();

@@ -28,7 +28,6 @@ public class PlayerInteract implements Listener{
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
     private final RealWeather plugin;
-    private boolean DebugMode = Config.getVariables().isDebugMode();
     
     public PlayerInteract(RealWeather plugin) {
         this.plugin = plugin;
@@ -65,7 +64,7 @@ public class PlayerInteract implements Listener{
                         }
                         if(player.getItemInHand().getTypeId() == 374)
                         player.setSaturation(player.getSaturation() + Config.getVariables().getBiomes().getGlobal().getStaminaReplenishAmount());
-                        if(DebugMode) RealWeather.log("Stamina Replenished to level: " + player.getSaturation());
+                        if(Config.getVariables().isDebugMode()) RealWeather.log("Stamina Replenished to level: " + player.getSaturation());
                     }
                 }
             });

@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -23,12 +22,16 @@ public class Configuration {
     private final File WinterConfigFile;
     private final File DesertConfigFile;
     private final File JungleConfigFile;
+    private final File ArmourConfigFile;
     private FileConfiguration WinterConf;
     private FileConfiguration DesertConf;
     private FileConfiguration JungleConf;
     private FileConfiguration GlobalConf;
+    private FileConfiguration ArmourConf;
     
     private Configurations variables;
+    public List<String> ArmourTypes = new ArrayList<String>();
+    private List<String> ArmourPieces = new ArrayList<String>();
     
     public Configurations getVariables() {
         return variables;
@@ -41,16 +44,18 @@ public class Configuration {
         this.DesertConf = new YamlConfiguration();
         this.JungleConf = new YamlConfiguration();
         this.GlobalConf = new YamlConfiguration();
+        this.ArmourConf = new YamlConfiguration();
         this.GlobalConfigFile = new File(plugin.getDataFolder(), "biomes/Global.yml");
         this.WinterConfigFile = new File(plugin.getDataFolder(), "biomes/Winter.yml");
         this.DesertConfigFile = new File(plugin.getDataFolder(), "biomes/Desert.yml");
         this.JungleConfigFile = new File(plugin.getDataFolder(), "biomes/Jungle.yml");
+        this.ArmourConfigFile = new File(plugin.getDataFolder(), "armour.yml");
         
     }
     public void InitConfig() {
         plugin.log("Loading Configuration.");
         LoadAll();
-        variables = new Configurations(plugin, WinterConf, DesertConf, JungleConf, GlobalConf);
+        variables = new Configurations(plugin, WinterConf, DesertConf, JungleConf, GlobalConf, ArmourConf);
         try {
             plugin.getConfig().load("plugins/RealWeather/config.yml");
         } catch (FileNotFoundException ex) {
@@ -87,51 +92,14 @@ public class Configuration {
         }
         //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecoWinter + " " + GameDifficulty);
     }
-    
-    public void InitEquip() {
-        if(variables.isDebugMode()) plugin.log("Loading Armors.");
-        List<Integer> ListOfBoots = plugin.getConfig().getIntegerList("Armor.Boots");
-        List<Integer> ListOfChestplate = plugin.getConfig().getIntegerList("Armor.Chestplate");
-        List<Integer> ListOfHelmet = plugin.getConfig().getIntegerList("Armor.Helmet");
-        List<Integer> ListOfLeggings = plugin.getConfig().getIntegerList("Armor.Leggings");
-        int[] numOfArmors = new int[4];
-        for(int index = 0 ; index < ListOfBoots.size() ; index++ ) {
-            ItemStack IStack = new ItemStack(ListOfBoots.get(index), 1);
-            List<ItemStack> ItemList = variables.getAllowedBoots();
-            ItemList.add(IStack);
-            variables.setAllowedBoots(ItemList);
-            numOfArmors[0]++;
-        }
-        for(int index = 0 ; index < ListOfChestplate.size() ; index++ ) {
-            ItemStack IStack = new ItemStack(ListOfChestplate.get(index), 1);
-            List<ItemStack> ItemList = variables.getAllowedChestplate();
-            ItemList.add(IStack);
-            variables.setAllowedChestplate(ItemList);
-            numOfArmors[1]++;
-        }
-        for(int index = 0 ; index < ListOfHelmet.size() ; index++ ) {
-            ItemStack IStack = new ItemStack(ListOfHelmet.get(index), 1);
-            List<ItemStack> ItemList = variables.getAllowedHelmet();
-            ItemList.add(IStack);
-            variables.setAllowedHelmet(ItemList);
-            numOfArmors[2]++;
-        }
-        for(int index = 0 ; index < ListOfLeggings.size() ; index++ ) {
-            ItemStack IStack = new ItemStack(ListOfLeggings.get(index), 1);
-            List<ItemStack> ItemList = variables.getAllowedLeggings();
-            ItemList.add(IStack);
-            variables.setAllowedLeggings(ItemList);
-            numOfArmors[3]++;
-        }
-        plugin.log("Loaded " + ConvertIntToString(numOfArmors[0]) + " Boots, " + ConvertIntToString(numOfArmors[1]) + " Chestplates, " + ConvertIntToString(numOfArmors[2]) + " Helmets, " + ConvertIntToString(numOfArmors[3]) + " Leggings.");
-    }
-    
+        
     public boolean SaveAll() {
         try {
             WinterConf.save(WinterConfigFile);
             DesertConf.save(DesertConfigFile);
             JungleConf.save(JungleConfigFile);
             GlobalConf.save(GlobalConfigFile);
+            ArmourConf.save(ArmourConfigFile);
             plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
@@ -172,6 +140,13 @@ public class Configuration {
             plugin.log("Global configuration file copied.");
             LoadGlobal(GlobalConfigFile);
         }
+        if(ArmourConfigFile.exists()) {
+            LoadArmour(ArmourConfigFile);
+        } else {
+            copy(plugin.getResource("armour.yml"), ArmourConfigFile);
+            plugin.log("Armour configuration file copied.");
+            LoadArmour(ArmourConfigFile);
+        }
     }
     
     private void LoadWinter(File CFile) {
@@ -191,11 +166,7 @@ public class Configuration {
         if(!WinterConf.contains("PlayerIceBlock")) WinterConf.set("PlayerIceBlock", true);
         if(!WinterConf.contains("InitialTemperature")) WinterConf.set("InitialTemperature", (int) 0);
         if(!WinterConf.contains("HouseRecognizer")) WinterConf.set("HouseRecognizer", "cross");
-        if(!WinterConf.contains("PlayerDamage.NoArmor")) WinterConf.set("PlayerDamage.NoArmor", (int) 3);
-        if(!WinterConf.contains("PlayerDamage.OnePiece")) WinterConf.set("PlayerDamage.OnePiece", (int) 2);
-        if(!WinterConf.contains("PlayerDamage.TwoPieces")) WinterConf.set("PlayerDamage.TwoPieces", (int) 2);
-        if(!WinterConf.contains("PlayerDamage.ThreePieces")) WinterConf.set("PlayerDamage.ThreePieces", (int) 1);
-        if(!WinterConf.contains("PlayerDamage.FullArmor")) WinterConf.set("PlayerDamage.FullArmor", (int) 0);
+        if(!WinterConf.contains("PlayerDamage")) WinterConf.set("PlayerDamage", (int) 4);
     }
     private void LoadDesert(File CFile) {
         try {
@@ -209,15 +180,10 @@ public class Configuration {
         }
         if(!DesertConf.contains("enable")) DesertConf.set("enable", true);
         if(!DesertConf.contains("HouseRecognizer")) DesertConf.set("HouseRecognizer", "simple");
-        if(!DesertConf.contains("StaminaLost.WithHelmet")) {
+        if(!DesertConf.contains("StaminaLost")) {
             List<Float> list = new ArrayList();
             list.add(0.05F);
-            DesertConf.set("StaminaLost.WithHelmet", list);
-        }
-        if(!DesertConf.contains("StaminaLost.WithoutHelmet")) {
-            List<Float> list = new ArrayList();
-            list.add(0.15F);
-            DesertConf.set("StaminaLost.WithoutHelmet", list);
+            DesertConf.set("StaminaLost", list);
         }
         if(!DesertConf.contains("NumberOfCheckPerFoodLost")) DesertConf.set("enaNumberOfCheckPerFoodLostle", (int) 5);
     }
@@ -280,9 +246,34 @@ public class Configuration {
             plugin.log.log(Level.SEVERE, "Biomes Average Temperatures are missing in Global.yml");
         }
     }
-    
-    private static String ConvertIntToString(int number) {
-        return "" + number;
+    private void LoadArmour(File CFile) {
+        try {
+            ArmourConf.load(CFile);
+        } catch (FileNotFoundException ex) {
+            plugin.log.log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            plugin.log.log(Level.SEVERE, null, ex);
+        } catch (InvalidConfigurationException ex) {
+            plugin.log.log(Level.SEVERE, null, ex);
+        }
+        ArmourTypes.add("Leather");
+        ArmourTypes.add("Iron");
+        ArmourTypes.add("Gold");
+        ArmourTypes.add("Diamond");
+        ArmourTypes.add("Chain");
+        ArmourTypes.add("Other");
+        ArmourPieces.add("Boots");
+        ArmourPieces.add("Chestplate");
+        ArmourPieces.add("Helmet");
+        ArmourPieces.add("Leggings");
+        for (String type : ArmourTypes) {
+            for (String piece : ArmourPieces) {
+                if(!ArmourConf.contains(type+"."+piece+".FrostResistanceFactor")) ArmourConf.set(type+"."+piece+".FrostResistanceFactor", (double)1d);
+                if(!ArmourConf.contains(type+"."+piece+".HeatResistanceFactor")) ArmourConf.set(type+"."+piece+".HeatResistanceFactor", (double)1d);
+            }
+        }
+        if(!ArmourConf.contains("Pumpkin.FrostResistanceFactor")) ArmourConf.set("Pumpkin.FrostResistanceFactor", (double)1.1d);
+        if(!ArmourConf.contains("Pumpkin.HeatResistanceFactor")) ArmourConf.set("Pumpkin.HeatResistanceFactor", (double)1.1d);
     }
 
     private void copy(InputStream input, File file) {

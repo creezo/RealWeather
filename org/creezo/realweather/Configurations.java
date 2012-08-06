@@ -1,27 +1,63 @@
 package org.creezo.realweather;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 public class Configurations {
     private FileConfiguration WinterConf;
     private FileConfiguration DesertConf;
     private FileConfiguration JungleConf;
     private FileConfiguration GlobalConf;
+    private FileConfiguration ArmourConf;
     private RealWeather plugin;
-    
-    public Configurations(RealWeather plugin, FileConfiguration WinterConf, FileConfiguration DesertConf, FileConfiguration JungleConf, FileConfiguration GlobalConf) {
+    public Configurations(RealWeather plugin, FileConfiguration WinterConf, FileConfiguration DesertConf, FileConfiguration JungleConf, FileConfiguration GlobalConf, FileConfiguration ArmourConf) {
         this.WinterConf = WinterConf;
         this.DesertConf = DesertConf;
         this.JungleConf = JungleConf;
         this.GlobalConf = GlobalConf;
+        this.ArmourConf = ArmourConf;
         this.plugin = plugin;
+    }
+    private Armours Armours = new Armours();
+    public Armours getArmours() {
+        return Armours;
+    }
+    public class Armours {
+        
+        public double[] getResistance(int itemID, String resistanceType) {
+            if(plugin.Config.getVariables().isDebugMode()) plugin.log("Getting resistance.");
+            double[] factor = {1,0};
+            HashMap<Integer, String> type = new HashMap<Integer, String>();
+            type.put(298, "Leather");
+            type.put(302, "Chain");
+            type.put(306, "Iron");
+            type.put(310, "Diamond");
+            type.put(314, "Gold");
+            type.put(86, "Pumpkin");
+            if(itemID==86) {
+                return new double[] { ArmourConf.getDouble(type.get(itemID)+"."+resistanceType+"ResistanceFactor"), 1};
+            }
+            if(type.containsKey(itemID)) {
+                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Helmet resistance: "+ArmourConf.getDouble(type.get(itemID)+".Helmet."+resistanceType+"ResistanceFactor")+" "+type.get(itemID)+".Helmet."+resistanceType+"ResistanceFactor");
+                return new double[] { ArmourConf.getDouble(type.get(itemID)+".Helmet."+resistanceType+"ResistanceFactor"), 1};
+            } else if(type.containsKey(itemID-1)) {
+                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Chestplate resistance: "+ArmourConf.getDouble(type.get(itemID-1)+".Chestplate."+resistanceType+"ResistanceFactor")+" "+type.get(itemID-1)+".Chestplate."+resistanceType+"ResistanceFactor");
+                return new double[] { ArmourConf.getDouble(type.get(itemID-1)+".Chestplate."+resistanceType+"ResistanceFactor"), 1};
+            } else if(type.containsKey(itemID-2)) {
+                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Leggings resistance: "+ArmourConf.getDouble(type.get(itemID-2)+".Leggings."+resistanceType+"ResistanceFactor")+" "+type.get(itemID-2)+".Leggings."+resistanceType+"ResistanceFactor");
+                return new double[] { ArmourConf.getDouble(type.get(itemID-2)+".Leggings."+resistanceType+"ResistanceFactor"), 1};
+            } else if(type.containsKey(itemID-3)) {
+                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Boots resistance: "+ArmourConf.getDouble(type.get(itemID-3)+".Boots."+resistanceType+"ResistanceFactor")+" "+type.get(itemID-3)+".Boots."+resistanceType+"ResistanceFactor");
+                return new double[] { ArmourConf.getDouble(type.get(itemID-3)+".Boots."+resistanceType+"ResistanceFactor"), 1};
+            }
+            return factor;
+        }
     }
     private Statistics Statistics = new Statistics();
     public Statistics getStatistics() {
@@ -57,18 +93,8 @@ public class Configurations {
             public void setEnabled(boolean WinterEnabled) {
                 WinterConf.set("enable", WinterEnabled);
             }
-            public void setTempPeak(int TempPeak) {
-                WinterConf.set("TempPeak", TempPeak);
-            }
-            public void setMissingArmorDamage(int[] MissingArmorDamage) {
-                WinterConf.set("PlayerDamage.NoArmor", MissingArmorDamage[0]);
-                WinterConf.set("PlayerDamage.OnePiece", MissingArmorDamage[1]);
-                WinterConf.set("PlayerDamage.TwoPieces", MissingArmorDamage[2]);
-                WinterConf.set("PlayerDamage.ThreePieces", MissingArmorDamage[3]);
-                WinterConf.set("PlayerDamage.FullArmor", MissingArmorDamage[4]);
-            }
-            public void setInitialTemperature(int InitialTemperature) {
-                WinterConf.set("InitialTemperature", InitialTemperature);
+            public void setMissingArmorDamage(int Damage) {
+                WinterConf.set("PlayerDamage", Damage);
             }
             public void setIceBlock(boolean PlayerIceBlock) {
                 WinterConf.set("PlayerIceBlock", PlayerIceBlock);
@@ -85,20 +111,8 @@ public class Configurations {
             public boolean isEnabled() {
                 return WinterConf.getBoolean("enable");
             }
-            public int getTempPeak() {
-                return WinterConf.getInt("TempPeak");
-            }
-            public int[] getMissingArmorDamage() {
-                int[] MissingArmorDamage = new int[5];
-                MissingArmorDamage[0] = WinterConf.getInt("PlayerDamage.NoArmor");
-                MissingArmorDamage[1] = WinterConf.getInt("PlayerDamage.OnePiece");
-                MissingArmorDamage[2] = WinterConf.getInt("PlayerDamage.TwoPieces");
-                MissingArmorDamage[3] = WinterConf.getInt("PlayerDamage.ThreePieces");
-                MissingArmorDamage[4] = WinterConf.getInt("PlayerDamage.FullArmor");
-                return MissingArmorDamage;
-            }
-            public int getInitialTemperature() {
-                return WinterConf.getInt("InitialTemperature");
+            public int getDamage() {
+                return WinterConf.getInt("PlayerDamage");
             }
             public boolean getPlayerIceBlock() {
                 return WinterConf.getBoolean("PlayerIceBlock", true);
@@ -118,11 +132,8 @@ public class Configurations {
             public int getChecksPerFoodDecrease() {
                 return DesertConf.getInt("NumberOfCheckPerFoodLost");
             }
-            public float getStaminaLostHelmet() {
-                return DesertConf.getFloatList("StaminaLost.WithHelmet").get(0);
-            }
-            public float getStaminaLostNoHelmet() {
-                return DesertConf.getFloatList("StaminaLost.WithoutHelmet").get(0);
+            public float getStaminaLost() {
+                return DesertConf.getFloatList("StaminaLost").get(0);
             }
             public String getHouseRecognizer() {
                 return DesertConf.getString("HouseRecognizer");
@@ -136,15 +147,10 @@ public class Configurations {
             public void setEnabled(boolean DesertEnabled) {
                 DesertConf.set("enable", DesertEnabled);
             }
-            public void setStaminaLostHelmet(float DesertStaminaLostHelmet) {
+            public void setStaminaLost(float DesertStaminaLostHelmet) {
                 List<Float> list = new ArrayList();
                 list.add(DesertStaminaLostHelmet);
-                DesertConf.set("StaminaLost.WithHelmet", list);
-            }
-            public void setStaminaLostNoHelmet(float DesertStaminaLostNoHelmet) {
-                List<Float> list = new ArrayList();
-                list.add(DesertStaminaLostNoHelmet);
-                DesertConf.set("StaminaLost.WithoutHelmet", list);
+                DesertConf.set("StaminaLost", list);
             }
             public void setHouseRecognizer(String HouseRecoDesert) {
                 DesertConf.set("HouseRecognizer", HouseRecoDesert);
@@ -286,10 +292,6 @@ public class Configurations {
     }
     private String GameDifficulty = "peaceful";
     private int MaxPlayers;
-    private List<ItemStack> AllowedBoots = new ArrayList();
-    private List<ItemStack> AllowedChestplate = new ArrayList();
-    private List<ItemStack> AllowedHelmet = new ArrayList();
-    private List<ItemStack> AllowedLeggings = new ArrayList();
     /*private List<String> AllowedWorlds = new ArrayList();*/
     public int getCheckDelay(String GameDifficulty) {
         return plugin.getConfig().getInt(GameDifficulty + ".CheckDelay");
@@ -311,18 +313,6 @@ public class Configurations {
     }
     public List<String> getAllowedWorlds() {
         return plugin.getConfig().getStringList("AffectedWorlds");
-    }
-    public List<ItemStack> getAllowedLeggings() {
-        return AllowedLeggings;
-    }
-    public List<ItemStack> getAllowedHelmet() {
-        return AllowedHelmet;
-    }
-    public List<ItemStack> getAllowedChestplate() {
-        return AllowedChestplate;
-    }
-    public List<ItemStack> getAllowedBoots() {
-        return AllowedBoots;
     }
     public boolean isDebugGlassBlocks() {
         return plugin.getConfig().getBoolean("DebugGlassBlocks");
@@ -356,17 +346,5 @@ public class Configurations {
     }
     public void setAllowedWorlds(List<String> AllowedWorlds) {
         plugin.getConfig().set("AffectedWorlds", AllowedWorlds);
-    }
-    public void setAllowedLeggings(List<ItemStack> AllowedLeggings) {
-        this.AllowedLeggings = AllowedLeggings;
-    }
-    public void setAllowedHelmet(List<ItemStack> AllowedHelmet) {
-        this.AllowedHelmet = AllowedHelmet;
-    }
-    public void setAllowedChestplate(List<ItemStack> AllowedChestplate) {
-        this.AllowedChestplate = AllowedChestplate;
-    }
-    public void setAllowedBoots(List<ItemStack> AllowedBoots) {
-        this.AllowedBoots = AllowedBoots;
     }
 }

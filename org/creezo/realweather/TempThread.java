@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 class TempThread implements Runnable {
     private final RealWeather plugin;
     private final Player player;
-    private boolean DebugMode = Config.getVariables().isDebugMode();
     List<Biome> BioLight = new ArrayList();
     List<Biome> BioMedium = new ArrayList();
     List<Biome> BioHard = new ArrayList();
@@ -35,13 +34,14 @@ class TempThread implements Runnable {
     private static Configuration Config = RealWeather.Config;
     private static PlayerCheck playerCheck = RealWeather.playerCheck;
     private Localization Loc = RealWeather.Localization;
-    private HashMap<Integer, Integer> PlayerHealthBuffer = RealWeather.PlayerHealthBuffer;
     private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
+    //private HashMap<Integer, Boolean> PlayerClientMod = RealWeather.PlayerClientMod;
     private Utils utils = RealWeather.Utils;
 
     public TempThread(RealWeather plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
+        addBiomes();
     }
 
     private void addBiomes() {
@@ -80,7 +80,7 @@ class TempThread implements Runnable {
     public synchronized void run() {
         try {
             if(Config.getVariables().isGlobalEnable() && !player.getGameMode().equals(GameMode.CREATIVE) && !player.hasPermission("realweather.immune")) {
-                if(DebugMode) plugin.log("Starting temp calculation.");
+                if(Config.getVariables().isDebugMode()) plugin.log("Starting temp calculation.");
                 RealWeather.actualWeather = player.getLocation().getWorld().hasStorm();
                 Biome PBiome = player.getLocation().getBlock().getBiome();
                 int StartTemp = Config.getVariables().getBiomes().getGlobal().getBiomeAverageTemp(player.getLocation().getBlock().getBiome().toString());
@@ -133,7 +133,7 @@ class TempThread implements Runnable {
                     } else {
                         DeepModifier = 0.15d;
                     }
-                    if(DebugMode) plugin.log("DeepModifier (Number between 1 and 0.15):"+DeepModifier);
+                    if(Config.getVariables().isDebugMode()) plugin.log("DeepModifier (Number between 1 and 0.15):"+DeepModifier);
                     Temperature = ((Temperature-10)*DeepModifier)+10;
                 }
                 Temperature += PlayerCheck.checkHeatAround(player, Config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
@@ -146,6 +146,10 @@ class TempThread implements Runnable {
                 if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
                     utils.SendMessage(player, "Temperature in your area: "+df.format(Temperature));
                 }
+                //if(PlayerClientMod.get(player.getEntityId())) {
+                //    byte[] bytes = (""+df.format(Temperature)).getBytes();
+                //    player.sendPluginMessage(plugin, "realweather", bytes);
+                //}
                 if(Temperature < -60) Temperature = -60;
                 if(Temperature > 80) Temperature = 80;
                 if(Temperature < Config.getVariables().getBiomes().getGlobal().getFreezeUnder()) {
@@ -157,25 +161,36 @@ class TempThread implements Runnable {
                             TempRange = 60 + Config.getVariables().getBiomes().getGlobal().getFreezeUnder();
                         }
                         double percent = ((((Temperature + 60)/TempRange)-1)*-1);
-                        double damage = Config.getVariables().getBiomes().getWinter().getMissingArmorDamage()[playerCheck.checkPlayerClothes(player)];
+                        if(Config.getVariables().isDebugMode()) plugin.log("Freezing: "+df.format(percent));
+                        double damage = Config.getVariables().getBiomes().getWinter().getDamage();
+                        if(Config.getVariables().isDebugMode()) plugin.log("Damage: "+damage);
                         double finalDamage = damage * percent;
+                        if(Config.getVariables().isDebugMode()) plugin.log("Final damage: "+df.format(finalDamage));
                         if(PlayerCheck.checkPlayerInside(player, Config.getVariables().getBiomes().getWinter().getCheckRadius(), Config.getVariables().getBiomes().getWinter().getHouseRecoWinter())) finalDamage = 0;
+                        if(finalDamage!=0) {
+                            double[] resist = playerCheck.getPlrResist(player, "Frost");
+                            if(Config.getVariables().isDebugMode()) plugin.log("Resist: "+df.format(resist[0]));
+                            finalDamage /= resist[0];
+                            if(resist[1]==4 && finalDamage >= 0.5d) finalDamage -= 0.5d;
+                        } else {
+                            if(Config.getVariables().isDebugMode()) plugin.log("Player is inside.");
+                        }
+                        if(Config.getVariables().isDebugMode()) plugin.log("Final damage + resist: "+df.format(finalDamage));
                         if(finalDamage >= 0.5d) {
                             if(RepeatingMessage == 1) {
                                 player.sendMessage(ChatColor.GOLD + Loc.WinterWarnMessage);
                                 RepeatingMessage = MessageDelay;
                             } else { RepeatingMessage--; }
                         }
-                        int IntDamage = (int)finalDamage;
-                        double zbytekDouble = finalDamage - IntDamage;
-                        if(zbytekDouble >= 0.5d) {
-                            IntDamage++;
-                        }
-                        if((player.getHealth() - IntDamage) >= 1) {
-                            int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
-                            DMGBuffer += IntDamage;
-                            PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);
-                        }
+                        int IntDamage = (int)Math.round(finalDamage);
+                        if(Config.getVariables().isDebugMode()) plugin.log("Rounded damage: "+IntDamage);
+                        PlayerDamageThread pdmgTH = new PlayerDamageThread(player, IntDamage, plugin);
+                        Thread dmgTH = new Thread(pdmgTH);
+                        dmgTH.setDaemon(true);
+                        dmgTH.start();
+                        /*int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
+                        DMGBuffer += IntDamage;
+                        PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);*/
                     }
                 } else if(Temperature > Config.getVariables().getBiomes().getGlobal().getOverheatOver()) {
                     if(Config.getVariables().getBiomes().getDesert().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.desert")) {
@@ -186,30 +201,31 @@ class TempThread implements Runnable {
                             TempRange = 80 + Config.getVariables().getBiomes().getGlobal().getOverheatOver();
                         }
                         double percent = (((Temperature - 80)/(double)TempRange)+1);
-                        double damage;
-                        if(playerCheck.GetPlayerHelmet(player)) {
-                            damage = (double) Config.getVariables().getBiomes().getDesert().getStaminaLostHelmet();
-                        } else {
-                            damage = (double) Config.getVariables().getBiomes().getDesert().getStaminaLostNoHelmet();
+                        double damage = Config.getVariables().getBiomes().getDesert().getStaminaLost();
+                        double finalDamage = damage * percent;
+                        if(PlayerCheck.checkPlayerInside(player, 1, Config.getVariables().getBiomes().getDesert().getHouseRecognizer())) {
+                            finalDamage *= 0.5D;
+                        }
+                        if(finalDamage!=0) {
+                            double[] resist = playerCheck.getPlrResist(player, "Heat");
+                            finalDamage /= resist[0];
+                        }
+                        if(finalDamage > 0.5d) {
                             if(RepeatingMessage == 1) {
                                 player.sendMessage(ChatColor.GOLD + Loc.DesertWarnMessage);
                                 RepeatingMessage = MessageDelay;
                             } else { RepeatingMessage--; }
                         }
-                        double finalDamage = damage * percent;
-                        if(PlayerCheck.checkPlayerInside(player, 1, Config.getVariables().getBiomes().getDesert().getHouseRecognizer())) {
-                            finalDamage *= 0.5D;
-                        }
                         if(player.getSaturation() > (float)finalDamage) {
                             player.setSaturation(player.getSaturation() - (float)finalDamage);
-                            if(DebugMode) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                            if(Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                         } else { player.setSaturation(0.0F);
                             if(player.getFoodLevel() > 1) {
                                 if(RepeatingFoodDecrease == 1) {
                                     player.setFoodLevel(player.getFoodLevel() - 1);
                                     RepeatingFoodDecrease = RepeatingFoodDecreaseDelay;
                                 } else { RepeatingFoodDecrease--; }
-                                if(DebugMode) plugin.log("Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
+                                if(Config.getVariables().isDebugMode()) plugin.log("Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
                             }
                         }
                     }
@@ -217,7 +233,7 @@ class TempThread implements Runnable {
                 if(Config.getVariables().getBiomes().getGlobal().isThirstEnabled() && Config.getVariables().getBiomes().getGlobal().getThirstAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.thirst")) {
                     if(player.getSaturation() > Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost()) {
                         player.setSaturation(player.getSaturation() - Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost());
-                        if(DebugMode) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                        if(Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                     } else { player.setSaturation(0.0F); }
                 }
                 if(Config.getVariables().getBiomes().getJungle().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.jungle")) {
@@ -225,10 +241,10 @@ class TempThread implements Runnable {
                     if(PlayerBiome.equals(Biome.JUNGLE) || PlayerBiome.equals(Biome.JUNGLE_HILLS)) {
                         //PlayerIsInJungle.contains(player);
                         if(player.getLocation().getY() >= 60) {
-                            if(DebugMode) plugin.log("Looking for tall grass...");
+                            if(Config.getVariables().isDebugMode()) plugin.log("Looking for tall grass...");
                             boolean IsGrass = PlayerCheck.checkRandomGrass(player, Config.getVariables().getBiomes().getJungle().getInsectJumpRange(), Config.getVariables().getBiomes().getJungle().getChanceMultiplier());
                             if(IsGrass) {
-                                if(DebugMode) plugin.log("Found.");
+                                if(Config.getVariables().isDebugMode()) plugin.log("Found.");
                                 Utils.PlayerPoisoner(player, 100, IsGrass);
                             }
                         }

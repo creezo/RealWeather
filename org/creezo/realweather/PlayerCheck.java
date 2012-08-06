@@ -21,22 +21,9 @@ import org.bukkit.inventory.ItemStack;
 public class PlayerCheck {
     private final RealWeather plugin;
     private static Configuration Config = RealWeather.Config;
-    private static List<ItemStack> AllowedBoots;
-    private static List<ItemStack> AllowedChestplate;
-    private static List<ItemStack> AllowedHelmet;
-    private static List<ItemStack> AllowedLeggings;
-    private static boolean DebugMode;
     
     public PlayerCheck(RealWeather plugin) {
         this.plugin = plugin;
-    }
-    
-    public void PCheckInit() {
-        AllowedBoots = Config.getVariables().getAllowedBoots();
-        AllowedChestplate = Config.getVariables().getAllowedChestplate();
-        AllowedHelmet = Config.getVariables().getAllowedHelmet();
-        AllowedLeggings = Config.getVariables().getAllowedLeggings();
-        DebugMode = Config.getVariables().isDebugMode();
     }
     
     static boolean checkRandomGrass(Player player, int range, int tries) {
@@ -71,7 +58,7 @@ public class PlayerCheck {
         boolean Inside = false;
         boolean CheckOnce = true;
         if("simple".equals(Recognizer)) {
-            if(DebugMode) RealWeather.log("simple selected");
+            if(Config.getVariables().isDebugMode()) RealWeather.log("simple selected");
             Inside = CheckToTop(player.getLocation().getBlock().getRelative(BlockFace.UP), player.getLocation().getWorld().getMaxHeight() - 1, player);
         } else if("default".equals(Recognizer)) {
             if(Config.getVariables().isDebugMode()) RealWeather.log("default selected");
@@ -79,7 +66,7 @@ public class PlayerCheck {
             int heigh = playerPosition.getBlockY();
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(DebugMode) RealWeather.log("Heigh: " + ConvertIntToString(heigh));
+            if(Config.getVariables().isDebugMode()) RealWeather.log("Heigh: " + ConvertIntToString(heigh));
 
             Block NowCheckingBlock = playerPosition.getBlock();
             Block StartBlock = playerPosition.getBlock();
@@ -130,14 +117,14 @@ public class PlayerCheck {
                 if(Inside == false) break;
             }
         } else if("cross".equals(Recognizer)) {
-            if(DebugMode) RealWeather.log("cross selected");
+            if(Config.getVariables().isDebugMode()) RealWeather.log("cross selected");
             Block RangeCheckBlock;
             Location playerPosition = player.getLocation();
             int heigh = playerPosition.getBlockY();
             Block playerPositionBlock = playerPosition.getBlock().getRelative(BlockFace.UP);
             int MaxHeigh = player.getLocation().getWorld().getMaxHeight() - 1;
 
-            if(DebugMode) RealWeather.log("Heigh: " + ConvertIntToString(heigh));
+            if(Config.getVariables().isDebugMode()) RealWeather.log("Heigh: " + ConvertIntToString(heigh));
             
             for(int once = 1; once == 1; once++) {
                 Inside = CheckToTop(playerPositionBlock, MaxHeigh, player);
@@ -202,91 +189,63 @@ public class PlayerCheck {
         Biome BiomeType = player.getLocation().getBlock().getBiome();
         return BiomeType;
     }
-
-    public int checkPlayerClothes(Player player) {
-        int clothesNumber = 0;
+    
+    public double[] getPlrResist(Player player, String resistType) {
+        double[] resist = {1,0};
         ItemStack WearBoots = player.getInventory().getBoots();
         ItemStack WearChestplate = player.getInventory().getChestplate();
         ItemStack WearHelmet = player.getInventory().getHelmet();
         ItemStack WearLeggings = player.getInventory().getLeggings();
-        if(DebugMode) {
-            try {
-                plugin.log("Boots ID: " + ConvertIntToString(WearBoots.getTypeId()));
-            } catch(Exception ex) { 
-                //plugin.log.log(Level.INFO, ex.getMessage()) ;
-            }
-            try {
-                plugin.log("Chestplate ID: " + ConvertIntToString(WearChestplate.getTypeId()));
-            } catch(Exception ex) { 
-                //plugin.log.log(Level.INFO, ex.getMessage()) ;
-            }
-            try {
-                plugin.log("Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
-            } catch(Exception ex) { 
-                //plugin.log.log(Level.INFO, ex.getMessage()) ;
-            }
-            try {
-                plugin.log("Leggings ID: " + ConvertIntToString(WearLeggings.getTypeId()));
-            } catch(Exception ex) { 
-                //plugin.log.log(Level.INFO, ex.getMessage()) ;
-            }
-        }
+        int BootsID = 0, ChestplateID = 0, HelmetID = 0, LeggingsID = 0;
         try {
-            for(int num = 0; num < AllowedBoots.size(); num++) {
-                if(AllowedBoots.get(num).getTypeId() == WearBoots.getTypeId()) clothesNumber++;
-            }
-        } catch(Exception ex) { 
-            if(DebugMode) plugin.log("No Boots. " + ex.getMessage()) ;
-        }
+            BootsID = WearBoots.getTypeId();
+            if(Config.getVariables().isDebugMode()) plugin.log("BootsID: "+BootsID);
+        } catch(Exception ex) { if(Config.getVariables().isDebugMode()) plugin.log("No Boots."); }
         try {
-            for(int num = 0; num < AllowedChestplate.size(); num++) {
-                if(AllowedChestplate.get(num).getTypeId() == WearChestplate.getTypeId()) clothesNumber++;
-            }
-        } catch(Exception ex) { 
-            if(DebugMode) plugin.log("No Chestplate. " + ex.getMessage()) ;
-        }
+            ChestplateID = WearChestplate.getTypeId();
+            if(Config.getVariables().isDebugMode()) plugin.log("ChestplateID: "+ChestplateID);
+        } catch(Exception ex) { if(Config.getVariables().isDebugMode()) plugin.log("No Chestplate."); }
         try {
-            for(int num = 0; num < AllowedHelmet.size(); num++) {
-                if(AllowedHelmet.get(num).getTypeId() == WearHelmet.getTypeId()) clothesNumber++;
-            }
-        } catch(Exception ex) { 
-            if(DebugMode) plugin.log("No Helmet. " + ex.getMessage()) ;
-        }
+            HelmetID = WearHelmet.getTypeId();
+            if(Config.getVariables().isDebugMode()) plugin.log("HelmetID: "+HelmetID);
+        } catch(Exception ex) { if(Config.getVariables().isDebugMode()) plugin.log("No Helmet."); }
         try {
-            for(int num = 0; num < AllowedLeggings.size(); num++) {
-                if(AllowedLeggings.get(num).getTypeId() == WearLeggings.getTypeId()) clothesNumber++;
-            }
-        } catch(Exception ex) { 
-            if(DebugMode) plugin.log("No Leggings. " + ex.getMessage()) ;
+            LeggingsID = WearLeggings.getTypeId();
+            if(Config.getVariables().isDebugMode()) plugin.log("LeggingsID: "+LeggingsID);
+        } catch(Exception ex) { if(Config.getVariables().isDebugMode()) plugin.log("No Leggings."); }
+        if(Config.getVariables().isDebugMode()) plugin.log("BootsID: "+BootsID);
+        if(Config.getVariables().isDebugMode()) plugin.log("ChestplateID: "+ChestplateID);
+        if(Config.getVariables().isDebugMode()) plugin.log("HelmetID: "+HelmetID);
+        if(Config.getVariables().isDebugMode()) plugin.log("LeggingsID: "+LeggingsID);
+        if(Config.getVariables().isDebugMode()) plugin.log("Resist2(0): "+resist[0]);
+        if(BootsID!=0) {
+            double[] vars = Config.getVariables().getArmours().getResistance(BootsID, resistType);
+            resist[0] *= vars[0];
+            resist[1] += vars[1];
         }
-        if(DebugMode) {
-            plugin.log("Armors: " + ConvertIntToString(clothesNumber));
+        if(Config.getVariables().isDebugMode()) plugin.log("Resist2(1): "+resist[0]);
+        if(ChestplateID!=0) {
+            double[] vars = Config.getVariables().getArmours().getResistance(ChestplateID, resistType);
+            resist[0] *= vars[0];
+            resist[1] += vars[1];
         }
-        return clothesNumber;
+        if(Config.getVariables().isDebugMode()) plugin.log("Resist2(2): "+resist[0]);
+        if(HelmetID!=0) {
+            double[] vars = Config.getVariables().getArmours().getResistance(HelmetID, resistType);
+            resist[0] *= vars[0];
+            resist[1] += vars[1];
+        }
+        if(Config.getVariables().isDebugMode()) plugin.log("Resist2(3): "+resist[0]);
+        if(LeggingsID!=0) {
+            double[] vars = Config.getVariables().getArmours().getResistance(LeggingsID, resistType);
+            resist[0] *= vars[0];
+            resist[1] += vars[1];
+        }
+        if(Config.getVariables().isDebugMode()) plugin.log("Resist2(4): "+resist[0]);
+        return resist;
     }
-    
-    public boolean GetPlayerHelmet(Player player) {
-        boolean HasHelmet = false;
-        ItemStack WearHelmet = player.getInventory().getHelmet();
-        if(DebugMode) {
-            try {
-                plugin.log("Helmet ID: " + ConvertIntToString(WearHelmet.getTypeId()));
-            } catch(Exception ex) {
-                //plugin.log.log(Level.INFO, ex.getMessage());
-            }
-        }
-        try {
-            for(int num = 0; num < AllowedHelmet.size(); num++) {
-                if(AllowedHelmet.get(num).getTypeId() == WearHelmet.getTypeId()) HasHelmet = true;
-            }
-        } catch(Exception ex) {
-            //plugin.log.log(Level.INFO, ex.getMessage());
-        }
-        return HasHelmet;
-    }
-
     public static double checkHeatAround(Player player, int HeatCheckRadius) {
-        if(DebugMode) RealWeather.log("Checking heat...");
+        if(Config.getVariables().isDebugMode()) RealWeather.log("Checking heat...");
         //player.getLocation().getBlock().getTemperature();
         double Temperature = 0;
         double BlockPower = 0;
@@ -364,9 +323,9 @@ public class PlayerCheck {
                 BlockPower = 0;
                 break;
         }
-        if(DebugMode) RealWeather.log("From item in hand: " + ConvertIntToString((int)BlockPower));
+        if(Config.getVariables().isDebugMode()) RealWeather.log("From item in hand: " + ConvertIntToString((int)BlockPower));
         Temperature += BlockPower;
-        if(DebugMode) RealWeather.log("Total heat from blocks and items: " + Temperature);
+        if(Config.getVariables().isDebugMode()) RealWeather.log("Total heat from blocks and items: " + Temperature);
         return Temperature;
     }
     

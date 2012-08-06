@@ -17,14 +17,6 @@ normal:
 hard:
   CheckDelay: 4
   StartDelay: 8
-  
-#Write down here IDs of items which can protect you. You can add here your IDs of items from mods.
-Armor:
-  Boots: [301, 305, 309, 313, 317]
-  Chestplate: [299, 303, 307, 311, 315]
-  Helmet: [298, 302, 306, 310, 314]
-  Leggings: [300, 304, 308, 312, 316]
-
 Statistics:
   ShowMyServerOnList: false
   ServerName:

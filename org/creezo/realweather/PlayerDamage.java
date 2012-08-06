@@ -27,7 +27,6 @@ public class PlayerDamage implements Listener {
     private static Configuration Config = RealWeather.Config;
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
-    private boolean DebugMode = Config.getVariables().isDebugMode();
     private boolean PlayerIceBlock = Config.getVariables().getBiomes().getWinter().getPlayerIceBlock();
     private List<Material> Mats = RealWeather.Mats;
     private Localization Loc = RealWeather.Localization;
@@ -38,7 +37,7 @@ public class PlayerDamage implements Listener {
     
     @EventHandler
     public void onPlayerDamageFromRW(DamageEvent event) {
-        if(DebugMode) plugin.log(event.getPlayer().getPlayerListName() + ", Damage: " + event.getDamage() + " LeftHP: " + event.getHealth());
+        if(Config.getVariables().isDebugMode()) plugin.log(event.getPlayer().getPlayerListName() + ", Damage: " + event.getDamage() + " LeftHP: " + event.getHealth());
         Player player = event.getPlayer();
         if(event.getHealth() > 0 && event.getHealth() <= 2 && PlayerIceBlock) {
             PlayerIceHashMap.put(player.getEntityId(), true);

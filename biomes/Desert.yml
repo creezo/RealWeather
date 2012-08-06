@@ -2,6 +2,4 @@
 enable: true
 HouseRecognizer: simple
 NumberOfCheckPerFoodLost: 5
-StaminaLost:
-  WithHelmet: [0.05F]
-  WithoutHelmet: [0.15F]
+StaminaLost: [0.15F]

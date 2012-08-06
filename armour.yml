@@ -1,0 +1,81 @@
+Leather:
+  Boots:
+    FrostResistanceFactor: 1.25
+    HeatResistanceFactor: 1.25
+  Chestplate:
+    FrostResistanceFactor: 1.4
+    HeatResistanceFactor: 1.1
+  Helmet:
+    FrostResistanceFactor: 1.25
+    HeatResistanceFactor: 1.5
+  Leggings:
+    FrostResistanceFactor: 1.3
+    HeatResistanceFactor: 1.25
+Iron:
+  Boots:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Chestplate:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Helmet:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Leggings:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+Gold:
+  Boots:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor:
+  Chestplate:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Helmet:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Leggings:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+Diamond:
+  Boots:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Chestplate:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Helmet:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Leggings:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+Chain:
+  Boots:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.4
+  Chestplate:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.4
+  Helmet:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.4
+  Leggings:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.4
+Other:
+  Boots:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Chestplate:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Helmet:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+  Leggings:
+    FrostResistanceFactor: 1.0
+    HeatResistanceFactor: 1.0
+Pumpkin:
+  FrostResistanceFactor: 1.1
+  HeatResistanceFactor: 1.1
