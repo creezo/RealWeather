@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realweather;
 
 import java.text.DecimalFormat;
@@ -16,7 +12,7 @@ import org.bukkit.entity.Player;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 class TempThread implements Runnable {
     private final RealWeather plugin;
@@ -25,7 +21,6 @@ class TempThread implements Runnable {
     List<Biome> BioMedium = new ArrayList();
     List<Biome> BioHard = new ArrayList();
     private int RepeatingMessage = 1;
-    private int ForecastTemp = RealWeather.ForecastTemp;
     private int MessageDelay = Config.getVariables().getMessageDelay();
     private int RepeatingFoodDecreaseDelay = Config.getVariables().getBiomes().getDesert().getChecksPerFoodDecrease();
     private int RepeatingFoodDecrease = 1;
@@ -52,22 +47,16 @@ class TempThread implements Runnable {
         BioLight.add(Biome.OCEAN);
         BioLight.add(Biome.PLAINS);
         BioLight.add(Biome.RIVER);
-        BioLight.add(Biome.SAVANNA);
-        BioLight.add(Biome.SEASONAL_FOREST);
-        BioLight.add(Biome.SHRUBLAND);
         BioLight.add(Biome.SWAMPLAND);
         BioLight.add(Biome.HELL);
         BioMedium.add(Biome.DESERT);
         BioMedium.add(Biome.FROZEN_OCEAN);
         BioMedium.add(Biome.FROZEN_RIVER);
-        BioMedium.add(Biome.ICE_DESERT);
         BioMedium.add(Biome.ICE_PLAINS);
         BioMedium.add(Biome.JUNGLE);
-        BioMedium.add(Biome.RAINFOREST);
         BioMedium.add(Biome.SKY);
         BioMedium.add(Biome.SMALL_MOUNTAINS);
         BioMedium.add(Biome.TAIGA);
-        BioMedium.add(Biome.TUNDRA);
         BioHard.add(Biome.DESERT_HILLS);
         BioHard.add(Biome.EXTREME_HILLS);
         BioHard.add(Biome.FOREST_HILLS);
@@ -120,7 +109,7 @@ class TempThread implements Runnable {
                     Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
                 }
                 Temperature += (player.getLocation().getY()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())/(player.getWorld().getMaxHeight()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())*Config.getVariables().getBiomes().getGlobal().getTopTemp();
-                Temperature += ForecastTemp;
+                Temperature += RealWeather.ForecastTemp;
                 Temperature += StartTemp;
                 Temperature += WeatherModifier;
                 if(player.getLocation().getBlock().getLightFromSky() < (byte)4 && player.getLocation().getY() < Config.getVariables().getBiomes().getGlobal().getSeaLevel()) {
@@ -144,7 +133,7 @@ class TempThread implements Runnable {
                     }
                 }
                 if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
-                    utils.SendMessage(player, "Temperature in your area: "+df.format(Temperature));
+                    utils.SendMessage(player, Loc.CurrentTemperature+df.format(Temperature));
                 }
                 //if(PlayerClientMod.get(player.getEntityId())) {
                 //    byte[] bytes = (""+df.format(Temperature)).getBytes();
@@ -184,13 +173,22 @@ class TempThread implements Runnable {
                         }
                         int IntDamage = (int)Math.round(finalDamage);
                         if(Config.getVariables().isDebugMode()) plugin.log("Rounded damage: "+IntDamage);
-                        PlayerDamageThread pdmgTH = new PlayerDamageThread(player, IntDamage, plugin);
-                        Thread dmgTH = new Thread(pdmgTH);
-                        dmgTH.setDaemon(true);
-                        dmgTH.start();
-                        /*int DMGBuffer = PlayerHealthBuffer.get(player.getEntityId());
-                        DMGBuffer += IntDamage;
-                        PlayerHealthBuffer.put(player.getEntityId(), DMGBuffer);*/
+                        if(RealWeather.PlayerDamagerMap.containsKey(player)) {
+                            RealWeather.PlayerDamage.put(player, IntDamage);
+                            synchronized (RealWeather.PlayerDamagerMap.get(player)) {
+                                RealWeather.PlayerDamagerMap.get(player).notify();
+                            }
+                        } else {
+                            PlayerDamageThread pdmgTH = new PlayerDamageThread(player, plugin);
+                            //RealWeather.PlayerDamagerMap.put(player, new Thread(pdmgTH));
+                            //RealWeather.PlayerDamagerMap.get(player).setDaemon(true);
+                            RealWeather.PlayerDamage.put(player, IntDamage);
+                            //RealWeather.PlayerDamagerMap.get(player).start();
+                            Thread dmgTH = new Thread(pdmgTH);
+                            dmgTH.setDaemon(true);
+                            dmgTH.start();
+                            RealWeather.PlayerDamagerMap.put(player, dmgTH);
+                        }
                     }
                 } else if(Temperature > Config.getVariables().getBiomes().getGlobal().getOverheatOver()) {
                     if(Config.getVariables().getBiomes().getDesert().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.desert")) {
@@ -219,7 +217,8 @@ class TempThread implements Runnable {
                         if(player.getSaturation() > (float)finalDamage) {
                             player.setSaturation(player.getSaturation() - (float)finalDamage);
                             if(Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
-                        } else { player.setSaturation(0.0F);
+                        } else {
+                            player.setSaturation(0.0F);
                             if(player.getFoodLevel() > 1) {
                                 if(RepeatingFoodDecrease == 1) {
                                     player.setFoodLevel(player.getFoodLevel() - 1);

@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author creezo
  */
 public class RealWeather extends JavaPlugin {
+    public static boolean Running = true;
     public PlayerListener playerlistener;
     public WeatherListener weatherlistener;
     public PlayerInteract playerinteract;
@@ -27,6 +28,8 @@ public class RealWeather extends JavaPlugin {
     public PlayerMove playermove;
     public static final Logger log = Logger.getLogger("Minecraft");
     public static HashMap<Integer, Integer> PlayerTemperatureThreads;
+    public static HashMap<Player, Thread> PlayerDamagerMap = new HashMap<Player, Thread>();
+    public static HashMap<Player, Integer> PlayerDamage = new HashMap<Player, Integer>();
     public static HashMap<Integer, Boolean> PlayerHeatShow;
     //public static HashMap<Integer, Boolean> PlayerClientMod;
     public static HashMap<Integer, Boolean> PlayerIceHashMap;
@@ -93,8 +96,21 @@ public class RealWeather extends JavaPlugin {
     
     @Override
     public void onDisable() {
+        Running = false;
         this.getServer().getScheduler().cancelAllTasks();
         PlayerHeatShow.clear();
+        PlayerDamage.clear();
+        for (Player player : PlayerDamagerMap.keySet()) {
+            synchronized (PlayerDamagerMap.get(player)) {
+                PlayerDamagerMap.get(player).notify();
+            }
+            /*try {
+                PlayerDamagerMap.get(player).interrupt();
+            } catch (SecurityException ex) {
+                log(ex.getMessage());
+            }*/
+        }
+        PlayerDamagerMap.clear();
         //PlayerClientMod.clear();
         log.log(Level.INFO, "[RealWeather] RealWeather Disabled!");
     }
@@ -140,10 +156,10 @@ public class RealWeather extends JavaPlugin {
                     if(sender instanceof Player) {
                         if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.FALSE)) {
                             PlayerHeatShow.put(player.getEntityId(), Boolean.TRUE);
-                            Utils.SendMessage(player, "Temperature will be displayed.");
+                            Utils.SendMessage(player, Localization.TemperatureShow);
                         } else {
                             PlayerHeatShow.put(player.getEntityId(), Boolean.FALSE);
-                            Utils.SendMessage(player, "Temperature will be hidden.");
+                            Utils.SendMessage(player, Localization.TemperatureHide);
                         }
                     } else {
                         Utils.SendMessage(player, "Can not be executed from console.");
@@ -151,7 +167,7 @@ public class RealWeather extends JavaPlugin {
                 } else if("stamina".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
                         float stamina = player.getSaturation();
-                        Utils.SendMessage(player, "Your stamina: " + Utils.ConvertFloatToString(stamina));
+                        Utils.SendMessage(player, Localization.YourStamina + Utils.ConvertFloatToString(stamina));
                     } else {
                         try {
                             if(!args[1].isEmpty()) {

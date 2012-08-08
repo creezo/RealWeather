@@ -56,10 +56,10 @@ public class Utils {
 
     public boolean SendAdminHelp(Player player) {
         try {
-            player.sendMessage(ChatColor.GOLD + "Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language]");
+            player.sendMessage(ChatColor.GOLD + "Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language], /rwadmin debug");
             return true;
         } catch (Exception e) {
-            RealWeather.log("Admin help message --- see help in game console");
+            RealWeather.log("Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language], /rwadmin debug");
             return false;
         }
     }
@@ -108,27 +108,27 @@ public class Utils {
         switch (Temp) {
             case -5:
             case -4:
-                Message ="Forecast for today: Very low temperatures.";
+                Message = RealWeather.Localization.VLowTemp;
                 break;
             case -3:
             case -2:
-                Message ="Forecast for today: Low temperatures.";
+                Message = RealWeather.Localization.LowTemp;
                 break;
             case -1:
             case 0:
             case 1:
-                Message ="Forecast for today: Nice day.";
+                Message = RealWeather.Localization.MedTemp;
                 break;
             case 2:
             case 3:
-                Message ="Forecast for today: High temperatures.";
+                Message = RealWeather.Localization.HighTemp;
                 break;
             case 4:
             case 5:
-                Message ="Forecast for today: Very high temperatures.";
+                Message = RealWeather.Localization.VHighTemp;
                 break;
             default:
-                Message ="RealWeather: Bad number in forecast!";
+                Message = "RealWeather: Bad number in forecast!";
         }
         return Message;
     }

@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 public class PlayerMove implements Listener {
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;

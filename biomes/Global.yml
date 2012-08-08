@@ -14,17 +14,11 @@ PlayerHeat: 1
 MaxMapHeightTemperatureModifier: -10
 SeaLevel: 62
 BiomesAverageTemp:
-  RAINFOREST: 25
   SWAMPLAND: 15
-  SEASONAL_FOREST: 17
   FOREST: 15
-  SAVANNA: 20
-  SHRUBLAND: 15
   TAIGA: 0
   DESERT: 30
   PLAINS: 15
-  ICE_DESERT: 0
-  TUNDRA: 0
   HELL: 30
   SKY: 15
   OCEAN: 15

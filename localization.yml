@@ -1,4 +1,4 @@
-version: 1.1.7
+version: 1.2.0
 #Localization file
 
 UseLanguage: english
@@ -6,6 +6,11 @@ UseLanguage: english
 #This line bellow is used as the name in command for language change and as the language name. Do NOT use description value.
 english:
   description: English
+  command:
+    YourStamina: "Your stamina: "
+    TemperatureShow: "Temperature will be displayed."
+    TemperatureHide: "Temperature will be hidden."
+    CurrentTemperature: "Temperature in your area: "
   biome:
     winter:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
@@ -14,6 +19,12 @@ english:
       FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing."
     desert:
       WarningMessage: "It is too hot here. Hide somewhere or wear a helmet to reduce effects."
+  forecast:
+    VLowTemp: "Forecast for today: Very low temperatures."
+    LowTemp: "Forecast for today: Low temperatures."
+    MedTemp: "Forecast for today: Nice day."
+    HighTemp: "Forecast for today: High temperatures."
+    VHighTemp: "Forecast for today: Very high temperatures."
       
 #This line bellow is used as the name in command for language change and as the language name. Do NOT use description value.
 spanish:
@@ -42,6 +53,11 @@ german:
 #This line bellow is used as the name in command for language change and as the language name. Do NOT use description value.
 czech:
   description: Cestina
+  command:
+    YourStamina: "Tvoje energie: "
+    TemperatureShow: "Zobrazovani teploty zapnuto."
+    TemperatureHide: "Zobrazovani teploty vypnuto."
+    CurrentTemperature: "Teplota okoli: "
   biome:
     winter:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
@@ -50,6 +66,12 @@ czech:
       FrozenInIce: "Zamrznul si v ledu. Musis pockat az prestane snezit."
     desert:
       WarningMessage: "Je ti prilis horko. nekam se schovej nebo si alespon zakryj hlavu a pravidelne doplnuj tekutiny z lahve vody."
+  forecast:
+    VLowTemp: "Predpoved pocasi: Silny mraz."
+    LowTemp: "Predpoved pocasi: Nizke teploty."
+    MedTemp: "Predpoved pocasi: Polojasno. Mirne klima."
+    HighTemp: "Predpoved pocasi: Vysoke denni teploty."
+    VHighTemp: "Predpoved pocasi: Tropicka vedra."
 
 #You can add as many languages you want. To add new: simply uncomment this bellow and replace custom with your language. Use only one word for language name.
 #Bevare of special characters, because minecraft often doesn't know them. At the end replace english in UseLanguage with your custom one.

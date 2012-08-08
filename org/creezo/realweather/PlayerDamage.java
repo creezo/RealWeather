@@ -20,7 +20,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 public class PlayerDamage implements Listener {
     private final RealWeather plugin;

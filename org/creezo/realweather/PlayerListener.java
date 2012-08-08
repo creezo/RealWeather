@@ -1,7 +1,6 @@
 package org.creezo.realweather;
 
 import java.util.HashMap;
-import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -62,6 +61,15 @@ public class PlayerListener implements Listener {
                 if(player.getLocation().getBlock().getRelative(BlockFace.UP).getType().equals(Material.ICE)) player.getLocation().getBlock().getRelative(BlockFace.UP).setType(Material.AIR);
             }
             PlayerIceHashMap.remove(PlayerID);
+            RealWeather.PlayerDamage.remove(event.getPlayer());
+            synchronized (RealWeather.PlayerDamagerMap.get(event.getPlayer())) {
+                RealWeather.PlayerDamagerMap.get(event.getPlayer()).notify();
+            }
+            /*try {
+                RealWeather.PlayerDamagerMap.get(event.getPlayer()).interrupt();
+            } catch (SecurityException ex) {
+                RealWeather.log(ex.getMessage());
+            }*/
         } catch (NullPointerException ex) {}
     }
 }

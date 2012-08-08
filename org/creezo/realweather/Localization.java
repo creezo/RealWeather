@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.creezo.realweather;
 
 import java.io.File;
@@ -25,6 +21,15 @@ public class Localization {
     public String WinterInIceBlock;
     public String DesertWarnMessage;
     public String LanguageDescription;
+    public String TemperatureShow;
+    public String TemperatureHide;
+    public String YourStamina;
+    public String VLowTemp;
+    public String LowTemp;
+    public String MedTemp;
+    public String HighTemp;
+    public String VHighTemp;
+    public String CurrentTemperature;
     
     private static Configuration Config = RealWeather.Config;
     private String MissingEntry = "Missing field in localization";
@@ -50,6 +55,15 @@ public class Localization {
         WinterInIceBlock = Localization.getString(language + ".biome.winter.FrozenInIce", MissingEntry);
         DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry);
         LanguageDescription = Localization.getString(language + ".description", MissingEntry);
+        TemperatureShow = Localization.getString(language + ".command.TemperatureShow", MissingEntry);
+        TemperatureHide = Localization.getString(language + ".command.TemperatureHide", MissingEntry);
+        YourStamina = Localization.getString(language + ".command.YourStamina", MissingEntry);
+        VLowTemp = Localization.getString(language + ".forecast.VLowTemp", MissingEntry);
+        LowTemp = Localization.getString(language + ".forecast.LowTemp", MissingEntry);
+        MedTemp = Localization.getString(language + ".forecast.MedTemp", MissingEntry);
+        HighTemp = Localization.getString(language + ".forecast.HighTemp", MissingEntry);
+        VHighTemp = Localization.getString(language + ".forecast.VHighTemp", MissingEntry);
+        CurrentTemperature = Localization.getString(language + ".command.CurrentTemperature", MissingEntry);
         if(Config.getVariables().isDebugMode()) plugin.log.log(Level.INFO, "[RealWeather] Localization loaded: " + language);
     }
     
