@@ -20,7 +20,6 @@ public class PlayerListener implements Listener {
     private static PlayerCheck playerCheck = RealWeather.playerCheck;
     private HashMap<Integer, Integer> PlayerTemperatureThreads = RealWeather.PlayerTemperatureThreads;
     private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
-    //private HashMap<Integer, Boolean> PlayerClientMod = RealWeather.PlayerClientMod;
     private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
     private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
     private Localization Loc = RealWeather.Localization;
@@ -42,7 +41,7 @@ public class PlayerListener implements Listener {
         }
         PlayerTemperatureThreads.put(PlayerID, new Integer(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new TempThread(plugin, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
         PlayerHeatShow.put(PlayerID, Boolean.FALSE);
-        //PlayerClientMod.put(PlayerID, Boolean.FALSE);
+        RealWeather.PlayerClientMod.put(PlayerID, Boolean.FALSE);
     }
     
     @EventHandler
@@ -52,7 +51,7 @@ public class PlayerListener implements Listener {
             Integer TaskID = PlayerTemperatureThreads.get(PlayerID);
             plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
             PlayerHeatShow.remove(PlayerID);
-            //PlayerClientMod.remove(PlayerID);
+            RealWeather.PlayerClientMod.remove(PlayerID);
             PlayerTemperatureThreads.remove(PlayerID);
             if(PlayerIceHashMap.get(PlayerID)) {
                 Player player = event.getPlayer();

@@ -18,6 +18,7 @@ hard:
   CheckDelay: 4
   StartDelay: 8
 Statistics:
+  Enable: true
   ShowMyServerOnList: false
   ServerName:
   Comment:

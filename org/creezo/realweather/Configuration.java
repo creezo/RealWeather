@@ -74,6 +74,7 @@ public class Configuration {
         } else {
             variables.setGameDifficulty(plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase());
         }
+        if(!plugin.getConfig().contains("Statistics.Enable")) plugin.getConfig().set("Statistics.Enable", true);
         if(!plugin.getConfig().contains("Statistics.ShowMyServerOnList")) plugin.getConfig().set("Statistics.ShowMyServerOnList", false);
         if(!plugin.getConfig().contains("Statistics.ServerName")) plugin.getConfig().set("Statistics.ServerName", "Unknown");
         if(!plugin.getConfig().contains("Statistics.Comment")) plugin.getConfig().set("Statistics.Comment", "none");

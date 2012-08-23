@@ -30,7 +30,6 @@ class TempThread implements Runnable {
     private static PlayerCheck playerCheck = RealWeather.playerCheck;
     private Localization Loc = RealWeather.Localization;
     private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
-    //private HashMap<Integer, Boolean> PlayerClientMod = RealWeather.PlayerClientMod;
     private Utils utils = RealWeather.Utils;
 
     public TempThread(RealWeather plugin, Player player) {
@@ -135,10 +134,10 @@ class TempThread implements Runnable {
                 if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
                     utils.SendMessage(player, Loc.CurrentTemperature+df.format(Temperature));
                 }
-                //if(PlayerClientMod.get(player.getEntityId())) {
-                //    byte[] bytes = (""+df.format(Temperature)).getBytes();
-                //    player.sendPluginMessage(plugin, "realweather", bytes);
-                //}
+                if(RealWeather.PlayerClientMod.get(player.getEntityId())) {
+                    byte[] bytes = (""+df.format(Temperature)).getBytes();
+                    player.sendPluginMessage(plugin, "realweather", bytes);
+                }
                 if(Temperature < -60) Temperature = -60;
                 if(Temperature > 80) Temperature = 80;
                 if(Temperature < Config.getVariables().getBiomes().getGlobal().getFreezeUnder()) {

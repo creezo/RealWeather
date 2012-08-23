@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -31,7 +32,7 @@ public class RealWeather extends JavaPlugin {
     public static HashMap<Player, Thread> PlayerDamagerMap = new HashMap<Player, Thread>();
     public static HashMap<Player, Integer> PlayerDamage = new HashMap<Player, Integer>();
     public static HashMap<Integer, Boolean> PlayerHeatShow;
-    //public static HashMap<Integer, Boolean> PlayerClientMod;
+    public static HashMap<Integer, Boolean> PlayerClientMod;
     public static HashMap<Integer, Boolean> PlayerIceHashMap;
     public static HashMap<Integer, Block> IceBlock;
     public static List<Material> Mats = new ArrayList();
@@ -58,7 +59,7 @@ public class RealWeather extends JavaPlugin {
         playerCheck = new PlayerCheck(this);
         PlayerTemperatureThreads = new HashMap<Integer, Integer>(getServer().getMaxPlayers()+5);
         PlayerHeatShow = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
-        //PlayerClientMod = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
+        PlayerClientMod = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
         PlayerIceHashMap = new HashMap<Integer, Boolean>(getServer().getMaxPlayers()+5);
         IceBlock = new HashMap<Integer, Block>(getServer().getMaxPlayers()+5);
         Utils = new Utils(this);
@@ -90,8 +91,8 @@ public class RealWeather extends JavaPlugin {
         this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new ForecastThread(this), 10*20, 50*20);
         log.log(Level.INFO, "[RealWeather] RealWeather enabled.");
         StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 10 * 20, 9 * 60 * 20);
-        //Bukkit.getMessenger().registerOutgoingPluginChannel(this, "realweather");
-        //Bukkit.getMessenger().registerIncomingPluginChannel(this, "realweather", PListener);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "realweather");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "realweather", PListener);
     }
     
     @Override
@@ -104,14 +105,9 @@ public class RealWeather extends JavaPlugin {
             synchronized (PlayerDamagerMap.get(player)) {
                 PlayerDamagerMap.get(player).notify();
             }
-            /*try {
-                PlayerDamagerMap.get(player).interrupt();
-            } catch (SecurityException ex) {
-                log(ex.getMessage());
-            }*/
         }
         PlayerDamagerMap.clear();
-        //PlayerClientMod.clear();
+        PlayerClientMod.clear();
         log.log(Level.INFO, "[RealWeather] RealWeather Disabled!");
     }
     
@@ -147,9 +143,9 @@ public class RealWeather extends JavaPlugin {
                     Utils.SendHelp(player);
                 } else if("version".equalsIgnoreCase(args[0])) {
                     Utils.SendMessage(player, "Version: " + getDescription().getVersion());
-                //} else if("pack".equalsIgnoreCase(args[0])) {
-                //    byte[] bytes = ("10.5").getBytes();
-                //    player.sendPluginMessage(this, "realweather", bytes);
+                } else if("pack".equalsIgnoreCase(args[0])) {
+                    byte[] bytes = ("10.5").getBytes();
+                    player.sendPluginMessage(this, "realweather", bytes);
                 } else if("forecast".equalsIgnoreCase(args[0])) {
                     Utils.SendMessage(player, Utils.DoForecast(ForecastTemp));
                 } else if("temp".equalsIgnoreCase(args[0])) {

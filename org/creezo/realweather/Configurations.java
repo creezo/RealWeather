@@ -76,6 +76,9 @@ public class Configurations {
         public String getServerAddress() {
             return plugin.getConfig().getString("Statistics.ServerAddress");
         }
+        public boolean getEnable() {
+            return plugin.getConfig().getBoolean("Statistics.Enable", true);
+        }
     }
     private Biomes Biomes = new Biomes();
     public Biomes getBiomes() {
