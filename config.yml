@@ -1,4 +1,4 @@
-version: 1.2.0
+version: 1.2.1
 
 GlobalEnable: true
 #Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.

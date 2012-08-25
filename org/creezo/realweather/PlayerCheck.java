@@ -4,7 +4,6 @@
  */
 package org.creezo.realweather;
 
-import java.util.List;
 import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class PlayerCheck {
-    private final RealWeather plugin;
+    private static RealWeather plugin;
     private static Configuration Config = RealWeather.Config;
     
     public PlayerCheck(RealWeather plugin) {
@@ -43,7 +42,6 @@ public class PlayerCheck {
         while(heigh < MaxMapHeigh) {
             PlayerBlock = PlayerBlock.getRelative(BlockFace.UP);
             if(PlayerBlock.getTypeId() != 0) {
-                //PlayerBlock.setTypeId(20);
                 if(Config.getVariables().isDebugGlassBlocks()) player.sendBlockChange(PlayerBlock.getLocation(), 20, (byte)0);
                 IsUnderRoof = true;
                 break;
@@ -136,7 +134,6 @@ public class PlayerCheck {
                     if(RangeCheckBlock.getRelative(BlockFace.NORTH, range).getTypeId() == 0) {
                         RangeToNorthSide++;
                     } else {
-                        //RealWinter.log.log(Level.INFO, "[RealWeather] North side: " + ConvertIntToString(RangeToNorthSide));
                         break;
                     }
                 }
@@ -246,7 +243,6 @@ public class PlayerCheck {
     }
     public static double checkHeatAround(Player player, int HeatCheckRadius) {
         if(Config.getVariables().isDebugMode()) RealWeather.log("Checking heat...");
-        //player.getLocation().getBlock().getTemperature();
         double Temperature = 0;
         double BlockPower = 0;
         double rangeDouble = 0;
@@ -257,51 +253,19 @@ public class PlayerCheck {
         for(int x = 1 ; x <= (HeatCheckRadius*2)+1 ; x++) {
             for(int z = 1 ; z <= (HeatCheckRadius*2)+1 ; z++) {
                 for(int y = 1 ; y <= (HeatCheckRadius*2) ; y++) {
-                    switch(startBlock.getRelative(x, y, z).getTypeId()) {
-                        case 10: //Lava
-                            BlockPower = 20;
+                    if(plugin.HeatSources.containsKey(startBlock.getRelative(x, y, z).getType())) {
+                        BlockPower = plugin.HeatSources.get(startBlock.getRelative(x, y, z).getType());
+                        if(BlockPower >= 0) {
                             cooler = false;
-                            break;
-                        case 11: //Lava
-                            BlockPower = 20;
-                            cooler = false;
-                            break;
-                        case 35: //Wool block
-                            BlockPower = 2;
-                            cooler = false;
-                            break;
-                        case 50: //Torch
-                            BlockPower = 8;
-                            cooler = false;
-                            break;
-                        case 51: //Fire
-                            BlockPower = 10;
-                            cooler = false;
-                            break;
-                        case 62: //Burning furnace
-                            BlockPower = 10;
-                            cooler = false;
-                            break;
-                        case 78: //Snow
-                            BlockPower = -0.5d;
+                        } else {
                             cooler = true;
-                            break;
-                        case 79: //Ice block
-                            BlockPower = -2;
-                            cooler = true;
-                            break;
-                        case 80: //Snow block
-                            BlockPower = -1;
-                            cooler = true;
-                            break;
-                        default:
-                            BlockPower = 0;
-                            cooler = false;
-                            break;
+                        }
+                    } else {
+                        BlockPower = 0;
+                        cooler = false;
                     }
                     if(BlockPower != 0) {
                         rangeDouble = startBlock.getRelative(x, y, z).getLocation().distance(playerBlock.getLocation());
-                        //if(DebugMode) RealWeather.log.log(Level.INFO, "[RealWeather] From item in hand: " + ConvertDoubleToString(rangeDouble) + " : " + ConvertDoubleToString(1-(rangeDouble/(HeatCheckRadius*2))));
                         varOne = BlockPower*(1-(rangeDouble/(HeatCheckRadius*2)));
                         if(varOne >= 0.0d && cooler == false) {
                             Temperature += varOne;
@@ -312,16 +276,10 @@ public class PlayerCheck {
                 }
             }
         }
-        switch(player.getItemInHand().getTypeId()) {
-            case 50: //Torch
-                BlockPower = 8;
-                break;
-            case 327:
-                BlockPower = 20;
-                break;
-            default:
-                BlockPower = 0;
-                break;
+        if(plugin.HeatInHand.containsKey(player.getItemInHand().getType())) {
+            BlockPower = plugin.HeatInHand.get(player.getItemInHand().getType());
+        } else {
+            BlockPower = 0;
         }
         if(Config.getVariables().isDebugMode()) RealWeather.log("From item in hand: " + ConvertIntToString((int)BlockPower));
         Temperature += BlockPower;

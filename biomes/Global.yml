@@ -41,3 +41,22 @@ BiomesWeatherTempModifier:
   Light: 5
   Medium: 8
   Hard: 12
+HeatSources:
+  LAVA: 20
+  STATIONARY_LAVA: 20
+  TORCH: 8
+  FIRE: 10
+  BURNING_FURNACE: 10
+  SNOW: -0.5
+  ICE: -2
+  SNOW_BLOCK: -1
+  GLOWSTONE: 3
+  JACK_O_LANTERN: 3
+  REDSTONE_LAMP_ON: 2
+  WOOL: 2
+HeatInHand:
+  TORCH: 8
+  LAVA_BUCKET: 20
+  ICE: -3
+  SNOW_BLOCK: -1.5
+  

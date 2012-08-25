@@ -64,11 +64,6 @@ public class PlayerListener implements Listener {
             synchronized (RealWeather.PlayerDamagerMap.get(event.getPlayer())) {
                 RealWeather.PlayerDamagerMap.get(event.getPlayer()).notify();
             }
-            /*try {
-                RealWeather.PlayerDamagerMap.get(event.getPlayer()).interrupt();
-            } catch (SecurityException ex) {
-                RealWeather.log(ex.getMessage());
-            }*/
         } catch (NullPointerException ex) {}
     }
 }

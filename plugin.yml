@@ -1,17 +1,17 @@
 name: RealWeather
 main: org.creezo.realweather.RealWeather
-version: 1.2.0
+version: 1.2.1
 author: creezo
 softdepent: [Multiverse-Core]
 
 commands: 
   rw:
-    description: 'Basic player commands.'
+    description: 'RealWeather basic player commands.'
     permission: realweather.player
     permission-message: 'You dont have permission - realweather.player'
     usage: 'Usage: /rw <command>'
   rwadmin:
-    description: 'Administration commands.'
+    description: 'RealWeather administration commands.'
     permission: realweather.admin
     permission-message: 'You dont have permission - realweather.admin'
     usage: 'Usage: /rwadmin <command>'

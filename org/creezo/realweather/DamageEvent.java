@@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 public class DamageEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

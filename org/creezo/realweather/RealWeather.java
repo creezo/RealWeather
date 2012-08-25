@@ -35,6 +35,8 @@ public class RealWeather extends JavaPlugin {
     public static HashMap<Integer, Boolean> PlayerClientMod;
     public static HashMap<Integer, Boolean> PlayerIceHashMap;
     public static HashMap<Integer, Block> IceBlock;
+    public static HashMap<Material, Double> HeatSources;
+    public static HashMap<Material, Double> HeatInHand;
     public static List<Material> Mats = new ArrayList();
     public static boolean actualWeather = false;
     public static Configuration Config;
@@ -49,6 +51,8 @@ public class RealWeather extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        HeatSources = new HashMap<Material, Double>(256);
+        HeatInHand = new HashMap<Material, Double>(256);
         Config = new Configuration(this);
         LoadConfig();
         Config.InitConfig();
@@ -236,6 +240,7 @@ public class RealWeather extends JavaPlugin {
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else {
                             Utils.SendMessage(player, "Can't disable non-existing part.");
+                            Utils.SendMessage(player, "Available parts: winter, desert, jungle, thirst, waterbottle");
                         }
                     }
                 } else if("enable".equalsIgnoreCase(args[0])) {
@@ -263,11 +268,17 @@ public class RealWeather extends JavaPlugin {
                             Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else {
                             Utils.SendMessage(player, "Can't enable non-existing part.");
+                            Utils.SendMessage(player, "Available parts: winter, desert, jungle, thirst, waterbottle");
                         }
                     }
                 } else if("lang".equalsIgnoreCase(args[0])) {
                     if(args.length == 1) {
                         Utils.SendMessage(player, "Language: " + Localization.Language + ".");
+                        Utils.SendMessage(player, "Available languages:");
+                        HashMap<String, String> langs = Localization.GetLangList();
+                        for (String lang : langs.keySet()) {
+                            Utils.SendMessage(player, lang+" - "+langs.get(lang));
+                        }
                     } else {
                         if(args.length == 2) {
                             boolean result = Command.Language(args[1]);

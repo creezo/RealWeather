@@ -19,15 +19,14 @@ public class PlayerDamageThread implements Runnable {
     public void run() {
         while(RealWeather.PlayerDamage.containsKey(player) && RealWeather.Running) {
             int damage = RealWeather.PlayerDamage.get(player);
+            if(damage == -1) {
+                
+            }
             for (int i = 0; i < damage; i++) {
                 if(!plugin.Config.getVariables().getBiomes().getWinter().isWinterKilliing() && player.getHealth() > 1) {
                     player.damage(1);
-                    DamageEvent DamageEvent = new DamageEvent(player, 1, player.getHealth());
-                    plugin.getServer().getPluginManager().callEvent(DamageEvent);
                 } else if(plugin.Config.getVariables().getBiomes().getWinter().isWinterKilliing()) {
                     player.damage(1);
-                    DamageEvent DamageEvent = new DamageEvent(player, 1, player.getHealth());
-                    plugin.getServer().getPluginManager().callEvent(DamageEvent);
                 }
                 if(damage-i!=1) {
                     try {

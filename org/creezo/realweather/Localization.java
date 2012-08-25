@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.logging.Level;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -98,6 +99,15 @@ public class Localization {
         } else {
             return false;
         }
+    }
+    
+    public HashMap<String, String> GetLangList() {
+        HashMap<String, String> langs = new HashMap<String, String>();
+        for (String lang : Localization.getKeys(false)) {
+            if(lang.equals("version") || lang.equals("UseLanguage")) continue;
+            if(Localization.contains(lang+".description")) langs.put(lang, Localization.getString(lang+".description"));
+        }
+        return langs;
     }
     
     public boolean SetLanguage(String lang) {

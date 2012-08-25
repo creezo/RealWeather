@@ -39,7 +39,7 @@ public class PlayerDamage implements Listener {
     public void onPlayerDamageFromRW(DamageEvent event) {
         if(Config.getVariables().isDebugMode()) plugin.log(event.getPlayer().getPlayerListName() + ", Damage: " + event.getDamage() + " LeftHP: " + event.getHealth());
         Player player = event.getPlayer();
-        if(event.getHealth() > 0 && event.getHealth() <= 2 && PlayerIceBlock) {
+        if(event.getHealth() == 1 && PlayerIceBlock) {
             PlayerIceHashMap.put(player.getEntityId(), true);
             IceBlock.put(player.getEntityId(), player.getLocation().getBlock());
             player.sendMessage(ChatColor.GOLD + Loc.WinterInIceBlock);

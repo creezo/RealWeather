@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -245,6 +246,28 @@ public class Configuration {
         if(!GlobalConf.contains("BiomesAverageTemp")) {
             GlobalConf.createSection("BiomesAverageTemp");
             plugin.log.log(Level.SEVERE, "Biomes Average Temperatures are missing in Global.yml");
+        }
+        plugin.HeatSources.clear();
+        try {
+            for (String tempSource : GlobalConf.getConfigurationSection("HeatSources").getKeys(false)) {
+                if(Material.getMaterial(tempSource) != null) {
+                    if(!GlobalConf.isSet("HeatSources."+tempSource)) GlobalConf.set("HeatSources."+tempSource, (double) 0);
+                    plugin.HeatSources.put(Material.getMaterial(tempSource), GlobalConf.getDouble("HeatSources."+tempSource));
+                }
+            }
+        } catch(NullPointerException ex) {
+            plugin.log.log(Level.SEVERE, "NPE Error in loading 'HeatSources'. Make sure it is configured in Global.yml!");
+        }
+        plugin.HeatInHand.clear();
+        try {
+            for (String tempSource : GlobalConf.getConfigurationSection("HeatInHand").getKeys(false)) {
+                if(Material.getMaterial(tempSource) != null) {
+                    if(!GlobalConf.isSet("HeatInHand."+tempSource)) GlobalConf.set("HeatInHand."+tempSource, (double) 0);
+                    plugin.HeatInHand.put(Material.getMaterial(tempSource), GlobalConf.getDouble("HeatSources."+tempSource));
+                }
+            }
+        } catch(NullPointerException ex) {
+            plugin.log.log(Level.SEVERE, "NPE Error in loading 'HeatInHand'. Make sure it is configured in Global.yml!");
         }
     }
     private void LoadArmour(File CFile) {
