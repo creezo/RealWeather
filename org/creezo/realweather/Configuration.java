@@ -247,6 +247,10 @@ public class Configuration {
             GlobalConf.createSection("BiomesAverageTemp");
             plugin.log.log(Level.SEVERE, "Biomes Average Temperatures are missing in Global.yml");
         }
+        loadHeatSources();
+    }
+    
+    public void loadHeatSources() {
         plugin.HeatSources.clear();
         try {
             for (String tempSource : GlobalConf.getConfigurationSection("HeatSources").getKeys(false)) {
@@ -270,6 +274,7 @@ public class Configuration {
             plugin.log.log(Level.SEVERE, "NPE Error in loading 'HeatInHand'. Make sure it is configured in Global.yml!");
         }
     }
+    
     private void LoadArmour(File CFile) {
         try {
             ArmourConf.load(CFile);

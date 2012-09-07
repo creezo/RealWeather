@@ -1,8 +1,8 @@
 name: RealWeather
 main: org.creezo.realweather.RealWeather
-version: 1.2.1
+version: 1.2.2pre1
 author: creezo
-softdepent: [Multiverse-Core]
+softdepend: [Multiverse-Core]
 
 commands: 
   rw:
@@ -18,7 +18,7 @@ commands:
 
 permissions:
   realweather.*:
-    description: 'Gives you all permissions. Including immune!'
+    description: 'Gives you all permissions. (Maybe) Including immune!'
     children:
         realweather.admin: true
         realweather.player: true

@@ -11,7 +11,7 @@ FreezeUnder: 7
 OverheatOver: 30
 HeatCheckRadius: 3
 PlayerHeat: 1
-MaxMapHeightTemperatureModifier: -10
+MaxMapHeightTemperatureModifier: -20
 SeaLevel: 62
 BiomesAverageTemp:
   SWAMPLAND: 15
@@ -38,9 +38,99 @@ BiomesAverageTemp:
   JUNGLE: 30
   JUNGLE_HILLS: 25
 BiomesWeatherTempModifier:
-  Light: 5
-  Medium: 8
-  Hard: 12
+  SWAMPLAND: -5
+  FOREST: -5
+  TAIGA: -8
+  DESERT: -8
+  PLAINS: -5
+  HELL: 0
+  SKY: 0
+  OCEAN: -5
+  RIVER: -5
+  EXTREME_HILLS: -15
+  FROZEN_OCEAN: -8
+  FROZEN_RIVER: -8
+  ICE_PLAINS: -8
+  ICE_MOUNTAINS: -12
+  MUSHROOM_ISLAND: -5
+  MUSHROOM_SHORE: -5
+  BEACH: -5
+  DESERT_HILLS: -12
+  FOREST_HILLS: -12
+  TAIGA_HILLS: -15
+  SMALL_MOUNTAINS: -8
+  JUNGLE: -5
+  JUNGLE_HILLS: -8
+BiomeDayNightTempModifier:
+  SWAMPLAND:
+    Day: 5
+    Night: -5
+  FOREST:
+    Day: 5
+    Night: -8
+  TAIGA:
+    Day: 5
+    Night: -8
+  DESERT:
+    Day: 15
+    Night: -25
+  PLAINS:
+    Day: 5
+    Night: -5
+  HELL:
+    Day: 0
+    Night: 0
+  SKY:
+    Day: 0
+    Night: 0
+  OCEAN:
+    Day: 5
+    Night: -10
+  RIVER:
+    Day: 5
+    Night: -5
+  EXTREME_HILLS:
+    Day: 6
+    Night: -15
+  FROZEN_OCEAN:
+    Day: 5
+    Night: -8
+  FROZEN_RIVER:
+    Day: 5
+    Night: -8
+  ICE_PLAINS:
+    Day: 5
+    Night: -8
+  ICE_MOUNTAINS:
+    Day: 5
+    Night: -12
+  MUSHROOM_ISLAND:
+    Day: 5
+    Night: -5
+  MUSHROOM_SHORE:
+    Day: 5
+    Night: -5
+  BEACH:
+    Day: 5
+    Night: -5
+  DESERT_HILLS:
+    Day: 10
+    Night: -30
+  FOREST_HILLS:
+    Day: 6
+    Night: -8
+  TAIGA_HILLS:
+    Day: 5
+    Night: -16
+  SMALL_MOUNTAINS:
+    Day: 5
+    Night: -8
+  JUNGLE:
+    Day: 8
+    Night: -8
+  JUNGLE_HILLS:
+    Day: 7
+    Night: -9
 HeatSources:
   LAVA: 20
   STATIONARY_LAVA: 20
@@ -50,10 +140,10 @@ HeatSources:
   SNOW: -0.5
   ICE: -2
   SNOW_BLOCK: -1
-  GLOWSTONE: 3
-  JACK_O_LANTERN: 3
-  REDSTONE_LAMP_ON: 2
-  WOOL: 2
+  GLOWSTONE: 0.25
+  JACK_O_LANTERN: 2
+  REDSTONE_LAMP_ON: 1
+  WOOL: 0.25
 HeatInHand:
   TORCH: 8
   LAVA_BUCKET: 20

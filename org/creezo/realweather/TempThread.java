@@ -1,7 +1,6 @@
 package org.creezo.realweather;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,9 +19,6 @@ import org.bukkit.entity.Player;
 class TempThread implements Runnable {
     private final RealWeather plugin;
     private final Player player;
-    List<Biome> BioLight = new ArrayList();
-    List<Biome> BioMedium = new ArrayList();
-    List<Biome> BioHard = new ArrayList();
     private int RepeatingMessage = 1;
     private int MessageDelay = Config.getVariables().getMessageDelay();
     private int RepeatingFoodDecreaseDelay = Config.getVariables().getBiomes().getDesert().getChecksPerFoodDecrease();
@@ -40,34 +36,6 @@ class TempThread implements Runnable {
         this.plugin = plugin;
         this.player = player;
         ErrNum = 2;
-        addBiomes();
-        ErrNum = 3;
-    }
-
-    private void addBiomes() {
-        BioLight.add(Biome.BEACH);
-        BioLight.add(Biome.FOREST);
-        BioLight.add(Biome.MUSHROOM_ISLAND);
-        BioLight.add(Biome.MUSHROOM_SHORE);
-        BioLight.add(Biome.OCEAN);
-        BioLight.add(Biome.PLAINS);
-        BioLight.add(Biome.RIVER);
-        BioLight.add(Biome.SWAMPLAND);
-        BioLight.add(Biome.HELL);
-        BioMedium.add(Biome.DESERT);
-        BioMedium.add(Biome.FROZEN_OCEAN);
-        BioMedium.add(Biome.FROZEN_RIVER);
-        BioMedium.add(Biome.ICE_PLAINS);
-        BioMedium.add(Biome.JUNGLE);
-        BioMedium.add(Biome.SKY);
-        BioMedium.add(Biome.SMALL_MOUNTAINS);
-        BioMedium.add(Biome.TAIGA);
-        BioHard.add(Biome.DESERT_HILLS);
-        BioHard.add(Biome.EXTREME_HILLS);
-        BioHard.add(Biome.FOREST_HILLS);
-        BioHard.add(Biome.ICE_MOUNTAINS);
-        BioHard.add(Biome.JUNGLE_HILLS);
-        BioHard.add(Biome.TAIGA_HILLS);
     }
     
     @Override
@@ -75,46 +43,23 @@ class TempThread implements Runnable {
         try {
             if(Config.getVariables().isGlobalEnable() && !player.getGameMode().equals(GameMode.CREATIVE) && !player.hasPermission("realweather.immune")) {
                 if(Config.getVariables().isDebugMode()) plugin.log("Starting temp calculation.");
-                ErrNum = 4;
+                ErrNum = 3;
                 RealWeather.actualWeather = player.getLocation().getWorld().hasStorm();
                 Biome PBiome = player.getLocation().getBlock().getBiome();
                 int StartTemp = Config.getVariables().getBiomes().getGlobal().getBiomeAverageTemp(player.getLocation().getBlock().getBiome().toString());
                 int WeatherModifier = 0;
                 double[] frostResist = {1,1};
                 double Temperature = 0, TempFinal = 0;
+                ErrNum = 4;
                 double TimeMultiplier = Math.sin(Math.toRadians(0.015D * player.getWorld().getTime()));
                 ErrNum = 5;
-                if(BioLight.contains(PBiome)) {
-                    if(RealWeather.actualWeather) {
-                        WeatherModifier = -1 * Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Light");
-                    } else {
-                        WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Light");
-                    }
-                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Light");
+                if(RealWeather.actualWeather) {
+                    WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier(PBiome.name());
                 }
-                else if(BioMedium.contains(PBiome)) {
-                    if(RealWeather.actualWeather) {
-                        WeatherModifier = -1 * Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
-                    } else {
-                        WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
-                    }
-                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
-                }
-                else if(BioHard.contains(PBiome)) {
-                    if(RealWeather.actualWeather) {
-                        WeatherModifier = -1 * Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Hard");
-                    } else {
-                        WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Hard");
-                    }
-                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Hard");
-                    if((PBiome.equals(Biome.ICE_MOUNTAINS) || PBiome.equals(Biome.TAIGA_HILLS) || PBiome.equals(Biome.JUNGLE_HILLS)) && Temperature < 0) Temperature /= 3;
+                if(TimeMultiplier > 0) {
+                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Day", PBiome.name());
                 } else {
-                    if(RealWeather.actualWeather) {
-                        WeatherModifier = -1 * Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
-                    } else {
-                        WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
-                    }
-                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier("Medium");
+                    Temperature = Math.abs(TimeMultiplier) * (double) Config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Night", PBiome.name());
                 }
                 ErrNum = 6;
                 Temperature += (player.getLocation().getY()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())/(player.getWorld().getMaxHeight()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())*Config.getVariables().getBiomes().getGlobal().getTopTemp();
@@ -154,12 +99,17 @@ class TempThread implements Runnable {
                     utils.SendMessage(player, Loc.CurrentTemperature+df.format(Temperature));
                 }
                 ErrNum = 16;
-                if(RealWeather.PlayerClientMod.get(player.getEntityId())) {
-                    byte[] bytes = (""+df.format(Temperature)).getBytes();
-                    player.sendPluginMessage(plugin, "realweather", bytes);
+                try{
+                    if(RealWeather.PlayerClientMod.get(player.getEntityId())) {
+                        byte[] bytes = ("TM:"+df.format(Temperature)).getBytes();
+                        player.sendPluginMessage(plugin, "realweather", bytes);
+                    }
+                } catch(Exception e) {
+                    plugin.log("Error in Cliend-mod handling"+e.getMessage());
                 }
                 ErrNum = 17;
                 TempFinal = Temperature;
+                plugin.PlayerTemperature.put(player, Temperature);
                 if(Temperature < -60) Temperature = -60;
                 if(Temperature > 80) Temperature = 80;
                 if(Temperature < Config.getVariables().getBiomes().getGlobal().getFreezeUnder()) {
@@ -330,6 +280,7 @@ class TempThread implements Runnable {
             }
         } catch(Exception e) {
             plugin.log.log(Level.SEVERE, "Error in temperature thread: "+ErrNum);
+            plugin.log.log(Level.SEVERE, e.getMessage());
         }
         ErrNum = 0;
     }

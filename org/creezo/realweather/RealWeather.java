@@ -1,6 +1,7 @@
 package org.creezo.realweather;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ public class RealWeather extends JavaPlugin {
     public static HashMap<Integer, Block> IceBlock;
     public static HashMap<Material, Double> HeatSources;
     public static HashMap<Material, Double> HeatInHand;
+    public static HashMap<Player, Integer> PlayerRefreshing = new HashMap<Player, Integer>();
+    public static HashMap<Player, Double> PlayerTemperature = new HashMap<Player, Double>();
     public static List<Material> Mats = new ArrayList();
     public static boolean actualWeather = false;
     public static Configuration Config;
@@ -46,6 +49,7 @@ public class RealWeather extends JavaPlugin {
     public static Commands Command;
     public PacketListener PListener = new PacketListener();
     public static int ForecastTemp = 0;
+    private DecimalFormat df = new DecimalFormat("##.#");
     
     public int StatsTask;
 
@@ -91,8 +95,9 @@ public class RealWeather extends JavaPlugin {
             PlayerTemperatureThreads.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TempThread(this, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
             PlayerHeatShow.put(player.getEntityId(), false);
         }
-        Command = new Commands(this, Config, Localization);
+        Command = new Commands(this);
         this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new ForecastThread(this), 10*20, 50*20);
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new RefresherThread(this), 2*20, 30);
         log.log(Level.INFO, "[RealWeather] RealWeather enabled.");
         StatsTask = this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new StatsSender(this), 10 * 20, 9 * 60 * 20);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "realweather");
@@ -101,6 +106,7 @@ public class RealWeather extends JavaPlugin {
     
     @Override
     public void onDisable() {
+        Config.SaveAll();
         Running = false;
         this.getServer().getScheduler().cancelAllTasks();
         PlayerHeatShow.clear();
@@ -112,6 +118,8 @@ public class RealWeather extends JavaPlugin {
         }
         PlayerDamagerMap.clear();
         PlayerClientMod.clear();
+        PlayerRefreshing.clear();
+        PlayerTemperature.clear();
         log.log(Level.INFO, "[RealWeather] RealWeather Disabled!");
     }
     
@@ -142,6 +150,12 @@ public class RealWeather extends JavaPlugin {
             }
             if(args.length == 0) {
                 Utils.SendMessage(player, "No arguments set. Try '/rw help'.");
+                if(sender instanceof Player) {
+                    if(PlayerTemperature.containsKey(player))
+                        Utils.SendMessage(player, Localization.Temperature + df.format(PlayerTemperature.get(player)));
+                    Utils.SendMessage(player, Localization.YourStamina + df.format(player.getSaturation()));
+                    Utils.SendMessage(player, Utils.DoForecast(ForecastTemp));
+                }
             } else {
                 if("help".equalsIgnoreCase(args[0])) {
                     Utils.SendHelp(player);
@@ -198,6 +212,17 @@ public class RealWeather extends JavaPlugin {
                     Utils.SendAdminHelp(player);
                 } else if("version".equals(args[0])) {
                     Utils.SendMessage(player, "Version: " + getDescription().getVersion());
+                } else if("set".equals(args[0])) {
+                    if(args.length != 4) {
+                        Utils.SendMessage(player, "You must set: <file>, <config key>, <value>. Ex: /rwadmin set global PlayerHeat 1");
+                    } else {
+                        if(Command.Set(args)) {
+                            Config.SaveAll();
+                            Utils.SendMessage(player, "Value set.");
+                        } else {
+                            Utils.SendMessage(player, "Failed to set value.");
+                        }
+                    }
                 } else if("debug".equals(args[0])) {
                     if(Config.getVariables().isDebugMode()) {
                         Config.getVariables().setDebugMode(false);

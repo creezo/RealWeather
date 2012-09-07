@@ -1,4 +1,4 @@
-version: 1.2.1
+version: 1.2.2pre1
 #Localization file
 
 UseLanguage: english
@@ -8,6 +8,7 @@ english:
   description: English
   command:
     YourStamina: "Your stamina: "
+    Temperature: "Temperature: "
     TemperatureShow: "Temperature will be displayed."
     TemperatureHide: "Temperature will be hidden."
     CurrentTemperature: "Temperature in your area: "
@@ -18,8 +19,10 @@ english:
       WarningMessage: "It is too cold here. Hide somewhere, wear armor or find heat source to reduce freezeing."
       FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing."
     desert:
-      WarningMessage: "It is too hot here. Hide somewhere or wear a helmet to reduce effects."
+      WarningMessage: "It is too hot here. Hide somewhere or wear a leather armor to reduce effects."
+      Refreshed: "You feel refreshed."
   forecast:
+    StormTemp: "Forecast for today: Rain. Sometimes storm."
     VLowTemp: "Forecast for today: Very low temperatures."
     LowTemp: "Forecast for today: Low temperatures."
     MedTemp: "Forecast for today: Nice day."
@@ -66,6 +69,7 @@ polish:
     desert:
       WarningMessage: "Tu jest bardzo goraco. Ukryj sie gdzies albo zaloz jakis chelm."
   forecast:
+    StormTemp: "Prognoza na dzisiaj: Deszcz. Burza."
     VLowTemp: "Prognoza na dzisiaj: Bardzo niskie temperatury."
     LowTemp: "Prognoza na dzisiaj: Niskie temperatury."
     MedTemp: "Prognoza na dzisiaj: Bedzie ladny dzien."
@@ -88,7 +92,9 @@ czech:
       FrozenInIce: "Zamrznul si v ledu. Musis pockat az prestane snezit."
     desert:
       WarningMessage: "Je ti prilis horko. nekam se schovej nebo si alespon zakryj hlavu a pravidelne doplnuj tekutiny z lahve vody."
+      Refreshed: "Dokonale osvezeni ti doplnilo energii."
   forecast:
+    StormTemp: "Predpoved pocasi: Prehanky, misty bourky."
     VLowTemp: "Predpoved pocasi: Silny mraz."
     LowTemp: "Predpoved pocasi: Nizke teploty."
     MedTemp: "Predpoved pocasi: Polojasno. Mirne klima."

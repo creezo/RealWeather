@@ -228,10 +228,13 @@ public class Configurations {
                 return GlobalConf.getFloatList("staminareplenish.StaminaReplenishWaterBottle").get(0);
             }
             public int getBiomeAverageTemp(String biom) {
-                return GlobalConf.getInt("BiomesAverageTemp."+biom);
+                return GlobalConf.getInt("BiomesAverageTemp."+biom.toUpperCase());
             }
-            public int getBiomesWeatherTempModifier(String mod) {
-                return GlobalConf.getInt("BiomesWeatherTempModifier."+mod);
+            public int getBiomesWeatherTempModifier(String biome) {
+                return GlobalConf.getInt("BiomesWeatherTempModifier."+biome.toUpperCase());
+            }
+            public int getBiomeDayNightTempModifier(String time, String biome) {
+                return GlobalConf.getInt("BiomeDayNightTempModifier."+biome.toUpperCase()+"."+time);
             }
             public int getHeatCheckRadius() {
                 return GlobalConf.getInt("HeatCheckRadius");
@@ -270,8 +273,14 @@ public class Configurations {
                 list.add(Amount);
                 GlobalConf.set("staminareplenish.StaminaReplenishWaterBottle", list);
             }
-            public void setBiomesWeatherTempModifier(String mod, int num) {
-                GlobalConf.set("BiomesWeatherTempModifier."+mod, num);
+            public void setBiomeAverageTemp(String biome, int num) {
+                GlobalConf.set("BiomesAverageTemp."+biome.toUpperCase(), num);
+            }
+            public void setBiomesWeatherTempModifier(String biome, int num) {
+                GlobalConf.set("BiomesWeatherTempModifier."+biome.toUpperCase(), num);
+            }
+            public void setBiomeDayNightTempModifier(String time, String biome, int num) {
+                GlobalConf.set("BiomeDayNightTempModifier."+biome.toUpperCase()+"."+time, num);
             }
             public void setHeatCheckRadius(int HeatCheckRadius) {
                 GlobalConf.set("HeatCheckRadius", HeatCheckRadius);
@@ -290,6 +299,12 @@ public class Configurations {
             }
             public void setSeaLevel(int level) {
                 GlobalConf.set("SeaLevel", level);
+            }
+            public void setHeatSource(String source, double power) {
+                GlobalConf.set("HeatSources."+source.toUpperCase(), power);
+            }
+            public void setHeatInHand(String source, double power) {
+                GlobalConf.set("HeatInHand."+source.toUpperCase(), power);
             }
         }
     }

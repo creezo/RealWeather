@@ -21,10 +21,13 @@ public class Localization {
     public String WinterLoginMessage;
     public String WinterInIceBlock;
     public String DesertWarnMessage;
+    public String Refreshed;
     public String LanguageDescription;
+    public String Temperature;
     public String TemperatureShow;
     public String TemperatureHide;
     public String YourStamina;
+    public String StormTemp;
     public String VLowTemp;
     public String LowTemp;
     public String MedTemp;
@@ -51,20 +54,23 @@ public class Localization {
     }
     
     private void LoadSpecificLang(String language) {
-        WinterLoginMessage = Localization.getString(language + ".biome.winter.PlayerWarnOnLogin", MissingEntry);
-        WinterWarnMessage = Localization.getString(language + ".biome.winter.WarningMessage", MissingEntry);
-        WinterInIceBlock = Localization.getString(language + ".biome.winter.FrozenInIce", MissingEntry);
-        DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry);
-        LanguageDescription = Localization.getString(language + ".description", MissingEntry);
-        TemperatureShow = Localization.getString(language + ".command.TemperatureShow", MissingEntry);
-        TemperatureHide = Localization.getString(language + ".command.TemperatureHide", MissingEntry);
-        YourStamina = Localization.getString(language + ".command.YourStamina", MissingEntry);
-        VLowTemp = Localization.getString(language + ".forecast.VLowTemp", MissingEntry);
-        LowTemp = Localization.getString(language + ".forecast.LowTemp", MissingEntry);
-        MedTemp = Localization.getString(language + ".forecast.MedTemp", MissingEntry);
-        HighTemp = Localization.getString(language + ".forecast.HighTemp", MissingEntry);
-        VHighTemp = Localization.getString(language + ".forecast.VHighTemp", MissingEntry);
-        CurrentTemperature = Localization.getString(language + ".command.CurrentTemperature", MissingEntry);
+        WinterLoginMessage = Localization.getString(language + ".biome.winter.PlayerWarnOnLogin", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        WinterWarnMessage = Localization.getString(language + ".biome.winter.WarningMessage", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        WinterInIceBlock = Localization.getString(language + ".biome.winter.FrozenInIce", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        DesertWarnMessage = Localization.getString(language + ".biome.desert.WarningMessage", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        Refreshed = Localization.getString(language + ".biome.desert.Refreshed", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        LanguageDescription = Localization.getString(language + ".description", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        Temperature = Localization.getString(language + ".command.Temperature", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        TemperatureShow = Localization.getString(language + ".command.TemperatureShow", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        TemperatureHide = Localization.getString(language + ".command.TemperatureHide", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        YourStamina = Localization.getString(language + ".command.YourStamina", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        StormTemp = Localization.getString(language + ".forecast.StormTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        VLowTemp = Localization.getString(language + ".forecast.VLowTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        LowTemp = Localization.getString(language + ".forecast.LowTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        MedTemp = Localization.getString(language + ".forecast.MedTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        HighTemp = Localization.getString(language + ".forecast.HighTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        VHighTemp = Localization.getString(language + ".forecast.VHighTemp", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
+        CurrentTemperature = Localization.getString(language + ".command.CurrentTemperature", MissingEntry).replaceAll("(&([a-f0-9]))", "\u00A7$2");
         if(Config.getVariables().isDebugMode()) plugin.log.log(Level.INFO, "[RealWeather] Localization loaded: " + language);
     }
     

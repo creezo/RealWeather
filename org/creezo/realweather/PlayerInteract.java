@@ -16,11 +16,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
 /**
  *
- * @author Dodec
+ * @author creezo
  */
 public class PlayerInteract implements Listener{
     private Configuration Config = RealWeather.Config;
@@ -122,6 +123,19 @@ public class PlayerInteract implements Listener{
             Block block = event.getBlock();
             if(IceBlock.containsValue(block) || IceBlock.containsValue(block.getRelative(BlockFace.DOWN))) {
                 event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(event.getPlayer().getLocation().getBlock().getType().equals(Material.STATIONARY_WATER)) {
+            if(plugin.PlayerRefreshing.isEmpty()) {
+                plugin.PlayerRefreshing.put(event.getPlayer(), 1);
+            } else {
+                if(!plugin.PlayerRefreshing.containsKey(event.getPlayer())) {
+                    plugin.PlayerRefreshing.put(event.getPlayer(), 1);
+                }
             }
         }
     }

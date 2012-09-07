@@ -50,6 +50,8 @@ public class PlayerListener implements Listener {
         try {
             Integer TaskID = PlayerTemperatureThreads.get(PlayerID);
             plugin.getServer().getScheduler().cancelTask(TaskID.intValue());
+            plugin.PlayerRefreshing.remove(event.getPlayer());
+            plugin.PlayerTemperature.remove(event.getPlayer());
             PlayerHeatShow.remove(PlayerID);
             RealWeather.PlayerClientMod.remove(PlayerID);
             PlayerTemperatureThreads.remove(PlayerID);

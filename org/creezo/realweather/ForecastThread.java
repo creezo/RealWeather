@@ -25,7 +25,7 @@ class ForecastThread implements Runnable{
         }
         if(world.getTime() <= 1000) {
             Random rnd = new Random();
-            int Temp = rnd.nextInt(11)-5;
+            int Temp = rnd.nextInt(13)-7;
             RealWeather.ForecastTemp = Temp;
             String Message = utils.DoForecast(Temp);
             plugin.getServer().broadcastMessage(Message);

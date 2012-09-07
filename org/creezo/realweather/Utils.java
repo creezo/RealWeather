@@ -106,6 +106,11 @@ public class Utils {
     public String DoForecast(int Temp) {
         String Message;
         switch (Temp) {
+            case -7:
+            case -6:
+                Message = RealWeather.Localization.StormTemp;
+                plugin.getServer().getWorlds();
+                break;
             case -5:
             case -4:
                 Message = RealWeather.Localization.VLowTemp;
