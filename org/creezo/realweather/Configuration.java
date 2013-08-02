@@ -20,19 +20,25 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public class Configuration {
     private final File GlobalConfigFile;
-    private final File WinterConfigFile;
-    private final File DesertConfigFile;
+    private final File FreezingConfigFile;
+    private final File ExhaustingConfigFile;
     private final File JungleConfigFile;
-    private final File ArmourConfigFile;
-    private FileConfiguration WinterConf;
-    private FileConfiguration DesertConf;
+    private final File ArmorConfigFile;
+    private FileConfiguration FreezingConf;
+    private FileConfiguration ExhaustingConf;
     private FileConfiguration JungleConf;
     private FileConfiguration GlobalConf;
-    private FileConfiguration ArmourConf;
+    private FileConfiguration ArmorConf;
+    private int GlobalConfigFileVersion = 3;
+    private int FreezingConfigFileVersion = 1;
+    private int ExhaustingConfigFileVersion = 1;
+    private int JungleConfigFileVersion = 1;
+    private int ArmorConfigFileVersion = 1;
+    private int ConfigFileVersion = 3;
     
     private Configurations variables;
-    public List<String> ArmourTypes = new ArrayList<String>();
-    private List<String> ArmourPieces = new ArrayList<String>();
+    public List<String> ArmorTypes = new ArrayList<String>();
+    private List<String> ArmorPieces = new ArrayList<String>();
     
     public Configurations getVariables() {
         return variables;
@@ -41,22 +47,22 @@ public class Configuration {
 
     public Configuration(RealWeather plugin) {
         this.plugin = plugin;
-        this.WinterConf = new YamlConfiguration();
-        this.DesertConf = new YamlConfiguration();
+        this.FreezingConf = new YamlConfiguration();
+        this.ExhaustingConf = new YamlConfiguration();
         this.JungleConf = new YamlConfiguration();
         this.GlobalConf = new YamlConfiguration();
-        this.ArmourConf = new YamlConfiguration();
+        this.ArmorConf = new YamlConfiguration();
         this.GlobalConfigFile = new File(plugin.getDataFolder(), "biomes/Global.yml");
-        this.WinterConfigFile = new File(plugin.getDataFolder(), "biomes/Winter.yml");
-        this.DesertConfigFile = new File(plugin.getDataFolder(), "biomes/Desert.yml");
+        this.FreezingConfigFile = new File(plugin.getDataFolder(), "biomes/Freezing.yml");
+        this.ExhaustingConfigFile = new File(plugin.getDataFolder(), "biomes/Exhausting.yml");
         this.JungleConfigFile = new File(plugin.getDataFolder(), "biomes/Jungle.yml");
-        this.ArmourConfigFile = new File(plugin.getDataFolder(), "armour.yml");
+        this.ArmorConfigFile = new File(plugin.getDataFolder(), "armor.yml");
         
     }
     public void InitConfig() {
         plugin.log("Loading Configuration.");
         LoadAll();
-        variables = new Configurations(plugin, WinterConf, DesertConf, JungleConf, GlobalConf, ArmourConf);
+        variables = new Configurations(plugin, FreezingConf, ExhaustingConf, JungleConf, GlobalConf, ArmorConf);
         try {
             plugin.getConfig().load("plugins/RealWeather/config.yml");
         } catch (FileNotFoundException ex) {
@@ -65,6 +71,31 @@ public class Configuration {
             plugin.log.log(Level.SEVERE, null, ex);
         } catch (InvalidConfigurationException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
+        }
+        if(plugin.getConfig().getInt("fileVersion", 0) != ConfigFileVersion) {
+            File oldFile = new File("plugins/RealWeather/config_" + plugin.getConfig().getInt("fileVersion", 0) + ".yml");
+            plugin.log.log(Level.INFO, "[RealWeather] File version of config.yml is not supported by this version.");
+            try {
+                plugin.getConfig().save(oldFile);
+                plugin.log.log(Level.INFO, "[RealWeather] config.yml version: " + plugin.getConfig().getInt("fileVersion", 0));
+                plugin.log.log(Level.INFO, "[RealWeather] Required version: " + ConfigFileVersion);
+                plugin.log.log(Level.INFO, "[RealWeather] Old config.yml saved.");
+            } catch(IOException ex) {
+                plugin.log.log(Level.INFO, "[RealWeather] Saving of old config.yml file failed. " + ex.getMessage());
+            }
+            File confFile = new File("plugins/RealWeather/config.yml");
+            confFile.delete();
+            copy(plugin.getResource("config.yml"), confFile);
+            plugin.log("Configuration file copied.");
+            try {
+                plugin.getConfig().load("plugins/RealWeather/config.yml");
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
         }
         if(!plugin.getConfig().contains("DebugMode")) plugin.getConfig().set("DebugMode", false);
         if(!plugin.getConfig().contains("DebugGlassBlocks")) plugin.getConfig().set("DebugGlassBlocks", false);
@@ -75,12 +106,7 @@ public class Configuration {
         } else {
             variables.setGameDifficulty(plugin.getServer().getWorlds().get(0).getDifficulty().name().toLowerCase());
         }
-        if(!plugin.getConfig().contains("Statistics.Enable")) plugin.getConfig().set("Statistics.Enable", true);
-        if(!plugin.getConfig().contains("Statistics.ShowMyServerOnList")) plugin.getConfig().set("Statistics.ShowMyServerOnList", false);
-        if(!plugin.getConfig().contains("Statistics.ServerName")) plugin.getConfig().set("Statistics.ServerName", "Unknown");
-        if(!plugin.getConfig().contains("Statistics.Comment")) plugin.getConfig().set("Statistics.Comment", "none");
-        if(!plugin.getConfig().contains("Statistics.ServerAddress")) plugin.getConfig().set("Statistics.ServerAddress", "0.0.0.0:25565");
-        if(!plugin.getConfig().contains("GlobalEnable")) plugin.getConfig().set("GlobalEnable", true);
+        if(!plugin.getConfig().contains("GlobalyEnable")) plugin.getConfig().set("GlobalyEnable", true);
         String StartDelayDiff = variables.getGameDifficulty() + ".StartDelay";
         if(!plugin.getConfig().contains(StartDelayDiff)) plugin.getConfig().set(StartDelayDiff, (int) 20);
         String CheckDelayDiff = variables.getGameDifficulty() + ".CheckDelay";
@@ -88,20 +114,21 @@ public class Configuration {
         if(!plugin.getConfig().contains("NumberOfChecksPerWarningMessage")) plugin.getConfig().set("NumberOfChecksPerWarningMessage", (int) 5);
         variables.setMaxPlayers(plugin.getServer().getMaxPlayers());
         if(!plugin.getConfig().contains("AffectedWorlds")) {
-            List<String> list = new ArrayList();
+            List<String> list = new ArrayList<String>();
             list.add("world"); list.add("world_nether"); list.add("world_the_end");
             plugin.getConfig().set("AffectedWorlds", true);
         }
-        //RealWinter.log.log(Level.INFO, StartDelay + " " + CheckDelay + " " + CheckRadius + " " + HouseRecoWinter + " " + GameDifficulty);
+        if(!plugin.getConfig().contains("BroadcastForecast")) plugin.getConfig().set("BroadcastForecast", true);
+        if(!plugin.getConfig().contains("CanChangeWeather")) plugin.getConfig().set("CanChangeWeather", true);
     }
         
     public boolean SaveAll() {
         try {
-            WinterConf.save(WinterConfigFile);
-            DesertConf.save(DesertConfigFile);
+            FreezingConf.save(FreezingConfigFile);
+            ExhaustingConf.save(ExhaustingConfigFile);
             JungleConf.save(JungleConfigFile);
             GlobalConf.save(GlobalConfigFile);
-            ArmourConf.save(ArmourConfigFile);
+            ArmorConf.save(ArmorConfigFile);
             plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
@@ -114,21 +141,99 @@ public class Configuration {
         if(!new File(plugin.getDataFolder(), "biomes").exists()) {
             GlobalConfigFile.getParentFile().mkdirs();
         }
-        if(WinterConfigFile.exists()) {
-            LoadWinter(WinterConfigFile);
+        if(FreezingConfigFile.exists()) {
+            try {
+                FreezingConf.load(FreezingConfigFile);
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
+            if(FreezingConf.getInt("fileVersion", 0) != FreezingConfigFileVersion) {
+                File oldFile = new File("plugins/RealWeather/biomes/Freezing_" + FreezingConf.getInt("fileVersion", 0) + ".yml");
+                plugin.log.log(Level.INFO, "[RealWeather] File version of Freezing.yml is not supported by this version.");
+                try {
+                    FreezingConf.save(oldFile);
+                    plugin.log.log(Level.INFO, "[RealWeather] Freezing.yml version: " + FreezingConf.getInt("fileVersion", 0));
+                    plugin.log.log(Level.INFO, "[RealWeather] Required version: " + FreezingConfigFileVersion);
+                    plugin.log.log(Level.INFO, "[RealWeather] Old Freezing.yml saved.");
+                } catch(IOException ex) {
+                    plugin.log.log(Level.INFO, "[RealWeather] Saving of old Freezing.yml file failed. " + ex.getMessage());
+                }
+                FreezingConfigFile.delete();
+                copy(plugin.getResource("biomes/Freezing.yml"), FreezingConfigFile);
+                plugin.log("Freezing configuration file copied.");
+            } else {
+                plugin.log("Freezing configuration file   OK.");
+            }
+            LoadFreezing(FreezingConfigFile);
         } else {
-            copy(plugin.getResource("biomes/Winter.yml"), WinterConfigFile);
-            plugin.log("Winter configuration file copied.");
-            LoadWinter(WinterConfigFile);
+            copy(plugin.getResource("biomes/Freezing.yml"), FreezingConfigFile);
+            plugin.log("Freezing configuration file copied.");
+            LoadFreezing(FreezingConfigFile);
         }
-        if(DesertConfigFile.exists()) {
-            LoadDesert(DesertConfigFile);
+        if(ExhaustingConfigFile.exists()) {
+            try {
+                ExhaustingConf.load(ExhaustingConfigFile);
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
+            if(ExhaustingConf.getInt("fileVersion", 0) != ExhaustingConfigFileVersion) {
+                File oldFile = new File("plugins/RealWeather/biomes/Exhausting_" + ExhaustingConf.getInt("fileVersion", 0) + ".yml");
+                plugin.log.log(Level.INFO, "[RealWeather] File version of Exhausting.yml is not supported by this version.");
+                try {
+                    ExhaustingConf.save(oldFile);
+                    plugin.log.log(Level.INFO, "[RealWeather] Exhausting.yml version: " + ExhaustingConf.getInt("fileVersion", 0));
+                    plugin.log.log(Level.INFO, "[RealWeather] Required version: " + ExhaustingConfigFileVersion);
+                    plugin.log.log(Level.INFO, "[RealWeather] Old Exhausting.yml saved.");
+                } catch(IOException ex) {
+                    plugin.log.log(Level.INFO, "[RealWeather] Saving of old Exhausting.yml file failed. " + ex.getMessage());
+                }
+                ExhaustingConfigFile.delete();
+                copy(plugin.getResource("biomes/Exhausting.yml"), ExhaustingConfigFile);
+                plugin.log("Exhausting configuration file copied.");
+            } else {
+                plugin.log("Exhausting configuration file OK.");
+            }
+            LoadExhausting(ExhaustingConfigFile);
         } else {
-            copy(plugin.getResource("biomes/Desert.yml"), DesertConfigFile);
-            plugin.log("Desert configuration file copied.");
-            LoadDesert(DesertConfigFile);
+            copy(plugin.getResource("biomes/Exhausting.yml"), ExhaustingConfigFile);
+            plugin.log("Exhausting configuration file copied.");
+            LoadExhausting(ExhaustingConfigFile);
         }
         if(JungleConfigFile.exists()) {
+            try {
+                JungleConf.load(JungleConfigFile);
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
+            if(JungleConf.getInt("fileVersion", 0) != JungleConfigFileVersion) {
+                File oldFile = new File("plugins/RealWeather/biomes/Jungle_" + JungleConf.getInt("fileVersion", 0) + ".yml");
+                plugin.log.log(Level.INFO, "[RealWeather] File version of Jungle.yml is not supported by this version.");
+                try {
+                    JungleConf.save(oldFile);
+                    plugin.log.log(Level.INFO, "[RealWeather] Jungle.yml version: " + JungleConf.getInt("fileVersion", 0));
+                    plugin.log.log(Level.INFO, "[RealWeather] Required version: " + JungleConfigFileVersion);
+                    plugin.log.log(Level.INFO, "[RealWeather] Old Jungle.yml saved.");
+                } catch(IOException ex) {
+                    plugin.log.log(Level.INFO, "[RealWeather] Saving of old Jungle.yml file failed. " + ex.getMessage());
+                }
+                JungleConfigFile.delete();
+                copy(plugin.getResource("biomes/Jungle.yml"), JungleConfigFile);
+                plugin.log("Jungle configuration file copied.");
+            } else {
+                plugin.log("Jungle configuration file     OK.");
+            }
             LoadJungle(JungleConfigFile);
         } else {
             copy(plugin.getResource("biomes/Jungle.yml"), JungleConfigFile);
@@ -136,24 +241,76 @@ public class Configuration {
             LoadJungle(JungleConfigFile);
         }
         if(GlobalConfigFile.exists()) {
+            try {
+                GlobalConf.load(GlobalConfigFile);
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
+            if(GlobalConf.getInt("fileVersion", 0) != GlobalConfigFileVersion) {
+                File oldFile = new File("plugins/RealWeather/biomes/Global_" + GlobalConf.getInt("fileVersion", 0) + ".yml");
+                plugin.log.log(Level.INFO, "[RealWeather] File version of Global.yml is not supported by this version.");
+                try {
+                    GlobalConf.save(oldFile);
+                    plugin.log.log(Level.INFO, "[RealWeather] Global.yml version: " + GlobalConf.getInt("fileVersion", 0));
+                    plugin.log.log(Level.INFO, "[RealWeather] Required version: " + GlobalConfigFileVersion);
+                    plugin.log.log(Level.INFO, "[RealWeather] Old Global.yml saved.");
+                } catch(IOException ex) {
+                    plugin.log.log(Level.INFO, "[RealWeather] Saving of old Global.yml file failed. " + ex.getMessage());
+                }
+                GlobalConfigFile.delete();
+                copy(plugin.getResource("biomes/Global.yml"), GlobalConfigFile);
+                plugin.log("Global configuration file copied.");
+            } else {
+                plugin.log("Global configuration file     OK.");
+            }
             LoadGlobal(GlobalConfigFile);
         } else {
             copy(plugin.getResource("biomes/Global.yml"), GlobalConfigFile);
             plugin.log("Global configuration file copied.");
             LoadGlobal(GlobalConfigFile);
         }
-        if(ArmourConfigFile.exists()) {
-            LoadArmour(ArmourConfigFile);
+        if(ArmorConfigFile.exists()) {
+            try {
+                ArmorConf.load(ArmorConfigFile);
+            } catch (FileNotFoundException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            } catch (InvalidConfigurationException ex) {
+                plugin.log.log(Level.SEVERE, null, ex);
+            }
+            if(ArmorConf.getInt("fileVersion", 0) != ArmorConfigFileVersion) {
+                File oldFile = new File("plugins/RealWeather/biomes/Armor_" + ArmorConf.getInt("fileVersion", 0) + ".yml");
+                plugin.log.log(Level.INFO, "[RealWeather] File version of Armor.yml is not supported by this version.");
+                try {
+                    ArmorConf.save(oldFile);
+                    plugin.log.log(Level.INFO, "[RealWeather] Armor.yml version: " + ArmorConf.getInt("fileVersion", 0));
+                    plugin.log.log(Level.INFO, "[RealWeather] Required version: " + ArmorConfigFileVersion);
+                    plugin.log.log(Level.INFO, "[RealWeather] Old Armor.yml saved.");
+                } catch(IOException ex) {
+                    plugin.log.log(Level.INFO, "[RealWeather] Saving of old Armor.yml file failed. " + ex.getMessage());
+                }
+                ArmorConfigFile.delete();
+                copy(plugin.getResource("biomes/Armor.yml"), ArmorConfigFile);
+                plugin.log("Armor configuration file copied.");
+            } else {
+                plugin.log("Armor configuration file      OK.");
+            }
+            LoadArmor(ArmorConfigFile);
         } else {
-            copy(plugin.getResource("armour.yml"), ArmourConfigFile);
-            plugin.log("Armour configuration file copied.");
-            LoadArmour(ArmourConfigFile);
+            copy(plugin.getResource("armor.yml"), ArmorConfigFile);
+            plugin.log("Armor configuration file copied.");
+            LoadArmor(ArmorConfigFile);
         }
     }
     
-    private void LoadWinter(File CFile) {
+    private void LoadFreezing(File CFile) {
         try {
-            WinterConf.load(CFile);
+            FreezingConf.load(CFile);
         } catch (FileNotFoundException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -161,18 +318,18 @@ public class Configuration {
         } catch (InvalidConfigurationException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         }
-        if(!WinterConf.contains("enable")) WinterConf.set("enable", false);
-        if(!WinterConf.contains("CheckRadius")) WinterConf.set("CheckRadius", (int) 2);
-        if(!WinterConf.contains("TempPeak")) WinterConf.set("TempPeak", (int) 50);
-        if(!WinterConf.contains("CanKillPlayer")) WinterConf.set("CanKillPlayer", false);
-        if(!WinterConf.contains("PlayerIceBlock")) WinterConf.set("PlayerIceBlock", true);
-        if(!WinterConf.contains("InitialTemperature")) WinterConf.set("InitialTemperature", (int) 0);
-        if(!WinterConf.contains("HouseRecognizer")) WinterConf.set("HouseRecognizer", "cross");
-        if(!WinterConf.contains("PlayerDamage")) WinterConf.set("PlayerDamage", (int) 4);
+        if(!FreezingConf.contains("enable")) FreezingConf.set("enable", false);
+        if(!FreezingConf.contains("CheckRadius")) FreezingConf.set("CheckRadius", (int) 2);
+        if(!FreezingConf.contains("TempPeak")) FreezingConf.set("TempPeak", (int) 50);
+        if(!FreezingConf.contains("CanKillPlayer")) FreezingConf.set("CanKillPlayer", false);
+        if(!FreezingConf.contains("PlayerIceBlock")) FreezingConf.set("PlayerIceBlock", true);
+        if(!FreezingConf.contains("InitialTemperature")) FreezingConf.set("InitialTemperature", (int) 0);
+        if(!FreezingConf.contains("HouseRecognizer")) FreezingConf.set("HouseRecognizer", "cross");
+        if(!FreezingConf.contains("PlayerDamage")) FreezingConf.set("PlayerDamage", (int) 4);
     }
-    private void LoadDesert(File CFile) {
+    private void LoadExhausting(File CFile) {
         try {
-            DesertConf.load(CFile);
+            ExhaustingConf.load(CFile);
         } catch (FileNotFoundException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -180,14 +337,14 @@ public class Configuration {
         } catch (InvalidConfigurationException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         }
-        if(!DesertConf.contains("enable")) DesertConf.set("enable", true);
-        if(!DesertConf.contains("HouseRecognizer")) DesertConf.set("HouseRecognizer", "simple");
-        if(!DesertConf.contains("StaminaLost")) {
-            List<Float> list = new ArrayList();
+        if(!ExhaustingConf.contains("enable")) ExhaustingConf.set("enable", true);
+        if(!ExhaustingConf.contains("HouseRecognizer")) ExhaustingConf.set("HouseRecognizer", "simple");
+        if(!ExhaustingConf.contains("StaminaLost")) {
+            List<Float> list = new ArrayList<Float>();
             list.add(0.05F);
-            DesertConf.set("StaminaLost", list);
+            ExhaustingConf.set("StaminaLost", list);
         }
-        if(!DesertConf.contains("NumberOfCheckPerFoodLost")) DesertConf.set("enaNumberOfCheckPerFoodLostle", (int) 5);
+        if(!ExhaustingConf.contains("NumberOfCheckPerFoodLost")) ExhaustingConf.set("enaNumberOfCheckPerFoodLostle", (int) 5);
     }
     private void LoadJungle(File CFile) {
         try {
@@ -219,27 +376,25 @@ public class Configuration {
         }
         if(!GlobalConf.contains("thirst.enable")) GlobalConf.set("thirst.enable", true);
         if(!GlobalConf.contains("thirst.StaminaLost")) {
-            List<Float> list = new ArrayList();
+            List<Float> list = new ArrayList<Float>();
             list.add(0.03F);
             GlobalConf.set("thirst.StaminaLost", list);
         }
         if(!GlobalConf.contains("thirst.AffectedWorlds")) {
-            List<String> list = new ArrayList();
+            List<String> list = new ArrayList<String>();
             list.add("world"); list.add("world_nether"); list.add("world_the_end");
             GlobalConf.set("thirst.AffectedWorlds", list);
         }
         if(!GlobalConf.contains("staminareplenish.enable")) GlobalConf.set("staminareplenish.enable", true);
-        if(!GlobalConf.contains("BiomesWeatherTempModifier.Light")) GlobalConf.set("BiomesWeatherTempModifier.Light", 5);
-        if(!GlobalConf.contains("BiomesWeatherTempModifier.Medium")) GlobalConf.set("BiomesWeatherTempModifier.Medium", 8);
-        if(!GlobalConf.contains("BiomesWeatherTempModifier.Hard")) GlobalConf.set("BiomesWeatherTempModifier.Hard", 12);
         if(!GlobalConf.contains("HeatCheckRadius")) GlobalConf.set("HeatCheckRadius", (int) 3);
         if(!GlobalConf.contains("PlayerHeat")) GlobalConf.set("PlayerHeat", (int) 1);
         if(!GlobalConf.contains("FreezeUnder")) GlobalConf.set("FreezeUnder", (int) 7);
         if(!GlobalConf.contains("OverheatOver")) GlobalConf.set("OverheatOver", (int) 30);
         if(!GlobalConf.contains("SeaLevel")) GlobalConf.set("SeaLevel", (int) 62);
+        if(!GlobalConf.contains("ShowersRainChance")) GlobalConf.set("ShowersRainChance", (int) 25);
         if(!GlobalConf.contains("MaxMapHeightTemperatureModifier")) GlobalConf.set("MaxMapHeightTemperatureModifier", (int) -10);
         if(!GlobalConf.contains("staminareplenish.StaminaReplenishWaterBottle")) {
-            List<Float> list = new ArrayList();
+            List<Float> list = new ArrayList<Float>();
             list.add(1.00F);
             GlobalConf.set("staminareplenish.StaminaReplenishWaterBottle", list);
         }
@@ -275,9 +430,9 @@ public class Configuration {
         }
     }
     
-    private void LoadArmour(File CFile) {
+    private void LoadArmor(File CFile) {
         try {
-            ArmourConf.load(CFile);
+            ArmorConf.load(CFile);
         } catch (FileNotFoundException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -285,24 +440,24 @@ public class Configuration {
         } catch (InvalidConfigurationException ex) {
             plugin.log.log(Level.SEVERE, null, ex);
         }
-        ArmourTypes.add("Leather");
-        ArmourTypes.add("Iron");
-        ArmourTypes.add("Gold");
-        ArmourTypes.add("Diamond");
-        ArmourTypes.add("Chain");
-        ArmourTypes.add("Other");
-        ArmourPieces.add("Boots");
-        ArmourPieces.add("Chestplate");
-        ArmourPieces.add("Helmet");
-        ArmourPieces.add("Leggings");
-        for (String type : ArmourTypes) {
-            for (String piece : ArmourPieces) {
-                if(!ArmourConf.contains(type+"."+piece+".FrostResistanceFactor")) ArmourConf.set(type+"."+piece+".FrostResistanceFactor", (double)1d);
-                if(!ArmourConf.contains(type+"."+piece+".HeatResistanceFactor")) ArmourConf.set(type+"."+piece+".HeatResistanceFactor", (double)1d);
+        ArmorTypes.add("Leather");
+        ArmorTypes.add("Iron");
+        ArmorTypes.add("Gold");
+        ArmorTypes.add("Diamond");
+        ArmorTypes.add("Chain");
+        ArmorTypes.add("Other");
+        ArmorPieces.add("Boots");
+        ArmorPieces.add("Chestplate");
+        ArmorPieces.add("Helmet");
+        ArmorPieces.add("Leggings");
+        for (String type : ArmorTypes) {
+            for (String piece : ArmorPieces) {
+                if(!ArmorConf.contains(type+"."+piece+".FrostResistanceFactor")) ArmorConf.set(type+"."+piece+".FrostResistanceFactor", (double)1d);
+                if(!ArmorConf.contains(type+"."+piece+".HeatResistanceFactor")) ArmorConf.set(type+"."+piece+".HeatResistanceFactor", (double)1d);
             }
         }
-        if(!ArmourConf.contains("Pumpkin.FrostResistanceFactor")) ArmourConf.set("Pumpkin.FrostResistanceFactor", (double)1.1d);
-        if(!ArmourConf.contains("Pumpkin.HeatResistanceFactor")) ArmourConf.set("Pumpkin.HeatResistanceFactor", (double)1.1d);
+        if(!ArmorConf.contains("Pumpkin.FrostResistanceFactor")) ArmorConf.set("Pumpkin.FrostResistanceFactor", (double)1.1d);
+        if(!ArmorConf.contains("Pumpkin.HeatResistanceFactor")) ArmorConf.set("Pumpkin.HeatResistanceFactor", (double)1.1d);
     }
 
     private void copy(InputStream input, File file) {
@@ -316,7 +471,7 @@ public class Configuration {
             out.close();
             input.close();
         } catch (Exception e) {
-            RealWeather.log.log(Level.INFO, e.getMessage());
+            plugin.log.log(Level.WARNING, null, e);
         }
     }
 }

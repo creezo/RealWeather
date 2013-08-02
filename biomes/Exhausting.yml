@@ -1,4 +1,5 @@
-#Desert biome options
+fileVersion: 1
+#High temperatures options
 enable: true
 HouseRecognizer: simple
 NumberOfCheckPerFoodLost: 5

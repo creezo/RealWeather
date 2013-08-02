@@ -1,3 +1,4 @@
+fileVersion: 3
 # Global does not depend on biome
 thirst:
   enable: true
@@ -11,32 +12,33 @@ FreezeUnder: 7
 OverheatOver: 30
 HeatCheckRadius: 3
 PlayerHeat: 1
-MaxMapHeightTemperatureModifier: -20
+MaxMapHeightTemperatureModifier: -40
 SeaLevel: 62
+ShowersRainChance: 25
 BiomesAverageTemp:
   SWAMPLAND: 15
   FOREST: 15
   TAIGA: 0
   DESERT: 30
-  PLAINS: 15
+  PLAINS: 20
   HELL: 30
   SKY: 15
   OCEAN: 15
   RIVER: 15
-  EXTREME_HILLS: 10
-  FROZEN_OCEAN: 5
-  FROZEN_RIVER: 0
-  ICE_PLAINS: 0
-  ICE_MOUNTAINS: -5
-  MUSHROOM_ISLAND: 15
-  MUSHROOM_SHORE: 15
+  EXTREME HILLS: 17
+  FROZENOCEAN: 5
+  FROZENRIVER: 0
+  ICE PLAINS: 0
+  ICE MOUNTAINS: 0
+  MUSHROOMISLAND: 15
+  MUSHROOMISLANDSHORE: 15
   BEACH: 15
-  DESERT_HILLS: 25
-  FOREST_HILLS: 10
-  TAIGA_HILLS: -5
-  SMALL_MOUNTAINS: 12
+  DESERTHILLS: 25
+  FORESTHILLS: 10
+  TAIGAHILLS: 0
+  EXTREME HILLS EDGE: 12
   JUNGLE: 30
-  JUNGLE_HILLS: 25
+  JUNGLEHILLS: 25
 BiomesWeatherTempModifier:
   SWAMPLAND: -5
   FOREST: -5
@@ -47,20 +49,20 @@ BiomesWeatherTempModifier:
   SKY: 0
   OCEAN: -5
   RIVER: -5
-  EXTREME_HILLS: -15
-  FROZEN_OCEAN: -8
-  FROZEN_RIVER: -8
-  ICE_PLAINS: -8
-  ICE_MOUNTAINS: -12
-  MUSHROOM_ISLAND: -5
-  MUSHROOM_SHORE: -5
+  EXTREME HILLS: -8
+  FROZENOCEAN: -8
+  FROZENRIVER: -8
+  ICE PLAINS: -6
+  ICE MOUNTAINS: -8
+  MUSHROOMISLAND: -5
+  MUSHROOMISLANDSHORE: -5
   BEACH: -5
-  DESERT_HILLS: -12
-  FOREST_HILLS: -12
-  TAIGA_HILLS: -15
-  SMALL_MOUNTAINS: -8
+  DESERTHILLS: -12
+  FORESTHILLS: -12
+  TAIGAHILLS: -10
+  EXTREME HILLS EDGE: -8
   JUNGLE: -5
-  JUNGLE_HILLS: -8
+  JUNGLEHILLS: -8
 BiomeDayNightTempModifier:
   SWAMPLAND:
     Day: 5
@@ -89,52 +91,52 @@ BiomeDayNightTempModifier:
   RIVER:
     Day: 5
     Night: -5
-  EXTREME_HILLS:
-    Day: 6
-    Night: -15
-  FROZEN_OCEAN:
+  EXTREME HILLS:
+    Day: 8
+    Night: -10
+  FROZENOCEAN:
     Day: 5
     Night: -8
-  FROZEN_RIVER:
+  FROZENRIVER:
     Day: 5
     Night: -8
-  ICE_PLAINS:
+  ICE PLAINS:
     Day: 5
     Night: -8
-  ICE_MOUNTAINS:
+  ICE MOUNTAINS:
     Day: 5
     Night: -12
-  MUSHROOM_ISLAND:
+  MUSHROOMISLAND:
     Day: 5
     Night: -5
-  MUSHROOM_SHORE:
+  MUSHROOMISLANDSHORE:
     Day: 5
     Night: -5
   BEACH:
     Day: 5
     Night: -5
-  DESERT_HILLS:
+  DESERTHILLS:
     Day: 10
     Night: -30
-  FOREST_HILLS:
+  FORESTHILLS:
     Day: 6
     Night: -8
-  TAIGA_HILLS:
+  TAIGAHILLS:
     Day: 5
     Night: -16
-  SMALL_MOUNTAINS:
+  EXTREME HILLS EDGE:
     Day: 5
     Night: -8
   JUNGLE:
     Day: 8
     Night: -8
-  JUNGLE_HILLS:
+  JUNGLEHILLS:
     Day: 7
     Night: -9
 HeatSources:
   LAVA: 20
   STATIONARY_LAVA: 20
-  TORCH: 8
+  TORCH: 6
   FIRE: 10
   BURNING_FURNACE: 10
   SNOW: -0.5
@@ -145,8 +147,8 @@ HeatSources:
   REDSTONE_LAMP_ON: 1
   WOOL: 0.25
 HeatInHand:
-  TORCH: 8
+  TORCH: 6
   LAVA_BUCKET: 20
   ICE: -3
   SNOW_BLOCK: -1.5
-  
+TorchesFading: true

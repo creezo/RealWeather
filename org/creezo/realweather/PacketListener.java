@@ -8,12 +8,16 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
  * @author Dodec
  */
 public class PacketListener implements PluginMessageListener{
+    private final RealWeather plugin;
     
+    public PacketListener(RealWeather plugin) {
+        this.plugin = plugin;
+    }
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if(channel.equals("realweather") && player != null) {
-            RealWeather.log("Player "+player.getPlayerListName()+" connected with RW client mod.");
-            RealWeather.PlayerClientMod.put(player.getEntityId(), true);
+            plugin.log("Player "+player.getPlayerListName()+" connected with RW client mod.");
+            plugin.PlayerClientMod.put(player.getEntityId(), true);
         }
     }
     

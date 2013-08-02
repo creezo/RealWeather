@@ -1,8 +1,11 @@
 name: RealWeather
 main: org.creezo.realweather.RealWeather
-version: 1.2.2pre1
+version: 1.6.2 beta
 author: creezo
 softdepend: [Multiverse-Core]
+description: 'Makes the weather more dangerous by extending its effects.'
+website: http://dev.bukkit.org/server-mods/realwinter/
+dev-url: http://dev.bukkit.org/server-mods/realwinter/
 
 commands: 
   rw:
@@ -28,7 +31,7 @@ permissions:
   realweather.admin:
     description: 'Grants ability to use RealWeather admin commands.'
     default: op
-  realweather.immune:
+  realweather.immune.all:
     description: 'Makes player immune to all RW effects.'
     default: false
   realweather.immune.winter:

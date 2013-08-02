@@ -24,10 +24,10 @@ import org.bukkit.inventory.ItemStack;
  * @author creezo
  */
 public class PlayerInteract implements Listener{
-    private Configuration Config = RealWeather.Config;
+    //private Configuration Config = RealWeather.Config;
     private ItemStack ItemInHand;
-    private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
-    private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
+    //private HashMap<Integer, Boolean> PlayerIceHashMap = RealWeather.PlayerIceHashMap;
+    //private HashMap<Integer, Block> IceBlock = RealWeather.IceBlock;
     private final RealWeather plugin;
     
     public PlayerInteract(RealWeather plugin) {
@@ -37,7 +37,7 @@ public class PlayerInteract implements Listener{
     @EventHandler
     public synchronized void onPlayerInteract(PlayerInteractEvent event) {
         final Player player = event.getPlayer();
-        if(Config.getVariables().getBiomes().getGlobal().isReplenishEnabled() == true) {
+        if(plugin.Config.getVariables().getBiomes().getGlobal().isReplenishEnabled() == true) {
             try {
                 ItemInHand = event.getItem();
                 int itemID = ItemInHand.getTypeId();
@@ -46,7 +46,7 @@ public class PlayerInteract implements Listener{
                 ItemInHand.setDurability((short)1);
             }
         }
-        if(ItemInHand.getTypeId() == 373 && ItemInHand.getDurability() == 0 && Config.getVariables().getBiomes().getGlobal().isReplenishEnabled() == true) {
+        if(ItemInHand.getTypeId() == 373 && ItemInHand.getDurability() == 0 && plugin.Config.getVariables().getBiomes().getGlobal().isReplenishEnabled() == true) {
             Thread WaterWait = new Thread(new Runnable() {
 
                 @Override
@@ -55,17 +55,17 @@ public class PlayerInteract implements Listener{
                         try {
                             Thread.sleep(1400);
                         } catch (InterruptedException ex) {
-                            RealWeather.log.log(Level.SEVERE, ex.getLocalizedMessage());
+                            plugin.log.log(Level.WARNING, null, ex);
                         }
                         if(player.getItemInHand().getTypeId() != 373) break;
                         try {
                             Thread.sleep(200);
                         } catch (InterruptedException ex) {
-                            RealWeather.log.log(Level.SEVERE, ex.getLocalizedMessage());
+                            plugin.log.log(Level.WARNING, null, ex);
                         }
                         if(player.getItemInHand().getTypeId() == 374)
-                        player.setSaturation(player.getSaturation() + Config.getVariables().getBiomes().getGlobal().getStaminaReplenishAmount());
-                        if(Config.getVariables().isDebugMode()) RealWeather.log("Stamina Replenished to level: " + player.getSaturation());
+                            player.setSaturation(player.getSaturation() + plugin.Config.getVariables().getBiomes().getGlobal().getStaminaReplenishAmount());
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Stamina Replenished to level: " + player.getSaturation());
                     }
                 }
             });
@@ -79,37 +79,37 @@ public class PlayerInteract implements Listener{
     public void onPlayerDestroyBlock(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        if(PlayerIceHashMap.get(player.getEntityId())) {
+        /*if(plugin.PlayerIceHashMap.get(player.getEntityId())) {
             event.setCancelled(true);
         } else {
-            if(IceBlock.containsValue(block) && block.getType().equals(Material.ICE)) {
+            if(plugin.IceBlock.containsValue(block) && block.getType().equals(Material.ICE)) {
                 event.setCancelled(true);
                 block.setType(Material.AIR);
                 block.getRelative(BlockFace.UP).setType(Material.AIR);
                 for(int i=0;i<plugin.getServer().getOnlinePlayers().length;i++) {
-                    if(block.equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
-                        PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
-                        IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
+                    if(block.equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && plugin.PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
+                        plugin.PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
+                        plugin.IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
                     }
                 }
-            } else if(IceBlock.containsValue(block.getRelative(BlockFace.DOWN)) && block.getType().equals(Material.ICE)) {
+            } else if(plugin.IceBlock.containsValue(block.getRelative(BlockFace.DOWN)) && block.getType().equals(Material.ICE)) {
                 event.setCancelled(true);
                 block.setType(Material.AIR);
                 if(block.getRelative(BlockFace.DOWN).getType().equals(Material.ICE)) {
                     block.getRelative(BlockFace.DOWN).setType(Material.AIR);
                 }
                 for(int i=0;i<plugin.getServer().getOnlinePlayers().length;i++) {
-                    if(block.getRelative(BlockFace.DOWN).equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
-                        PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
-                        IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
+                    if(block.getRelative(BlockFace.DOWN).equals(plugin.getServer().getOnlinePlayers()[i].getLocation().getBlock()) && plugin.PlayerIceHashMap.get(plugin.getServer().getOnlinePlayers()[i].getEntityId())) {
+                        plugin.PlayerIceHashMap.put(plugin.getServer().getOnlinePlayers()[i].getEntityId(), Boolean.FALSE);
+                        plugin.IceBlock.remove(plugin.getServer().getOnlinePlayers()[i].getEntityId());
                     }
                 }
             }
-        }
-        if(player.getLocation().getBlock().getBiome()==Biome.JUNGLE || player.getLocation().getBlock().getBiome()==Biome.JUNGLE_HILLS) {
+        }*/
+        if(player.getLocation().getBlock().getBiome()==Biome.JUNGLE | player.getLocation().getBlock().getBiome()==Biome.JUNGLE_HILLS) {
             if(block.getTypeId()==2 || (block.getTypeId()==31 && block.getData()==2)) {
                 Random random = new Random();
-                if(random.nextInt(100) < Config.getVariables().getBiomes().getJungle().getSilverFishChance()) {
+                if(random.nextInt(100) < plugin.Config.getVariables().getBiomes().getJungle().getSilverFishChance()) {
                     Entity SFish = block.getWorld().spawnEntity(block.getLocation(), EntityType.SILVERFISH);
                     SFish.playEffect(EntityEffect.HURT);
                 }
@@ -119,12 +119,12 @@ public class PlayerInteract implements Listener{
     
     @EventHandler
     public void onBlockMelt(BlockPhysicsEvent event) {
-        if(Config.getVariables().getBiomes().getWinter().getPlayerIceBlock()) {
+        /*if(plugin.Config.getVariables().getBiomes().getFreezing().getPlayerIceBlock()) {
             Block block = event.getBlock();
-            if(IceBlock.containsValue(block) || IceBlock.containsValue(block.getRelative(BlockFace.DOWN))) {
+            if(plugin.IceBlock.containsValue(block) || plugin.IceBlock.containsValue(block.getRelative(BlockFace.DOWN))) {
                 event.setCancelled(true);
             }
-        }
+        }*/
     }
     
     @EventHandler

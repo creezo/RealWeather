@@ -3,6 +3,7 @@ package org.creezo.realweather;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
@@ -10,15 +11,15 @@ import org.bukkit.configuration.file.FileConfiguration;
  * @author creezo
  */
 public class Configurations {
-    private FileConfiguration WinterConf;
-    private FileConfiguration DesertConf;
+    private FileConfiguration FreezingConf;
+    private FileConfiguration ExhaustingConf;
     private FileConfiguration JungleConf;
     private FileConfiguration GlobalConf;
     private FileConfiguration ArmourConf;
     private RealWeather plugin;
-    public Configurations(RealWeather plugin, FileConfiguration WinterConf, FileConfiguration DesertConf, FileConfiguration JungleConf, FileConfiguration GlobalConf, FileConfiguration ArmourConf) {
-        this.WinterConf = WinterConf;
-        this.DesertConf = DesertConf;
+    public Configurations(RealWeather plugin, FileConfiguration FreezingConf, FileConfiguration ExhaustingConf, FileConfiguration JungleConf, FileConfiguration GlobalConf, FileConfiguration ArmourConf) {
+        this.FreezingConf = FreezingConf;
+        this.ExhaustingConf = ExhaustingConf;
         this.JungleConf = JungleConf;
         this.GlobalConf = GlobalConf;
         this.ArmourConf = ArmourConf;
@@ -28,6 +29,7 @@ public class Configurations {
     public Armours getArmours() {
         return Armours;
     }
+
     public class Armours {
         
         public double[] getResistance(int itemID, String resistanceType) {
@@ -59,104 +61,83 @@ public class Configurations {
             return factor;
         }
     }
-    private Statistics Statistics = new Statistics();
-    public Statistics getStatistics() {
-        return Statistics;
-    }
-    public class Statistics {
-        public boolean getPublic() {
-            return plugin.getConfig().getBoolean("Statistics.ShowMyServerOnList", false);
-        }
-        public String getServerName() {
-            return plugin.getConfig().getString("Statistics.ServerName");
-        }
-        public String getComment() {
-            return plugin.getConfig().getString("Statistics.Comment");
-        }
-        public String getServerAddress() {
-            return plugin.getConfig().getString("Statistics.ServerAddress");
-        }
-        public boolean getEnable() {
-            return plugin.getConfig().getBoolean("Statistics.Enable", true);
-        }
-    }
     private Biomes Biomes = new Biomes();
     public Biomes getBiomes() {
         return Biomes;
     }
     public class Biomes {
-        private Winter Winter = new Winter();
-        public Winter getWinter() {
-            return Winter;
+        private Freezing Freezing = new Freezing();
+        public Freezing getFreezing() {
+            return Freezing;
         }
-        public class Winter {
-            public void setWinterKill(boolean WinterKill) {
-                WinterConf.set("CanKillPlayer", WinterKill);
+        public class Freezing {
+            public void setFreezingKill(boolean FreezingKill) {
+                FreezingConf.set("CanKillPlayer", FreezingKill);
             }
-            public void setEnabled(boolean WinterEnabled) {
-                WinterConf.set("enable", WinterEnabled);
+            public void setEnabled(boolean FreezingEnabled) {
+                FreezingConf.set("enable", FreezingEnabled);
             }
             public void setMissingArmorDamage(int Damage) {
-                WinterConf.set("PlayerDamage", Damage);
+                FreezingConf.set("PlayerDamage", Damage);
             }
             public void setIceBlock(boolean PlayerIceBlock) {
-                WinterConf.set("PlayerIceBlock", PlayerIceBlock);
+                FreezingConf.set("PlayerIceBlock", PlayerIceBlock);
             }
-            public void setHouseRecoWinter(String HouseRecoWinter) {
-                WinterConf.set("HouseRecognizer", HouseRecoWinter);
+            public void setHouseRecoFreezing(String HouseRecoFreezing) {
+                FreezingConf.set("HouseRecognizer", HouseRecoFreezing);
             }
             public void setCheckRadius(int CheckRadius) {
-                WinterConf.set("CheckRadius", CheckRadius);
+                FreezingConf.set("CheckRadius", CheckRadius);
             }
-            public boolean isWinterKilliing() {
-                return WinterConf.getBoolean("CanKillPlayer");
+            public boolean isFreezingKilliing() {
+                return FreezingConf.getBoolean("CanKillPlayer");
             }
             public boolean isEnabled() {
-                return WinterConf.getBoolean("enable");
+                return FreezingConf.getBoolean("enable");
             }
             public int getDamage() {
-                return WinterConf.getInt("PlayerDamage");
+                return FreezingConf.getInt("PlayerDamage");
             }
             public boolean getPlayerIceBlock() {
-                return WinterConf.getBoolean("PlayerIceBlock", true);
+                return FreezingConf.getBoolean("PlayerIceBlock", true);
             }
-            public String getHouseRecoWinter() {
-                return WinterConf.getString("HouseRecognizer");
+            public String getHouseRecoFreezing() {
+                return FreezingConf.getString("HouseRecognizer");
             }
             public int getCheckRadius() {
-                return WinterConf.getInt("CheckRadius");
+                return FreezingConf.getInt("CheckRadius");
             }
         }
-        private Desert Desert = new Desert();
-        public Desert getDesert() {
-            return Desert;
+        private Exhausting Exhausting = new Exhausting();
+        public Exhausting getExhausting() {
+            return Exhausting;
         }
-        public class Desert {
+        public class Exhausting {
             public int getChecksPerFoodDecrease() {
-                return DesertConf.getInt("NumberOfCheckPerFoodLost");
+                return ExhaustingConf.getInt("NumberOfCheckPerFoodLost");
             }
             public float getStaminaLost() {
-                return DesertConf.getFloatList("StaminaLost").get(0);
+                return ExhaustingConf.getFloatList("StaminaLost").get(0);
             }
             public String getHouseRecognizer() {
-                return DesertConf.getString("HouseRecognizer");
+                return ExhaustingConf.getString("HouseRecognizer");
             }
             public boolean isEnabled() {
-                return DesertConf.getBoolean("enable");
+                return ExhaustingConf.getBoolean("enable");
             }
             public void setChecksPerFoodDecrease(int ChecksPerFoodDecrease) {
-                DesertConf.set("NumberOfCheckPerFoodLost", ChecksPerFoodDecrease);
+                ExhaustingConf.set("NumberOfCheckPerFoodLost", ChecksPerFoodDecrease);
             }
-            public void setEnabled(boolean DesertEnabled) {
-                DesertConf.set("enable", DesertEnabled);
+            public void setEnabled(boolean ExhaustingEnabled) {
+                ExhaustingConf.set("enable", ExhaustingEnabled);
             }
-            public void setStaminaLost(float DesertStaminaLostHelmet) {
-                List<Float> list = new ArrayList();
-                list.add(DesertStaminaLostHelmet);
-                DesertConf.set("StaminaLost", list);
+            public void setStaminaLost(float ExhaustingStaminaLostHelmet) {
+                List<Float> list = new ArrayList<Float>();
+                list.add(ExhaustingStaminaLostHelmet);
+                ExhaustingConf.set("StaminaLost", list);
             }
-            public void setHouseRecognizer(String HouseRecoDesert) {
-                DesertConf.set("HouseRecognizer", HouseRecoDesert);
+            public void setHouseRecognizer(String HouseRecoExhausting) {
+                ExhaustingConf.set("HouseRecognizer", HouseRecoExhausting);
             }
         }
         private Jungle Jungle = new Jungle();
@@ -227,14 +208,29 @@ public class Configurations {
             public float getStaminaReplenishAmount() {
                 return GlobalConf.getFloatList("staminareplenish.StaminaReplenishWaterBottle").get(0);
             }
-            public int getBiomeAverageTemp(String biom) {
-                return GlobalConf.getInt("BiomesAverageTemp."+biom.toUpperCase());
+            public int getBiomeAverageTemp(String biome) {
+                if(GlobalConf.contains("BiomesAverageTemp."+biome.toUpperCase())) {
+                    return GlobalConf.getInt("BiomesAverageTemp."+biome.toUpperCase());
+                } else {
+                    plugin.log.log(Level.WARNING, "Biome "+biome.toUpperCase()+" not found. Returning 0 as average biome temperature.");
+                    return 0;
+                }
             }
             public int getBiomesWeatherTempModifier(String biome) {
-                return GlobalConf.getInt("BiomesWeatherTempModifier."+biome.toUpperCase());
+                if(GlobalConf.contains("BiomesWeatherTempModifier."+biome.toUpperCase())) {
+                    return GlobalConf.getInt("BiomesWeatherTempModifier."+biome.toUpperCase());
+                } else {
+                    plugin.log.log(Level.WARNING, "Biome "+biome.toUpperCase()+" not found. Returning 0 as rain/storm temperature modifier.");
+                    return 0;
+                }
             }
             public int getBiomeDayNightTempModifier(String time, String biome) {
-                return GlobalConf.getInt("BiomeDayNightTempModifier."+biome.toUpperCase()+"."+time);
+                if(GlobalConf.contains("BiomeDayNightTempModifier."+biome.toUpperCase()+"."+time)) {
+                    return GlobalConf.getInt("BiomeDayNightTempModifier."+biome.toUpperCase()+"."+time);
+                } else {
+                    plugin.log.log(Level.WARNING, "Biome "+biome.toUpperCase()+" not found. Returning 0 as "+time+" modifier temperature.");
+                    return 0;
+                }
             }
             public int getHeatCheckRadius() {
                 return GlobalConf.getInt("HeatCheckRadius");
@@ -254,6 +250,9 @@ public class Configurations {
             public int getSeaLevel() {
                 return GlobalConf.getInt("SeaLevel");
             }
+            public int getShowersRainChance() {
+                return GlobalConf.getInt("ShowersRainChance");
+            }
             public void setThirstEnabled(boolean ThirstEnable) {
                 GlobalConf.set("thirst.enable", ThirstEnable);
             }
@@ -264,12 +263,12 @@ public class Configurations {
                 GlobalConf.set("thirst.AffectedWorlds", ThirstAllowedWorlds);
             }
             public void setThirstStaminaLost(float ThirstStaminaLost) {
-                List<Float> list = new ArrayList();
+                List<Float> list = new ArrayList<Float>();
                 list.add(ThirstStaminaLost);
                 GlobalConf.set("thirst.StaminaLost", list);
             }
             public void setStaminaReplenishAmount(float Amount) {
-                List<Float> list = new ArrayList();
+                List<Float> list = new ArrayList<Float>();
                 list.add(Amount);
                 GlobalConf.set("staminareplenish.StaminaReplenishWaterBottle", list);
             }
@@ -300,11 +299,20 @@ public class Configurations {
             public void setSeaLevel(int level) {
                 GlobalConf.set("SeaLevel", level);
             }
+            public void setShowersRainChance(int percentage) {
+                GlobalConf.set("ShowersRainChance", percentage);
+            }
             public void setHeatSource(String source, double power) {
                 GlobalConf.set("HeatSources."+source.toUpperCase(), power);
             }
             public void setHeatInHand(String source, double power) {
                 GlobalConf.set("HeatInHand."+source.toUpperCase(), power);
+            }
+            public boolean isTorchesFading() {
+                return GlobalConf.getBoolean("TorchesFading", true);
+            }
+            public void setTorchesFading(boolean state) {
+                GlobalConf.set("TorchesFading", state);
             }
         }
     }
@@ -314,8 +322,8 @@ public class Configurations {
     public int getCheckDelay(String GameDifficulty) {
         return plugin.getConfig().getInt(GameDifficulty + ".CheckDelay");
     }
-    public boolean isGlobalEnable() {
-        return plugin.getConfig().getBoolean("GlobalEnable");
+    public boolean isGlobalyEnable() {
+        return plugin.getConfig().getBoolean("GlobalyEnable");
     }
     public String getGameDifficulty() {
         return GameDifficulty;
@@ -338,8 +346,8 @@ public class Configurations {
     public boolean isDebugMode() {
         return plugin.getConfig().getBoolean("DebugMode");
     }
-    public void setGlobalEnabled(boolean state) {
-        plugin.getConfig().set("GlobalEnable", state);
+    public void setGlobalyEnabled(boolean state) {
+        plugin.getConfig().set("GlobalyEnable", state);
     }
     public void setCheckDelay(int CheckDelay, String GameDifficulty) {
         plugin.getConfig().set(GameDifficulty + ".CheckDelay", CheckDelay);
@@ -364,5 +372,11 @@ public class Configurations {
     }
     public void setAllowedWorlds(List<String> AllowedWorlds) {
         plugin.getConfig().set("AffectedWorlds", AllowedWorlds);
+    }
+    public boolean isWeatherChangeEnable() {
+        return plugin.getConfig().getBoolean("CanChangeWeather", true);
+    }
+    public boolean isWeatherBroadcastEnable() {
+        return plugin.getConfig().getBoolean("BroadcastForecast", true);
     }
 }

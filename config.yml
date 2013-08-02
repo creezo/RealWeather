@@ -1,6 +1,6 @@
-version: 1.2.2pre1
+fileVersion: 3
 
-GlobalEnable: true
+GlobalyEnable: true
 #Checks settings related to difficulty in selected world. If you leave WorldName blank it will choose first world automaticaly.
 WorldName:
 #example: WorldName: "my_world"
@@ -12,19 +12,16 @@ easy:
   CheckDelay: 10
   StartDelay: 20
 normal:
-  CheckDelay: 7
+  CheckDelay: 8
   StartDelay: 14
 hard:
-  CheckDelay: 4
+  CheckDelay: 6
   StartDelay: 8
-Statistics:
-  Enable: true
-  ShowMyServerOnList: false
-  ServerName:
-  Comment:
-  ServerAddress:
 
 #Chat related functions
 NumberOfChecksPerWarningMessage: 5
 DebugMode: false
 DebugGlassBlocks: false
+
+CanChangeWeather: true
+BroadcastForecast: true

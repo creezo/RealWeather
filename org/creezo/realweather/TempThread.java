@@ -1,15 +1,15 @@
 package org.creezo.realweather;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
+import net.minecraft.server.v1_6_R2.BiomeBase;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 /**
@@ -20,16 +20,13 @@ class TempThread implements Runnable {
     private final RealWeather plugin;
     private final Player player;
     private int RepeatingMessage = 1;
-    private int MessageDelay = Config.getVariables().getMessageDelay();
-    private int RepeatingFoodDecreaseDelay = Config.getVariables().getBiomes().getDesert().getChecksPerFoodDecrease();
+    //private int MessageDelay = plugin.Config.getVariables().getMessageDelay();
+    //private int RepeatingFoodDecreaseDelay = plugin.Config.getVariables().getBiomes().getExhausting().getChecksPerFoodDecrease();
     private int RepeatingFoodDecrease = 1;
     private DecimalFormat df = new DecimalFormat("##.#");
+    private DecimalFormat df2 = new DecimalFormat("##.###");
+    private float walkSpeed = 1.0f;
     
-    private static Configuration Config = RealWeather.Config;
-    private static PlayerCheck playerCheck = RealWeather.playerCheck;
-    private Localization Loc = RealWeather.Localization;
-    private HashMap<Integer, Boolean> PlayerHeatShow = RealWeather.PlayerHeatShow;
-    private Utils utils = RealWeather.Utils;
     private int ErrNum = 1;
 
     public TempThread(RealWeather plugin, Player player) {
@@ -39,125 +36,83 @@ class TempThread implements Runnable {
     }
     
     @Override
-    public synchronized void run() {
+    public void run() {
         try {
-            if(Config.getVariables().isGlobalEnable() && !player.getGameMode().equals(GameMode.CREATIVE) && !player.hasPermission("realweather.immune")) {
-                if(Config.getVariables().isDebugMode()) plugin.log("Starting temp calculation.");
-                ErrNum = 3;
-                RealWeather.actualWeather = player.getLocation().getWorld().hasStorm();
-                Biome PBiome = player.getLocation().getBlock().getBiome();
-                int StartTemp = Config.getVariables().getBiomes().getGlobal().getBiomeAverageTemp(player.getLocation().getBlock().getBiome().toString());
-                int WeatherModifier = 0;
+            if(plugin.Config.getVariables().isGlobalyEnable() && !player.getGameMode().equals(GameMode.CREATIVE)) {
                 double[] frostResist = {1,1};
-                double Temperature = 0, TempFinal = 0;
-                ErrNum = 4;
-                double TimeMultiplier = Math.sin(Math.toRadians(0.015D * player.getWorld().getTime()));
-                ErrNum = 5;
-                if(RealWeather.actualWeather) {
-                    WeatherModifier = Config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier(PBiome.name());
+                double Temperature = plugin.checkCenter.getTemperature(player.getLocation(), player);
+                if(plugin.PlayerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
+                    plugin.Utils.SendMessage(player, plugin.Localization.CurrentTemperature+df.format(Temperature));
                 }
-                if(TimeMultiplier > 0) {
-                    Temperature = TimeMultiplier * (double) Config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Day", PBiome.name());
-                } else {
-                    Temperature = Math.abs(TimeMultiplier) * (double) Config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Night", PBiome.name());
-                }
-                ErrNum = 6;
-                Temperature += (player.getLocation().getY()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())/(player.getWorld().getMaxHeight()-Config.getVariables().getBiomes().getGlobal().getSeaLevel())*Config.getVariables().getBiomes().getGlobal().getTopTemp();
-                ErrNum = 7;
-                Temperature += RealWeather.ForecastTemp;
-                Temperature += StartTemp;
-                Temperature += WeatherModifier;
-                ErrNum = 8;
-                if(player.getLocation().getBlock().getLightFromSky() < (byte)4 && player.getLocation().getY() < Config.getVariables().getBiomes().getGlobal().getSeaLevel()) {
-                    ErrNum = 9;
-                    double DeepModifier = 1;
-                    if((double)player.getLocation().getY() >= (double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.8d) {
-                        DeepModifier = (((double)player.getLocation().getY()-((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.8d))/((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()-(double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.8d))+((((double)player.getLocation().getY()-(double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.8d)/((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()-((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.8d))-1)*(-0.15d));
-                    } else if((double)player.getLocation().getY() <= (double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.2d) {
-                        if(Temperature < 0) Temperature = (Temperature *-1)/2;
-                        DeepModifier = (((double)player.getLocation().getY()-((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.2d))/(0-(double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.2d))+((((double)player.getLocation().getY()-(double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.2d)/(0-((double)Config.getVariables().getBiomes().getGlobal().getSeaLevel()*0.2d))-1)*(-0.15d));
-                    } else {
-                        DeepModifier = 0.15d;
-                    }
-                    ErrNum = 10;
-                    if(Config.getVariables().isDebugMode()) plugin.log("DeepModifier (Number between 1 and 0.15):"+DeepModifier);
-                    Temperature = ((Temperature-10)*DeepModifier)+10;
-                    ErrNum = 11;
-                }
-                ErrNum = 12;
-                Temperature += PlayerCheck.checkHeatAround(player, Config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
-                ErrNum = 13;
-                List<Entity> Entities = player.getNearbyEntities(Config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), Config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), Config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
-                ErrNum = 14;
-                for (Entity entity : Entities) {
-                    if(entity.getType().isAlive() && Temperature <= 25) {
-                        Temperature += Config.getVariables().getBiomes().getGlobal().getPlayerHeat();
-                    }
-                }
-                ErrNum = 15;
-                if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
-                    utils.SendMessage(player, Loc.CurrentTemperature+df.format(Temperature));
-                }
-                ErrNum = 16;
                 try{
-                    if(RealWeather.PlayerClientMod.get(player.getEntityId())) {
+                    if(plugin.PlayerClientMod.get(player.getEntityId())) {
                         byte[] bytes = ("TM:"+df.format(Temperature)).getBytes();
                         player.sendPluginMessage(plugin, "realweather", bytes);
                     }
                 } catch(Exception e) {
-                    plugin.log("Error in Cliend-mod handling"+e.getMessage());
+                    if(plugin.Config.getVariables().isDebugMode()) plugin.log.log(Level.SEVERE, "Error in Cliend-mod handling" ,e);
                 }
-                ErrNum = 17;
-                TempFinal = Temperature;
+                double TempFinal = Temperature;
                 plugin.PlayerTemperature.put(player, Temperature);
                 if(Temperature < -60) Temperature = -60;
                 if(Temperature > 80) Temperature = 80;
-                if(Temperature < Config.getVariables().getBiomes().getGlobal().getFreezeUnder()) {
+                
+                if(player.hasPermission("realweather.immune.all")) return;
+                
+                walkSpeed = (float)Math.pow(walkSpeed, 0.75f);
+                if(!plugin.PlayerRefreshing.isEmpty() && plugin.PlayerRefreshing.containsKey(player)) {
+                    walkSpeed = (float)Math.pow(walkSpeed, 0.66f);
+                    if(plugin.Config.getVariables().isDebugMode()) plugin.log("Exhaustion decreasing because of refreshing.");
+                }
+                player.setWalkSpeed((float)Math.pow(0.2f, 1 + (walkSpeed - 1)/ 10));
+                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Player walk speed: " + df2.format(player.getWalkSpeed()));
+                
+                if(Temperature < plugin.Config.getVariables().getBiomes().getGlobal().getFreezeUnder()) {
                     ErrNum = 18;
-                    if(Config.getVariables().getBiomes().getWinter().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.winter")) {
+                    if(plugin.Config.getVariables().getBiomes().getFreezing().isEnabled() && plugin.Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.winter")) {
                         int TempRange;
                         ErrNum = 19;
-                        if(Config.getVariables().getBiomes().getGlobal().getFreezeUnder() >= 0) {
-                            TempRange = 60 + Config.getVariables().getBiomes().getGlobal().getFreezeUnder();
+                        if(plugin.Config.getVariables().getBiomes().getGlobal().getFreezeUnder() >= 0) {
+                            TempRange = 60 + plugin.Config.getVariables().getBiomes().getGlobal().getFreezeUnder();
                         } else {
-                            TempRange = 60 + Config.getVariables().getBiomes().getGlobal().getFreezeUnder();
+                            TempRange = 60 + plugin.Config.getVariables().getBiomes().getGlobal().getFreezeUnder();
                         }
                         ErrNum = 20;
                         double percent = ((((Temperature + 60)/TempRange)-1)*-1);
-                        if(Config.getVariables().isDebugMode()) plugin.log("Freezing: "+df.format(percent));
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Freezing: "+df2.format(percent));
                         ErrNum = 21;
-                        double damage = Config.getVariables().getBiomes().getWinter().getDamage();
-                        if(Config.getVariables().isDebugMode()) plugin.log("Damage: "+damage);
+                        double damage = plugin.Config.getVariables().getBiomes().getFreezing().getDamage();
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Damage: "+damage);
                         double finalDamage = damage * percent;
-                        if(Config.getVariables().isDebugMode()) plugin.log("Final damage: "+df.format(finalDamage));
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Final damage: "+df2.format(finalDamage));
                         ErrNum = 22;
-                        if(PlayerCheck.checkPlayerInside(player, Config.getVariables().getBiomes().getWinter().getCheckRadius(), Config.getVariables().getBiomes().getWinter().getHouseRecoWinter())) finalDamage = 0;
+                        if(plugin.checkCenter.checkPlayerInside(player.getLocation(), plugin.Config.getVariables().getBiomes().getFreezing().getCheckRadius(), plugin.Config.getVariables().getBiomes().getFreezing().getHouseRecoFreezing())) finalDamage = 0;
                         if(finalDamage!=0) {
                             ErrNum = 23;
-                            frostResist = playerCheck.getPlrResist(player, "Frost");
-                            if(Config.getVariables().isDebugMode()) plugin.log("Resist: "+df.format(frostResist[0]));
+                            frostResist = plugin.checkCenter.getPlrResist(player, "Frost");
+                            if(plugin.Config.getVariables().isDebugMode()) plugin.log("Resist: "+df2.format(frostResist[0]));
                             finalDamage /= frostResist[0];
                             ErrNum = 24;
                             if(frostResist[1]==4 && finalDamage >= 0.5d) finalDamage -= 0.5d;
                         } else {
-                            if(Config.getVariables().isDebugMode()) plugin.log("Player is inside.");
+                            if(plugin.Config.getVariables().isDebugMode()) plugin.log("Player is inside.");
                         }
                         ErrNum = 25;
-                        if(Config.getVariables().isDebugMode()) plugin.log("Final damage + resist: "+df.format(finalDamage));
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Final damage + resist: "+df2.format(finalDamage));
                         if(finalDamage >= 0.5d) {
                             if(RepeatingMessage == 1) {
-                                player.sendMessage(ChatColor.GOLD + Loc.WinterWarnMessage);
-                                RepeatingMessage = MessageDelay;
+                                player.sendMessage(ChatColor.GOLD + plugin.Localization.FreezingWarnMessage);
+                                RepeatingMessage = plugin.Config.getVariables().getMessageDelay();
                             } else { RepeatingMessage--; }
                         }
                         ErrNum = 26;
                         int IntDamage = (int)Math.round(finalDamage);
-                        if(Config.getVariables().isDebugMode()) plugin.log("Rounded damage: "+IntDamage);
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Rounded damage: "+IntDamage);
                         ErrNum = 27;
-                        if(RealWeather.PlayerDamagerMap.containsKey(player)) {
-                            RealWeather.PlayerDamage.put(player, IntDamage);
-                            synchronized (RealWeather.PlayerDamagerMap.get(player)) {
-                                RealWeather.PlayerDamagerMap.get(player).notify();
+                        if(plugin.PlayerDamagerMap.containsKey(player)) {
+                            plugin.PlayerDamage.put(player, IntDamage);
+                            synchronized (plugin.PlayerDamagerMap.get(player)) {
+                                plugin.PlayerDamagerMap.get(player).notify();
                             }
                             ErrNum = 28;
                         } else {
@@ -165,51 +120,55 @@ class TempThread implements Runnable {
                             PlayerDamageThread pdmgTH = new PlayerDamageThread(player, plugin);
                             //RealWeather.PlayerDamagerMap.put(player, new Thread(pdmgTH));
                             //RealWeather.PlayerDamagerMap.get(player).setDaemon(true);
-                            RealWeather.PlayerDamage.put(player, IntDamage);
+                            plugin.PlayerDamage.put(player, IntDamage);
                             //RealWeather.PlayerDamagerMap.get(player).start();
                             Thread dmgTH = new Thread(pdmgTH);
                             dmgTH.setDaemon(true);
                             dmgTH.start();
-                            RealWeather.PlayerDamagerMap.put(player, dmgTH);
+                            plugin.PlayerDamagerMap.put(player, dmgTH);
                             ErrNum = 30;
                         }
                         ErrNum = 31;
                     }
                     ErrNum = 32;
-                } else if(Temperature > Config.getVariables().getBiomes().getGlobal().getOverheatOver()) {
+                } else if(Temperature > plugin.Config.getVariables().getBiomes().getGlobal().getOverheatOver()) {
                     ErrNum = 33;
-                    if(Config.getVariables().getBiomes().getDesert().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.desert")) {
+                    if(plugin.Config.getVariables().getBiomes().getExhausting().isEnabled() && plugin.Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.desert")) {
                         ErrNum = 34;
                         int TempRange;
-                        if(Config.getVariables().getBiomes().getGlobal().getOverheatOver() >= 0) {
-                            TempRange = 80 - Config.getVariables().getBiomes().getGlobal().getOverheatOver();
+                        if(plugin.Config.getVariables().getBiomes().getGlobal().getOverheatOver() >= 0) {
+                            TempRange = 80 - plugin.Config.getVariables().getBiomes().getGlobal().getOverheatOver();
                         } else {
-                            TempRange = 80 + Config.getVariables().getBiomes().getGlobal().getOverheatOver();
+                            TempRange = 80 + plugin.Config.getVariables().getBiomes().getGlobal().getOverheatOver();
                         }
                         ErrNum = 35;
                         double percent = (((Temperature - 80)/(double)TempRange)+1);
-                        double damage = Config.getVariables().getBiomes().getDesert().getStaminaLost();
+                        double damage = plugin.Config.getVariables().getBiomes().getExhausting().getStaminaLost();
                         double finalDamage = damage * percent;
                         ErrNum = 36;
-                        if(PlayerCheck.checkPlayerInside(player, 1, Config.getVariables().getBiomes().getDesert().getHouseRecognizer())) {
+                        if(plugin.checkCenter.checkPlayerInside(player.getLocation(), 1, plugin.Config.getVariables().getBiomes().getExhausting().getHouseRecognizer())) {
                             finalDamage *= 0.5D;
                         }
                         ErrNum = 37;
                         if(finalDamage!=0) {
-                            double[] resist = playerCheck.getPlrResist(player, "Heat");
+                            double[] resist = plugin.checkCenter.getPlrResist(player, "Heat");
                             finalDamage /= resist[0];
                         }
                         ErrNum = 38;
                         if(finalDamage > 0.5d) {
                             if(RepeatingMessage == 1) {
-                                player.sendMessage(ChatColor.GOLD + Loc.DesertWarnMessage);
-                                RepeatingMessage = MessageDelay;
+                                player.sendMessage(ChatColor.GOLD + plugin.Localization.ExhaustingWarnMessage);
+                                RepeatingMessage = plugin.Config.getVariables().getMessageDelay();
                             } else { RepeatingMessage--; }
                         }
+                        walkSpeed += percent;
+                        //player.setWalkSpeed((float)Math.pow(0.2f, 1 + (walkSpeed - 1)/ 10));
+                        if(plugin.Config.getVariables().isDebugMode()) System.out.println("Recalculated walk speed for next check: " + df2.format(player.getWalkSpeed()));
+                        //plugin.log("Factor: " + (float)((percent * 0.9F) - 1) * -1);
                         ErrNum = 39;
                         if(player.getSaturation() > (float)finalDamage) {
                             player.setSaturation(player.getSaturation() - (float)finalDamage);
-                            if(Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                            if(plugin.Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                             ErrNum = 40;
                         } else {
                             ErrNum = 41;
@@ -217,9 +176,9 @@ class TempThread implements Runnable {
                             if(player.getFoodLevel() > 1) {
                                 if(RepeatingFoodDecrease == 1) {
                                     player.setFoodLevel(player.getFoodLevel() - 1);
-                                    RepeatingFoodDecrease = RepeatingFoodDecreaseDelay;
+                                    RepeatingFoodDecrease = plugin.Config.getVariables().getBiomes().getExhausting().getChecksPerFoodDecrease();
                                 } else { RepeatingFoodDecrease--; }
-                                if(Config.getVariables().isDebugMode()) plugin.log("Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
+                                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Food level(1-20): " + Utils.ConvertIntToString(player.getFoodLevel()));
                             }
                             ErrNum = 42;
                         }
@@ -227,13 +186,13 @@ class TempThread implements Runnable {
                     }
                     ErrNum = 44;
                 }
-                if(Config.getVariables().getBiomes().getWinter().getPlayerIceBlock()) {
+                /*if(plugin.Config.getVariables().getBiomes().getFreezing().getPlayerIceBlock()) {
                     ErrNum = 45;
                     double TempIB = (frostResist[0])*(-60);
                     if(TempFinal <= TempIB) {
                         ErrNum = 46;
                         if(!plugin.PlayerIceHashMap.get(player.getEntityId())) {
-                            DamageEvent DamageEvent = new DamageEvent(player, 1, player.getHealth());
+                            DamageEvent DamageEvent = new DamageEvent(player, 1, (int) player.getHealth());
                             plugin.getServer().getPluginManager().callEvent(DamageEvent);
                         }
                         ErrNum = 47;
@@ -248,29 +207,29 @@ class TempThread implements Runnable {
                         ErrNum = 49;
                     }
                     ErrNum = 50;
-                }
+                }*/
                 ErrNum = 51;
-                if(Config.getVariables().getBiomes().getGlobal().isThirstEnabled() && Config.getVariables().getBiomes().getGlobal().getThirstAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.thirst")) {
+                if(plugin.Config.getVariables().getBiomes().getGlobal().isThirstEnabled() && plugin.Config.getVariables().getBiomes().getGlobal().getThirstAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.thirst")) {
                     ErrNum = 52;
-                    if(player.getSaturation() > Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost()) {
-                        player.setSaturation(player.getSaturation() - Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost());
-                        if(Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
+                    if(player.getSaturation() > plugin.Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost()) {
+                        player.setSaturation(player.getSaturation() - plugin.Config.getVariables().getBiomes().getGlobal().getThirstStaminaLost());
+                        if(plugin.Config.getVariables().isDebugMode()) plugin.log("Stamina: " + Utils.ConvertFloatToString(player.getSaturation()));
                     } else { player.setSaturation(0.0F); }
                     ErrNum = 53;
                 }
                 ErrNum = 54;
-                if(Config.getVariables().getBiomes().getJungle().isEnabled() && Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.jungle")) {
+                if(plugin.Config.getVariables().getBiomes().getJungle().isEnabled() && plugin.Config.getVariables().getAllowedWorlds().contains(player.getLocation().getWorld().getName()) && !player.hasPermission("realweather.immune.jungle")) {
                     ErrNum = 55;
-                    Biome PlayerBiome = PlayerCheck.checkPlayerBiome(player);
-                    if(PlayerBiome.equals(Biome.JUNGLE) || PlayerBiome.equals(Biome.JUNGLE_HILLS)) {
+                    BiomeBase PlayerBiome = CheckCenter.checkPlayerBiome(player);
+                    if(PlayerBiome.equals(BiomeBase.JUNGLE) || PlayerBiome.equals(BiomeBase.JUNGLE_HILLS)) {
                         ErrNum = 56;
                         if(player.getLocation().getY() >= 60) {
-                            if(Config.getVariables().isDebugMode()) plugin.log("Looking for tall grass...");
-                            boolean IsGrass = PlayerCheck.checkRandomGrass(player, Config.getVariables().getBiomes().getJungle().getInsectJumpRange(), Config.getVariables().getBiomes().getJungle().getChanceMultiplier());
+                            if(plugin.Config.getVariables().isDebugMode()) plugin.log("Looking for tall grass...");
+                            boolean IsGrass = CheckCenter.checkRandomGrass(player, plugin.Config.getVariables().getBiomes().getJungle().getInsectJumpRange(), plugin.Config.getVariables().getBiomes().getJungle().getChanceMultiplier());
                             ErrNum = 57;
                             if(IsGrass) {
-                                if(Config.getVariables().isDebugMode()) plugin.log("Found.");
-                                Utils.PlayerPoisoner(player, 100, IsGrass);
+                                if(plugin.Config.getVariables().isDebugMode()) plugin.log("Found.");
+                                plugin.Utils.PlayerPoisoner(player, 100, IsGrass);
                             }
                         }
                         ErrNum = 58;
@@ -280,8 +239,15 @@ class TempThread implements Runnable {
             }
         } catch(Exception e) {
             plugin.log.log(Level.SEVERE, "Error in temperature thread: "+ErrNum);
-            plugin.log.log(Level.SEVERE, e.getMessage());
+            plugin.log.log(Level.SEVERE, null, e);
         }
         ErrNum = 0;
+    }
+    
+    public static String getStackTrace(Throwable aThrowable) {
+        final Writer result = new StringWriter();
+        final PrintWriter printWriter = new PrintWriter(result);
+        aThrowable.printStackTrace(printWriter);
+        return result.toString();
     }
 }

@@ -16,12 +16,12 @@ public class Commands {
     }
 
     public boolean Set(String[] args) {
-        if(args[1].equalsIgnoreCase("desert")) {
+        if(args[1].equalsIgnoreCase("exhausting")) {
             if(args[2].equalsIgnoreCase("NumberOfCheckPerFoodLost")) {
-                plugin.Config.getVariables().getBiomes().getDesert().setChecksPerFoodDecrease(Integer.parseInt(args[3]));
+                plugin.Config.getVariables().getBiomes().getExhausting().setChecksPerFoodDecrease(Integer.parseInt(args[3]));
                 return true;
             } else if(args[2].equalsIgnoreCase("StaminaLost")) {
-                plugin.Config.getVariables().getBiomes().getDesert().setStaminaLost(Float.parseFloat(args[3]));
+                plugin.Config.getVariables().getBiomes().getExhausting().setStaminaLost(Float.parseFloat(args[3]));
                 return true;
             }
         } else if(args[1].equalsIgnoreCase("global")) {
@@ -42,6 +42,9 @@ public class Commands {
                 return true;
             } else if(args[2].equalsIgnoreCase("MaxMapHeightTemperatureModifier")) {
                 plugin.Config.getVariables().getBiomes().getGlobal().setTopTemp(Integer.parseInt(args[3]));
+                return true;
+            } else if(args[2].equalsIgnoreCase("TorchesFading")) {
+                plugin.Config.getVariables().getBiomes().getGlobal().setTorchesFading(Boolean.parseBoolean(args[3]));
                 return true;
             } else {
                 return setEntry(args);
@@ -66,21 +69,21 @@ public class Commands {
                 plugin.Config.getVariables().getBiomes().getJungle().setSilverFishPoisonChance(Integer.parseInt(args[3]));
                 return true;
             }
-        } else if(args[1].equalsIgnoreCase("winter")) {
+        } else if(args[1].equalsIgnoreCase("freezing")) {
             if(args[2].equalsIgnoreCase("CanKillPlayer")) {
-                plugin.Config.getVariables().getBiomes().getWinter().setWinterKill(Boolean.parseBoolean(args[3]));
+                plugin.Config.getVariables().getBiomes().getFreezing().setFreezingKill(Boolean.parseBoolean(args[3]));
                 return true;
             } else if(args[2].equalsIgnoreCase("PlayerDamage")) {
-                plugin.Config.getVariables().getBiomes().getWinter().setMissingArmorDamage(Integer.parseInt(args[3]));
+                plugin.Config.getVariables().getBiomes().getFreezing().setMissingArmorDamage(Integer.parseInt(args[3]));
                 return true;
             } else if(args[2].equalsIgnoreCase("PlayerIceBlock")) {
-                plugin.Config.getVariables().getBiomes().getWinter().setIceBlock(Boolean.parseBoolean(args[3]));
+                plugin.Config.getVariables().getBiomes().getFreezing().setIceBlock(Boolean.parseBoolean(args[3]));
                 return true;
             } else if(args[2].equalsIgnoreCase("HouseRecognizer")) {
-                plugin.Config.getVariables().getBiomes().getWinter().setHouseRecoWinter(args[3]);
+                plugin.Config.getVariables().getBiomes().getFreezing().setHouseRecoFreezing(args[3]);
                 return true;
             } else if(args[2].equalsIgnoreCase("CheckRadius")) {
-                plugin.Config.getVariables().getBiomes().getWinter().setCheckRadius(Integer.parseInt(args[3]));
+                plugin.Config.getVariables().getBiomes().getFreezing().setCheckRadius(Integer.parseInt(args[3]));
                 return true;
             }
         }
@@ -111,7 +114,7 @@ public class Commands {
     }
     
     public void Disable() {
-        plugin.getConfig().set("GlobalEnable", false);
+        plugin.getConfig().set("GlobalyEnable", false);
         try {
             plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException ex) {
@@ -121,17 +124,17 @@ public class Commands {
     
     public void Disable(String part) {
         if("all".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getWinter().setEnabled(false);
-            plugin.Config.getVariables().getBiomes().getDesert().setEnabled(false);
+            plugin.Config.getVariables().getBiomes().getFreezing().setEnabled(false);
+            plugin.Config.getVariables().getBiomes().getExhausting().setEnabled(false);
             plugin.Config.getVariables().getBiomes().getJungle().setEnabled(false);
             plugin.Config.getVariables().getBiomes().getGlobal().setReplenishEnabled(false);
             plugin.Config.getVariables().getBiomes().getGlobal().setThirstEnabled(false);
-        } else if("desert".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getDesert().setEnabled(false);
+        } else if("exhausting".equals(part)) {
+            plugin.Config.getVariables().getBiomes().getExhausting().setEnabled(false);
         } else if("jungle".equals(part)) {
             plugin.Config.getVariables().getBiomes().getJungle().setEnabled(false);
-        } else if("winter".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getWinter().setEnabled(false);
+        } else if("freezing".equals(part)) {
+            plugin.Config.getVariables().getBiomes().getFreezing().setEnabled(false);
         } else if("thirst".equals(part)) {
             plugin.Config.getVariables().getBiomes().getGlobal().setThirstEnabled(false);
         } else if("waterbottle".equals(part)) {
@@ -140,7 +143,7 @@ public class Commands {
     }
     
     public void Enable() {
-        plugin.getConfig().set("GlobalEnable", true);
+        plugin.getConfig().set("GlobalyEnable", true);
         try {
             plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException ex) {
@@ -150,17 +153,17 @@ public class Commands {
     
     public void Enable(String part) {
         if("all".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getWinter().setEnabled(true);
-            plugin.Config.getVariables().getBiomes().getDesert().setEnabled(true);
+            plugin.Config.getVariables().getBiomes().getFreezing().setEnabled(true);
+            plugin.Config.getVariables().getBiomes().getExhausting().setEnabled(true);
             plugin.Config.getVariables().getBiomes().getJungle().setEnabled(true);
             plugin.Config.getVariables().getBiomes().getGlobal().setReplenishEnabled(true);
             plugin.Config.getVariables().getBiomes().getGlobal().setThirstEnabled(true);
-        } else if("desert".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getDesert().setEnabled(true);
+        } else if("exhausting".equals(part)) {
+            plugin.Config.getVariables().getBiomes().getExhausting().setEnabled(true);
         } else if("jungle".equals(part)) {
             plugin.Config.getVariables().getBiomes().getJungle().setEnabled(true);
-        } else if("winter".equals(part)) {
-            plugin.Config.getVariables().getBiomes().getWinter().setEnabled(true);
+        } else if("freezing".equals(part)) {
+            plugin.Config.getVariables().getBiomes().getFreezing().setEnabled(true);
         } else if("thirst".equals(part)) {
             plugin.Config.getVariables().getBiomes().getGlobal().setThirstEnabled(true);
         } else if("waterbottle".equals(part)) {

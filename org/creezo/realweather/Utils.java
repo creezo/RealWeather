@@ -1,8 +1,12 @@
 package org.creezo.realweather;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Random;
-
+import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,7 +18,6 @@ import org.bukkit.potion.PotionEffectType;
  */
 public class Utils {
     private List<Material> Mats = RealWeather.Mats;
-    private static Configuration Config = RealWeather.Config;
     private final RealWeather plugin;
     Utils(RealWeather plugin) {
         this.plugin = plugin;
@@ -39,7 +42,7 @@ public class Utils {
             player.sendMessage(ChatColor.GOLD + "RealWeather: " + message);
             return true;
         } catch (Exception e) {
-            RealWeather.log("" + message);
+            plugin.log("" + message);
             return false;
         }
     }
@@ -49,7 +52,7 @@ public class Utils {
             player.sendMessage(ChatColor.GOLD + "Commands: /rw stamina, /rw temp, /rw forecast, /rw version");
             return true;
         } catch (Exception e) {
-            RealWeather.log("Help message --- see help in game console");
+            plugin.log("Help message --- see help in game console");
             return false;
         }
     }
@@ -59,17 +62,17 @@ public class Utils {
             player.sendMessage(ChatColor.GOLD + "Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language], /rwadmin debug");
             return true;
         } catch (Exception e) {
-            RealWeather.log("Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language], /rwadmin debug");
+            plugin.log("Commands: /rwadmin enable [plugin-part], /rwadmin disable [plugin-part], /rwadmin save, /rwadmin load /rwadmin version, /rwadmin lang [language], /rwadmin debug");
             return false;
         }
     }
     
-    public static void PlayerPoisoner(Player player, int probablity, boolean IsGrass) {
+    public void PlayerPoisoner(Player player, int probablity, boolean IsGrass) {
         Random random = new Random();
         if(random.nextInt(100) < probablity) {
             int Type = random.nextInt(100)+1;
-            int Duration = Config.getVariables().getBiomes().getJungle().getInsectBiteDuration() - ((int)player.getFoodLevel() + (int)player.getSaturation());
-            int PoisonDuration = Config.getVariables().getBiomes().getJungle().getInsectPoisonDuration();
+            int Duration = plugin.Config.getVariables().getBiomes().getJungle().getInsectBiteDuration() - ((int)player.getFoodLevel() + (int)player.getSaturation());
+            int PoisonDuration = plugin.Config.getVariables().getBiomes().getJungle().getInsectPoisonDuration();
             PotionEffectType PEffect = PotionEffectType.SLOW;
             if(Type >= 1 && Type <= 6) {
                 PEffect = PotionEffectType.BLINDNESS;
@@ -103,38 +106,19 @@ public class Utils {
     public static String ConvertFloatToString(float number) {
         return "" + number;
     }
-    public String DoForecast(int Temp) {
-        String Message;
-        switch (Temp) {
-            case -7:
-            case -6:
-                Message = RealWeather.Localization.StormTemp;
-                plugin.getServer().getWorlds();
-                break;
-            case -5:
-            case -4:
-                Message = RealWeather.Localization.VLowTemp;
-                break;
-            case -3:
-            case -2:
-                Message = RealWeather.Localization.LowTemp;
-                break;
-            case -1:
-            case 0:
-            case 1:
-                Message = RealWeather.Localization.MedTemp;
-                break;
-            case 2:
-            case 3:
-                Message = RealWeather.Localization.HighTemp;
-                break;
-            case 4:
-            case 5:
-                Message = RealWeather.Localization.VHighTemp;
-                break;
-            default:
-                Message = "RealWeather: Bad number in forecast!";
+    
+    public void copy(InputStream in, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            plugin.log.log(Level.WARNING, null, e);
         }
-        return Message;
     }
 }
