@@ -1,4 +1,4 @@
-version: 1.2.4
+version: 1.6.4
 #Localization file
 
 UseLanguage: english
@@ -15,26 +15,26 @@ english:
   effect:
     freezing:
       #PlayerWarnOnLogin shows only when it is raining/snowing and player joins.
-      PlayerWarnOnLogin: "Bevare of frozen areas without clothes!"
-      WarningMessage: "It is too cold here. Hide somewhere, wear armor or find heat source to reduce freezeing."
-      FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing."
+      #PlayerWarnOnLogin: "Bevare of frozen areas without clothes!"
+      #WarningMessage: "It is too cold here. Hide somewhere, wear armor or find heat source to reduce freezeing."
+      #FrozenInIce: "Now you are frozen in ice. You must wait till it stops snowing."
     exhausting:
-      WarningMessage: "It is too hot here. Hide somewhere or wear a leather armor to reduce effects."
-      Refreshed: "You feel refreshed."
+      #WarningMessage: "It is too hot here. Hide somewhere or wear a leather armor to reduce effects."
+      #Refreshed: "You feel refreshed."
   forecast:
-    Today: "Forecast for today: "
-    Tomorrow: "Forecast for tomorrow: "
-    BLIZZARD: "In snowy biomes blizzard is coming. Other areas can expect storm."
-    STORM: "This day will come storm."
-    FREEZE: "Clear sky, but with very low temperatures."
-    RAINSNOW: "Rain. Storm is not expected."
-    COLD: "Clear. Slightly decreased temperatures."
-    SHOWERS: "Sometimes rain. Sometimes clear."
-    CLEAR: "Clear."
-    WARM: "Slightly increased temperatures."
-    SUMMERSTORM: "This day will come summer storm with high temperatures."
-    HOT: "High temperatures without rain."
-    TROPIC: "Really high temperatures. Records might be broken."
+    #Today: "Forecast for today: "
+    #Tomorrow: "Forecast for tomorrow: "
+    #BLIZZARD: "In snowy biomes blizzard is coming. Other areas can expect storm."
+    #STORM: "This day will come storm."
+    #FREEZE: "Clear sky, but with very low temperatures."
+    #RAINSNOW: "Rain. Storm is not expected."
+    #COLD: "Clear. Slightly decreased temperatures."
+    #SHOWERS: "Sometimes rain. Sometimes clear."
+    #CLEAR: "Clear."
+    #WARM: "Slightly increased temperatures."
+    #SUMMERSTORM: "This day will come summer storm with high temperatures."
+    #HOT: "High temperatures without rain."
+    #TROPIC: "Really high temperatures. Records might be broken."
       
 #This line bellow is used as the name in command for language change and as the language name. Do NOT use description value.
 spanish:

@@ -1,6 +1,0 @@
-fileVersion: 1
-#High temperatures options
-enable: true
-HouseRecognizer: simple
-NumberOfCheckPerFoodLost: 5
-StaminaLost: [0.15F]

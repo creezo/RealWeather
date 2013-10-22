@@ -7,7 +7,7 @@ WorldName:
 AffectedWorlds: [world, world_nether, world_the_end]
 peaceful:
   CheckDelay: 86400
-  StartDelay: 1
+  StartDelay: 86400
 easy:
   CheckDelay: 10
   StartDelay: 20

@@ -1,9 +1,0 @@
-fileVersion: 1
-#Low temperatures options
-enable: true
-HouseRecognizer: cross
-CheckRadius: 2
-#If you set CanKillPlayer to false, you can not be KILLED by freezing.
-CanKillPlayer: false
-PlayerDamage: 4
-    

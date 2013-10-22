@@ -1,208 +1,136 @@
 package org.creezo.realweather;
 
+import org.creezo.realweather.localization.Localization;
+import org.creezo.realweather.util.Utils;
+import org.creezo.realweather.configuration.Configuration;
+import org.creezo.realweather.command.Commands;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.creezo.realweather.weather.MakeWeather;
-import org.creezo.realweather.weather.Weather;
+import org.creezo.realweather.configuration.Configurations.Armors;
+import org.creezo.realweather.event.EventManager;
+import org.creezo.realweather.feature.FeatureLocalization;
+import org.creezo.realweather.feature.FeatureManager;
+import org.creezo.realweather.thread.ThreadManager;
 
 /**
  *
  * @author creezo
  */
 public class RealWeather extends JavaPlugin {
-    public boolean Running = true;
-    public PlayerListener playerlistener;
-    public WeatherListener weatherlistener;
-    public PlayerInteract playerinteract;
-    public PlayerDamage playerdamage;
-    public PlayerMove playermove;
     public static final Logger log = Logger.getLogger("Minecraft");
-    public HashMap<Integer, Integer> PlayerTemperatureThreads;
-    public HashMap<Player, Thread> PlayerDamagerMap = new HashMap<Player, Thread>();
-    public HashMap<Player, Integer> PlayerDamage = new HashMap<Player, Integer>();
-    public HashMap<Integer, Boolean> PlayerHeatShow;
-    public HashMap<Integer, Boolean> PlayerClientMod;
-    //public HashMap<Integer, Boolean> PlayerIceHashMap;
-    //public HashMap<Integer, Block> IceBlock;
-    public HashMap<Material, Double> HeatSources;
-    public HashMap<Material, Double> HeatInHand;
-    public HashMap<Player, Integer> PlayerRefreshing = new HashMap<Player, Integer>();
-    public HashMap<Player, Double> PlayerTemperature = new HashMap<Player, Double>();
-    public static List<Material> Mats = new ArrayList<Material>();
-    public boolean actualWeather = false;
-    public Configuration Config;
+    
+    private FeatureManager featureManager;
+    private EventManager eventManager;
+    private ThreadManager threadManager;
+    static Configuration config;
     public CheckCenter checkCenter;
-    public Localization Localization;
-    public Utils Utils;
-    public Commands Command;
-    public PacketListener PListener = new PacketListener(this);
-    public int ForecastTemp = 0;
+    public Localization localization;
+    public Utils utils;
+    public Commands command;
+    private WeatherAPI weatherAPI;
+    
+    private boolean isWeatherModuleLoaded = false;
+    private WeatherCompat weatherCompat = null;
+    
+    //public HashMap<Player, Thread> playerDamagerMap = new HashMap<Player, Thread>();
+    //public HashMap<Player, Integer> playerDamage = new HashMap<Player, Integer>();
+    public HashMap<Integer, Boolean> playerHeatShow;
+    public HashMap<Integer, Boolean> playerClientMod;
+    public HashMap<Material, Double> heatSources;
+    public HashMap<Material, Double> heatInHand;
+    //public HashMap<Player, Integer> PlayerRefreshing = new HashMap<Player, Integer>();
+    static HashMap<Player, Double> playerTemperature = new HashMap<Player, Double>();
+    
     private DecimalFormat df = new DecimalFormat("##.#");
-    private WeatherAPI WeatherAPI;
-    private File persistenceWeatherFile = new File("plugins/RealWeather/storage/weather.yml");
-    private FileConfiguration persWeather;
-    public Weather[] weather = new Weather[5];
-    public MakeWeather mWeather;
-    
-    private FileConfiguration getPersistanceWeather() {
-        FileConfiguration _persWeather = new YamlConfiguration();
-        if(!persistenceWeatherFile.exists()) {
-            this.log("Creating weather storage file.");
-            persistenceWeatherFile.getParentFile().mkdirs();
-            Utils.copy(this.getResource("storage/weather.yml"), persistenceWeatherFile);
-        }
-        try {
-            _persWeather.load(persistenceWeatherFile);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return _persWeather;
-    }
-    
-    private void addWeathers() {
-        weather[0] = Weather.CLEAR;
-        weather[1] = Weather.CLEAR;
-        weather[2] = Weather.valueOf(persWeather.getString("W2", "CLEAR"));
-        weather[3] = Weather.valueOf(persWeather.getString("W3", "CLEAR"));
-        weather[4] = Weather.valueOf(persWeather.getString("W4", "CLEAR"));
-    }
     
     @Override
     public void onEnable() {
         try {
-            HeatSources = new HashMap<Material, Double>();
-            HeatInHand = new HashMap<Material, Double>();
-            PlayerTemperatureThreads = new HashMap<Integer, Integer>();
-            PlayerHeatShow = new HashMap<Integer, Boolean>();
-            PlayerClientMod = new HashMap<Integer, Boolean>();
-            //PlayerIceHashMap = new HashMap<Integer, Boolean>();
-            //IceBlock = new HashMap<Integer, Block>();
-            Config = new Configuration(this);
-            LoadConfig();
-            Config.InitConfig();
-            Config.SaveAll();
-            Utils = new Utils(this);
-            Utils.addMats();
-            persWeather = getPersistanceWeather();
-            addWeathers();
-            mWeather = new MakeWeather(this);
-            Localization = new Localization(this);
-            Localization.FirstLoadLanguage();
-            log("Language: " + Localization.LanguageDescription);
+            //Init classes
+            heatSources = new HashMap<Material, Double>();
+            heatInHand = new HashMap<Material, Double>();
+            playerHeatShow = new HashMap<Integer, Boolean>();
+            playerClientMod = new HashMap<Integer, Boolean>();
+            config = new Configuration(this);
+            utils = new Utils(this);
+            localization = new Localization(this);
             checkCenter = new CheckCenter(this);
-            /*for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
-                Player player = getServer().getOnlinePlayers()[i];
-                PlayerIceHashMap.put(player.getEntityId(), checkCenter.isInIce(player));
-                if(checkCenter.isInIce(player)) {
-                    IceBlock.put(player.getEntityId(), player.getLocation().getBlock());
-                }
-            }*/
-            PluginManager pm = getServer().getPluginManager();
-            playerlistener = new PlayerListener(this);
-            weatherlistener = new WeatherListener(this);
-            playerinteract = new PlayerInteract(this);
-            playerdamage = new PlayerDamage(this);
-            playermove = new PlayerMove(this);
-            pm.registerEvents(playerlistener, this);
-            pm.registerEvents(weatherlistener, this);
-            pm.registerEvents(playerinteract, this);
-            pm.registerEvents(playerdamage, this);
-            pm.registerEvents(playermove, this);
+            command = new Commands(this);
+            weatherAPI = new WeatherAPI(this);
+            featureManager = new FeatureManager(this);
+            eventManager = new EventManager(this); //REQ: playerHeatShow, 
+            threadManager = new ThreadManager(getServer().getScheduler(), this, config); //REQ: config
+            
+            //Load plugin
+            loadConfig();
+            config.initConfig();
+            config.saveAll();
+            //weathermanager.enable();
+            localization.firstLoadLanguage();
+            log("Language: " + localization.LanguageDescription);
+            featureManager.init();
+            featureManager.enable();
+            featureManager.registerEvents(this.getServer().getPluginManager());
+            eventManager.registerEvents();
+            eventManager.registerPluginChannel("realweather");
+            
+            //Start threads
+            //threadManager.startThread(2);
             for(int i=0;i<getServer().getOnlinePlayers().length;i++) {
                 Player player = getServer().getOnlinePlayers()[i];
-                PlayerTemperatureThreads.put(player.getEntityId(), new Integer(this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new TempThread(this, player), Config.getVariables().getStartDelay(Config.getVariables().getGameDifficulty()) * 20, Config.getVariables().getCheckDelay(Config.getVariables().getGameDifficulty()) * 20)));
-                PlayerHeatShow.put(player.getEntityId(), false);
-                PlayerClientMod.put(player.getEntityId(), false);
+                threadManager.startTempThread(player);
+                playerHeatShow.put(player.getEntityId(), false);
+                playerClientMod.put(player.getEntityId(), false);
             }
-            Command = new Commands(this);
-            WeatherAPI = new WeatherAPI(this);
-            this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ForecastThread(this), 10*20, 50*20);
-            this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new RefresherThread(this), 2*20, 30);
+            
             log.log(Level.INFO, "[RealWeather] RealWeather enabled.");
-            Bukkit.getMessenger().registerOutgoingPluginChannel(this, "realweather");
-            Bukkit.getMessenger().registerIncomingPluginChannel(this, "realweather", PListener);
-            getServer().getServicesManager().register(WeatherAPI.class, WeatherAPI, this, ServicePriority.Low);
+            getServer().getServicesManager().register(WeatherAPI.class, weatherAPI, this, ServicePriority.Low);
         } catch(NullPointerException e) {
             log.log(Level.WARNING, null, e);
             this.setEnabled(false);
-            this.Running = false;
         }
     }
     
     @Override
     public void onDisable() {
-        Config.SaveAll();
-        Running = false;
+        config.saveAll();
         this.getServer().getScheduler().cancelAllTasks();
-        PlayerHeatShow.clear();
-        PlayerDamage.clear();
-        for (Player player : PlayerDamagerMap.keySet()) {
-            synchronized (PlayerDamagerMap.get(player)) {
-                PlayerDamagerMap.get(player).notify();
+        playerHeatShow.clear();
+        /*playerDamage.clear();
+        for (Player player : playerDamagerMap.keySet()) {
+            synchronized (playerDamagerMap.get(player)) {
+                playerDamagerMap.get(player).notify();
             }
-        }
-        if(!persistenceWeatherFile.exists()) {
-            persistenceWeatherFile.getParentFile().mkdirs();
-            Utils.copy(this.getResource("storage/weather.yml"), persistenceWeatherFile);
-        }
-        try {
-            persWeather.load(persistenceWeatherFile);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidConfigurationException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        persWeather.set("W2", weather[2].name());
-        persWeather.set("W3", weather[3].name());
-        persWeather.set("W4", weather[4].name());
-        try {
-            persWeather.save(persistenceWeatherFile);
-        } catch (IOException ex) {
-            Logger.getLogger(RealWeather.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        PlayerDamagerMap.clear();
-        PlayerClientMod.clear();
-        PlayerRefreshing.clear();
-        PlayerTemperature.clear();
+        }*/
+        featureManager.disable();
+        //playerDamagerMap.clear();
+        playerClientMod.clear();
+        //PlayerRefreshing.clear();
+        playerTemperature.clear();
         Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
         Bukkit.getMessenger().unregisterOutgoingPluginChannel(this);
-        log.log(Level.INFO, "[RealWeather] RealWeather Disabled!");
+        log("[RealWeather] RealWeather Disabled!");
     }
     
-    public void log(String mssg) {
+    public static void log(String mssg) {
         log.log(Level.INFO, (new StringBuilder()).append("[RealWeather] ").append(mssg).toString());
     }
     
-    private void LoadConfig() {
-        File configFile = new File("plugins/RealWeather/config.yml");
+    private void loadConfig() {
+        File configFile = new File(this.getDataFolder(), "config.yml");
         if(!configFile.exists()) {
             saveDefaultConfig();
-            log.log(Level.INFO, "[RealWeather] Default config.yml copied.");
+            log("[RealWeather] Default config.yml copied.");
         }
         getConfig().getDefaults();
     }
@@ -216,178 +144,306 @@ public class RealWeather extends JavaPlugin {
         }
         if("rw".equalsIgnoreCase(comm)) {
            if(!sender.hasPermission("realweather.player")) {
-                Utils.SendMessage(player, "You must have permissions to perform this command!");
+                utils.sendMessage(player, "You must have permissions to perform this command!");
                 return true;
             }
             if(args.length == 0) {
-                Utils.SendMessage(player, "No arguments set. Try '/rw help'.");
+                utils.sendMessage(player, "No arguments set. Try '/rw help'.");
                 if(sender instanceof Player) {
-                    if(PlayerTemperature.containsKey(player))
-                        Utils.SendMessage(player, Localization.Temperature + df.format(PlayerTemperature.get(player)));
-                    Utils.SendMessage(player, Localization.YourStamina + df.format(player.getSaturation()));
-                    Utils.SendMessage(player, Localization.FCToday + ForecastThread.getForecastMessage(weather[2], this.Localization));
+                    if(playerTemperature.containsKey(player))
+                        utils.sendMessage(player, localization.Temperature + df.format(playerTemperature.get(player)));
+                    utils.sendMessage(player, localization.YourStamina + df.format(player.getSaturation()));
+                    if (isWeatherModuleLoaded) utils.sendMessage(player, featureManager.getModule("weather").getConfig().getLocale().getValue("Today") + getWeather().getForecastMessage(getWeather().getCurrentWeather(2)));
                 }
             } else {
                 if("help".equalsIgnoreCase(args[0])) {
-                    Utils.SendHelp(player);
+                    utils.sendHelp(player);
                 } else if("version".equalsIgnoreCase(args[0])) {
-                    Utils.SendMessage(player, "Version: " + getDescription().getVersion());
+                    utils.sendMessage(player, "Version: " + getDescription().getVersion());
                 } else if("forecast".equalsIgnoreCase(args[0])) {
-                    Utils.SendMessage(player, Localization.FCToday + ForecastThread.getForecastMessage(weather[2], this.Localization));
-                    Utils.SendMessage(player, Localization.FCTomorrow + ForecastThread.getForecastMessage(weather[3], this.Localization));
+                    if (isWeatherModuleLoaded) {
+                        utils.sendMessage(player, featureManager.getModule("weather").getConfig().getLocale().getValue("Today") + getWeather().getForecastMessage(getWeather().getCurrentWeather(2)));
+                        utils.sendMessage(player, featureManager.getModule("weather").getConfig().getLocale().getValue("Tomorrow") + getWeather().getForecastMessage(getWeather().getCurrentWeather(3)));
+                    }
                 } else if("temp".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
-                        if(PlayerHeatShow.get(player.getEntityId()).equals(Boolean.FALSE)) {
-                            PlayerHeatShow.put(player.getEntityId(), Boolean.TRUE);
-                            Utils.SendMessage(player, Localization.TemperatureShow);
+                        if(playerHeatShow.get(player.getEntityId()).equals(Boolean.FALSE)) {
+                            playerHeatShow.put(player.getEntityId(), Boolean.TRUE);
+                            utils.sendMessage(player, localization.TemperatureShow);
                         } else {
-                            PlayerHeatShow.put(player.getEntityId(), Boolean.FALSE);
-                            Utils.SendMessage(player, Localization.TemperatureHide);
+                            playerHeatShow.put(player.getEntityId(), Boolean.FALSE);
+                            utils.sendMessage(player, localization.TemperatureHide);
                         }
                     } else {
-                        Utils.SendMessage(player, "Can not be executed from console.");
+                        utils.sendMessage(player, "Can not be executed from console.");
                     }
                 } else if("stamina".equalsIgnoreCase(args[0])) {
                     if(sender instanceof Player) {
                         float stamina = player.getSaturation();
-                        Utils.SendMessage(player, Localization.YourStamina + Utils.ConvertFloatToString(stamina));
+                        utils.sendMessage(player, localization.YourStamina + Utils.convertFloatToString(stamina));
                     } else {
                         try {
                             if(!args[1].isEmpty()) {
                                 Player plr = getServer().getPlayerExact(args[1]);
-                                Utils.SendMessage(player, "Stamina: " + Utils.ConvertFloatToString(plr.getSaturation()));
+                                utils.sendMessage(player, "Stamina: " + Utils.convertFloatToString(plr.getSaturation()));
                             }
                         } catch(ArrayIndexOutOfBoundsException e) {
-                            Utils.SendMessage(player, "Yout must set player name in console to view his stamina!");
+                            utils.sendMessage(player, "Yout must set player name in console to view his stamina!");
                         } catch(Exception e) {
-                            Utils.SendMessage(player, "Player name not valid.");
+                            utils.sendMessage(player, "Player name not valid.");
                         }
                     }
                 } else {
-                    Utils.SendMessage(player, "Invalid command!");
+                    utils.sendMessage(player, "Invalid command!");
                 }
             }
         }
         
         if("rwadmin".equalsIgnoreCase(comm)) {
             if(!sender.isOp() && !sender.hasPermission("realweather.admin")) {
-                Utils.SendMessage(player, "You must be OP to perform this command!");
+                utils.sendMessage(player, "You must be OP to perform this command!");
                 return true;
             }
             if(args.length == 0) {
-                Utils.SendMessage(player, "No arguments set. Try '/rwadmin help'.");
+                utils.sendMessage(player, "No arguments set. Try '/rwadmin help'.");
             } else {
                 if("help".equalsIgnoreCase(args[0])) {
-                    Utils.SendAdminHelp(player);
+                    utils.sendAdminHelp(player);
                 } else if("version".equals(args[0])) {
-                    Utils.SendMessage(player, "Version: " + getDescription().getVersion());
-                } else if("set".equals(args[0])) {
+                    utils.sendMessage(player, "Version: " + getDescription().getVersion());
+                }/* else if("set".equals(args[0])) {
                     if(args.length != 4) {
-                        Utils.SendMessage(player, "You must set: <file>, <config key>, <value>. Ex: /rwadmin set global PlayerHeat 1");
+                        utils.sendMessage(player, "You must set: <file>, <config key>, <value>. Ex: /rwadmin set global PlayerHeat 1");
                     } else {
-                        if(Command.Set(args)) {
-                            Config.SaveAll();
-                            Utils.SendMessage(player, "Value set.");
+                        if(this.command.Set(args)) {
+                            config.saveAll();
+                            utils.sendMessage(player, "Value set.");
                         } else {
-                            Utils.SendMessage(player, "Failed to set value.");
+                            utils.sendMessage(player, "Failed to set value.");
                         }
                     }
-                } else if("debug".equals(args[0])) {
-                    if(Config.getVariables().isDebugMode()) {
-                        Config.getVariables().setDebugMode(false);
-                        Utils.SendMessage(player, "Debug disabled.");
+                }*/ else if("debug".equals(args[0])) {
+                    if(config.getVariables().isDebugMode()) {
+                        config.getVariables().setDebugMode(false);
+                        utils.sendMessage(player, "Debug disabled.");
                     } else {
-                        Config.getVariables().setDebugMode(true);
-                        Utils.SendMessage(player, "Debug enabled.");
+                        config.getVariables().setDebugMode(true);
+                        utils.sendMessage(player, "Debug enabled.");
                     }
                 } else if("save".equals(args[0])) {
-                    if(Config.SaveAll()) {
-                        Utils.SendMessage(player, "Configuration saved.");
+                    if(config.saveAll()) {
+                        utils.sendMessage(player, "Configuration saved.");
                     } else {
-                        Utils.SendMessage(player, "Error in saving. See console for stack trace.");
+                        utils.sendMessage(player, "Error in saving. See console for stack trace.");
                     }
                 } else if("load".equals(args[0])) {
-                    Config.LoadAll();
-                    Utils.SendMessage(player, "Tried to load configuration");
+                    config.LoadAll();
+                    utils.sendMessage(player, "Tried to load configuration");
+                } else if("walk".equals(args[0])) {
+                    try {
+                        getServer().getPlayer(args[1]).setWalkSpeed(0.2F);
+                        
+                        utils.sendMessage(player, "Player speed set to default (0.2). SUCCESS");
+                    } catch(Exception e) {
+                        utils.sendMessage(player, "Player speed set to default (0.2). FAILED (Missing name?)");
+                    }
                 } else if("disable".equals(args[0])) {
                     if(args.length == 1) {
-                        Command.Disable();
-                        Utils.SendMessage(player, "Globaly disabled!");
-                    } else if(args.length == 2) {
+                        this.command.Disable();
+                        utils.sendMessage(player, "Globaly disabled!");
+                    }/* else if(args.length == 2) {
                         if("all".equalsIgnoreCase(args[1])) {
-                            Command.Disable("all");
-                            Utils.SendMessage(player, "All parts disabled!");
+                            this.command.Disable("all");
+                            utils.sendMessage(player, "All parts disabled!");
                         } else if("freezing".equalsIgnoreCase(args[1])) {
-                            Command.Disable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            this.command.Disable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("exhausting".equalsIgnoreCase(args[1])) {
-                            Command.Disable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            this.command.Disable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("jungle".equalsIgnoreCase(args[1])) {
-                            Command.Disable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            this.command.Disable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("thirst".equalsIgnoreCase(args[1])) {
-                            Command.Disable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            this.command.Disable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else if("waterbottle".equalsIgnoreCase(args[1])) {
-                            Command.Disable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" disabled!");
+                            this.command.Disable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" disabled!");
                         } else {
-                            Utils.SendMessage(player, "Can't disable non-existing part.");
-                            Utils.SendMessage(player, "Available parts: freezing, exhausting, jungle, thirst, waterbottle");
+                            utils.sendMessage(player, "Can't disable non-existing part.");
+                            utils.sendMessage(player, "Available parts: freezing, exhausting, jungle, thirst, waterbottle");
                         }
-                    }
+                    }*/
                 } else if("enable".equalsIgnoreCase(args[0])) {
                     if(args.length == 1) {
-                        Command.Enable();
-                        Utils.SendMessage(player, "Globaly enabled!");
-                    } else if(args.length == 2) {
+                        this.command.Enable();
+                        utils.sendMessage(player, "Globaly enabled!");
+                    }/* else if(args.length == 2) {
                         if("all".equalsIgnoreCase(args[1])) {
-                            Command.Enable("all");
-                            Utils.SendMessage(player, "All parts enabled!");
+                            this.command.Enable("all");
+                            utils.sendMessage(player, "All parts enabled!");
                         } else if("freezing".equalsIgnoreCase(args[1])) {
-                            Command.Enable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            this.command.Enable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("exhausting".equalsIgnoreCase(args[1])) {
-                            Command.Enable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            this.command.Enable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("jungle".equalsIgnoreCase(args[1])) {
-                            Command.Enable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            this.command.Enable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("thirst".equalsIgnoreCase(args[1])) {
-                            Command.Enable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            this.command.Enable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else if("waterbottle".equalsIgnoreCase(args[1])) {
-                            Command.Enable(args[1]);
-                            Utils.SendMessage(player, "Part \"" + args[1] + "\" enabled!");
+                            this.command.Enable(args[1]);
+                            utils.sendMessage(player, "Part \"" + args[1] + "\" enabled!");
                         } else {
-                            Utils.SendMessage(player, "Can't enable non-existing part.");
-                            Utils.SendMessage(player, "Available parts: freezing, exhausting, jungle, thirst, waterbottle");
+                            utils.sendMessage(player, "Can't enable non-existing part.");
+                            utils.sendMessage(player, "Available parts: freezing, exhausting, jungle, thirst, waterbottle");
                         }
-                    }
+                    }*/
                 } else if("lang".equalsIgnoreCase(args[0])) {
                     if(args.length == 1) {
-                        Utils.SendMessage(player, "Language: " + Localization.Language + ".");
-                        Utils.SendMessage(player, "Available languages:");
-                        HashMap<String, String> langs = Localization.GetLangList();
+                        utils.sendMessage(player, "Language: " + localization.Language + ".");
+                        utils.sendMessage(player, "Available languages:");
+                        HashMap<String, String> langs = localization.GetLangList();
                         for (String lang : langs.keySet()) {
-                            Utils.SendMessage(player, lang+" - "+langs.get(lang));
+                            utils.sendMessage(player, lang+" - "+langs.get(lang));
                         }
                     } else {
                         if(args.length == 2) {
-                            boolean result = Command.Language(args[1]);
+                            boolean result = this.command.Language(args[1]);
                             if(result == true) {
-                                Utils.SendMessage(player, "Language changed to: " + Localization.LanguageDescription + ".");
+                                utils.sendMessage(player, "Language changed to: " + localization.LanguageDescription + ".");
                             } else {
-                                Utils.SendMessage(player, "Language load error!");
+                                utils.sendMessage(player, "Language load error!");
                             }
                         }
                     }
                 } else {
-                    Utils.SendMessage(player, "Invalid command!");
+                    utils.sendMessage(player, "Invalid command!");
                 }
             }
         }
         return true;
+    }
+    
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+    
+    public ThreadManager getThreadManager() {
+        return threadManager;
+    }
+    
+    public FeatureManager getFeatureManager() {
+        return featureManager;
+    }
+    
+    public static boolean isDebug() {
+        return config.getVariables().isDebugMode();
+    }
+    
+    static Armors getArmors() {
+        return config.getVariables().getArmors();
+    }
+    
+    public static boolean isGlobalyEnable() {
+        return config.getVariables().isGlobalyEnable();
+    }
+    
+    public boolean isWeatherModuleLoaded() {
+        return isWeatherModuleLoaded;
+    }
+    
+    public void setWeatherLoaded(boolean state) {
+        this.isWeatherModuleLoaded = state;
+    }
+    
+    public WeatherCompat getWeather() {
+        if(weatherCompat != null) return weatherCompat;
+        else return (weatherCompat = new WeatherCompat());
+    }
+    
+    public static float getPlayerTemperature(Player player) {
+        return playerTemperature.get(player).floatValue();
+    }
+    
+    public HashMap<Player, Double> getPlayerTemperature() {
+        return playerTemperature;
+    }
+    
+    /*public void setWeatherModule(FWeather module) {
+        weatherModule = module;
+    }*/
+    
+    class WeatherCompat {
+        
+        public static final int BLIZZARD = 0;
+        public static final int STORM = 1;
+        public static final int FREEZE = 2;
+        public static final int RAINSNOW = 3;
+        public static final int COLD = 4;
+        public static final int SHOWERS = 5;
+        public static final int CLEAR = 6;
+        public static final int WARM = 7;
+        public static final int SUMMERSTORM = 8;
+        public static final int HOT = 9;
+        public static final int TROPIC = 10;
+
+        WeatherCompat() {
+        }
+        
+        public int getCurrentWeather(int day) {
+            return ((Integer)FeatureManager.getSharedData().getValue("FW-WEATHER"+day)).intValue();
+        }
+        
+        public int getWeatherTemp() {
+            return ((Integer)FeatureManager.getSharedData().getValue("FW-WEATHER-TEMP")).intValue();
+        }
+        
+        public String getForecastMessage(int weather) {
+            FeatureLocalization loc = featureManager.getModule("weather").getConfig().getLocale();
+            String Message;
+            switch (weather) {
+                case BLIZZARD:
+                    Message = loc.getValue("BLIZZARD");
+                    break;
+                case STORM:
+                    Message = loc.getValue("STORM");
+                    break;
+                case FREEZE:
+                    Message = loc.getValue("FREEZE");
+                    break;
+                case RAINSNOW:
+                    Message = loc.getValue("RAINSNOW");
+                    break;
+                case COLD:
+                    Message = loc.getValue("COLD");
+                    break;
+                case SHOWERS:
+                    Message = loc.getValue("SHOWERS");
+                    break;
+                case CLEAR:
+                    Message = loc.getValue("CLEAR");
+                    break;
+                case WARM:
+                    Message = loc.getValue("WARM");
+                    break;
+                case SUMMERSTORM:
+                    Message = loc.getValue("SUMMERSTORM");
+                    break;
+                case HOT:
+                    Message = loc.getValue("HOT");
+                    break;
+                case TROPIC:
+                    Message = loc.getValue("TROPIC");
+                    break;
+                default:
+                    Message = "RealWeather: Forecast error! Non-existing weather provided.";
+            }
+            return Message;
+        }
     }
 }

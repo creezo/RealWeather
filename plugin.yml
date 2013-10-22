@@ -1,6 +1,6 @@
 name: RealWeather
 main: org.creezo.realweather.RealWeather
-version: 1.6.2 beta
+version: 1.6.4
 author: creezo
 softdepend: [Multiverse-Core]
 description: 'Makes the weather more dangerous by extending its effects.'
