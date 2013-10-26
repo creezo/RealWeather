@@ -25,3 +25,6 @@ DebugGlassBlocks: false
 
 CanChangeWeather: true
 BroadcastForecast: true
+
+ErrorReporting: true
+ErrorReportingName: Unknown

@@ -1,6 +1,5 @@
 package org.creezo.realweather.configuration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -102,6 +101,9 @@ public class Configurations {
             public int getSeaLevel() {
                 return GlobalConf.getInt("SeaLevel");
             }
+            public int getBedTemperatureBonus() {
+                return GlobalConf.getInt("BedTemperatureBonus");
+            }
             public void setBiomeAverageTemp(String biome, int num) {
                 GlobalConf.set("BiomesAverageTemp."+biome.toUpperCase(), num);
             }
@@ -200,5 +202,11 @@ public class Configurations {
     }
     public void setAllowedWorlds(List<String> AllowedWorlds) {
         plugin.getConfig().set("AffectedWorlds", AllowedWorlds);
+    }
+    public boolean isReportingEnabled() {
+        return plugin.getConfig().getBoolean("ErrorReporting", true);
+    }
+    public String getReportName() {
+        return plugin.getConfig().getString("ErrorReportingName", "Unknown");
     }
 }

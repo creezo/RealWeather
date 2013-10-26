@@ -26,7 +26,7 @@ class TempThread implements Runnable {
     @Override
     public void run() {
         try {
-            if(RealWeather.isGlobalyEnable() && !player.getGameMode().equals(GameMode.CREATIVE)) {
+            if(RealWeather.isGlobalyEnable() & !player.getGameMode().equals(GameMode.CREATIVE)) {
                 double temperature = plugin.checkCenter.getTemperature(player.getLocation(), player);
                 if(plugin.playerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
                     plugin.utils.sendMessage(player, plugin.localization.CurrentTemperature+df.format(temperature));
@@ -50,6 +50,7 @@ class TempThread implements Runnable {
         } catch(Exception e) {
             RealWeather.log("Error in temperature thread!");
             RealWeather.log.log(Level.SEVERE, null, e);
+            RealWeather.sendStackReport(e);
         }
     }
     

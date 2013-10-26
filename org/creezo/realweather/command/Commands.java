@@ -116,7 +116,7 @@ public class Commands {
         try {
             plugin.getConfig().save(new File(plugin.getDataFolder(), "config.yml"));
         } catch (IOException ex) {
-            plugin.log.log(Level.SEVERE, null, ex);
+            RealWeather.log.log(Level.SEVERE, null, ex);
         }
     }
     

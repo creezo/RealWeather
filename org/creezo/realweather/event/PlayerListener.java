@@ -14,6 +14,7 @@ import org.creezo.realweather.RealWeather;
  * @author creezo
  */
 class PlayerListener implements Listener {
+
     private final RealWeather plugin;
     private HashMap<Integer, Boolean> PlayerHeatShow;
 
@@ -24,13 +25,18 @@ class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        final Player player = event.getPlayer();
-        final int PlayerID = player.getEntityId();
-        plugin.getThreadManager().startTempThread(player);
-        PlayerHeatShow.put(PlayerID, Boolean.FALSE);
-        plugin.playerClientMod.put(PlayerID, Boolean.FALSE);
+        try {
+            final Player player = event.getPlayer();
+            final int PlayerID = player.getEntityId();
+            plugin.getThreadManager().startTempThread(player);
+            PlayerHeatShow.put(PlayerID, Boolean.FALSE);
+            plugin.playerClientMod.put(PlayerID, Boolean.FALSE);
+        } catch (Exception e) {
+            RealWeather.log.log(Level.SEVERE, null, e);
+            plugin.sendStackReport(e);
+        }
     }
-    
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         int PlayerID = event.getPlayer().getEntityId();
@@ -39,8 +45,9 @@ class PlayerListener implements Listener {
             plugin.getPlayerTemperature().remove(event.getPlayer());
             PlayerHeatShow.remove(PlayerID);
             plugin.playerClientMod.remove(PlayerID);
-        } catch (NullPointerException ex) {
-            if(RealWeather.isDebug()) RealWeather.log.log(Level.WARNING, null, ex);
+        } catch (Exception e) {
+            RealWeather.log.log(Level.SEVERE, null, e);
+            plugin.sendStackReport(e);
         }
     }
 }

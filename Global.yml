@@ -141,4 +141,5 @@ HeatInHand:
   LAVA_BUCKET: 20
   ICE: -3
   SNOW_BLOCK: -1.5
+BedTemperatureBonus: 10
 TorchesFading: true

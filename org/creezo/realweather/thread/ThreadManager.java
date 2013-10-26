@@ -99,6 +99,7 @@ public class ThreadManager {
                 if (RealWeather.isDebug()) {
                     RealWeather.log("RUN: " + feature.getName() + " FAILED");
                     RealWeather.log.log(Level.SEVERE, null, e);
+                    RealWeather.sendStackReport(e);
                 }
             }
         }

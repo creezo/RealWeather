@@ -2,6 +2,7 @@ package org.creezo.realweather;
 
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 import net.minecraft.server.v1_6_R3.BiomeBase;
 import net.minecraft.server.v1_6_R3.World;
 import org.bukkit.Location;
@@ -26,69 +27,78 @@ public class CheckCenter {
     }
 
     public double getTemperature(Location location, Player player) {
-        if (location != null) {
-        } else {
-            location = player.getLocation();
-        }
-        if (RealWeather.isDebug()) {
-            RealWeather.log("Starting temp calculation.");
-        }
-        World world = ((CraftWorld) location.getWorld()).getHandle();
-        BiomeBase biome = world.getBiome(location.getBlockX(), location.getBlockZ());
-        String biomeName = biome.y;
-        if (RealWeather.isDebug()) {
-            RealWeather.log("Biome: " + biomeName.toUpperCase());
-        }
-        int startTemp = plugin.config.getVariables().getBiomes().getGlobal().getBiomeAverageTemp(biomeName);
-        if (RealWeather.isDebug()) {
-            RealWeather.log("Biome average temp: " + startTemp);
-        }
-        double temperature;
-        double timeMultiplier = Math.sin(Math.toRadians(0.015D * location.getWorld().getTime()));
-        
-        if (timeMultiplier > 0) {
-            temperature = timeMultiplier * (double) plugin.config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Day", biomeName);
-        } else {
-            temperature = Math.abs(timeMultiplier) * (double) plugin.config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Night", biomeName);
-        }
+        double temperature = 15;
         try {
-        if (plugin.isWeatherModuleLoaded()) {
-            if (location.getWorld().hasStorm()) {
-                temperature += plugin.config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier(biomeName);
-            }
-            temperature += plugin.getWeather().getWeatherTemp();
-        }
-        } catch (NullPointerException e) { if (RealWeather.isDebug()) RealWeather.log("Weather module is errorneous. Skipping weather temp.");}
-        temperature += (location.getY() - plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) / (location.getWorld().getMaxHeight() - plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) * plugin.config.getVariables().getBiomes().getGlobal().getTopTemp();
-        temperature += startTemp;
-        if (location.getBlock().getLightFromSky() < (byte) 4 && location.getY() < plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) {
-            double deepModifier;
-            if ((double) location.getY() >= (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d) {
-                deepModifier = (((double) location.getY() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) / ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) + ((((double) location.getY() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d) / ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) - 1) * (-0.15d));
-            } else if ((double) location.getY() <= (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d) {
-                if (temperature < 0) {
-                    temperature = (temperature * -1) / 2;
-                }
-                deepModifier = (((double) location.getY() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) / (0 - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) + ((((double) location.getY() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d) / (0 - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) - 1) * (-0.15d));
+            if (location != null) {
             } else {
-                deepModifier = 0.15d;
+                location = player.getLocation();
             }
             if (RealWeather.isDebug()) {
-                RealWeather.log("DeepModifier (Number between 1 and 0.15):" + deepModifier);
+                RealWeather.log("Starting temp calculation.");
             }
-            temperature = ((temperature - 10) * deepModifier) + 10;
-        }
-        temperature += checkHeatAround(player, location, plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
-        if (player != null) {
-            List<Entity> Entities = player.getNearbyEntities(plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
-            for (Entity entity : Entities) {
-                if (entity.getType().isAlive() && temperature <= 25) {
-                    temperature += plugin.config.getVariables().getBiomes().getGlobal().getPlayerHeat();
+            World world = ((CraftWorld) location.getWorld()).getHandle();
+            BiomeBase biome = world.getBiome(location.getBlockX(), location.getBlockZ());
+            String biomeName = biome.y;
+            if (RealWeather.isDebug()) {
+                RealWeather.log("Biome: " + biomeName.toUpperCase());
+            }
+            int startTemp = plugin.config.getVariables().getBiomes().getGlobal().getBiomeAverageTemp(biomeName);
+            if (RealWeather.isDebug()) {
+                RealWeather.log("Biome average temp: " + startTemp);
+            }
+            double timeMultiplier = Math.sin(Math.toRadians(0.015D * location.getWorld().getTime()));
+            if (timeMultiplier > 0) {
+                temperature = timeMultiplier * (double) plugin.config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Day", biomeName);
+            } else {
+                temperature = Math.abs(timeMultiplier) * (double) plugin.config.getVariables().getBiomes().getGlobal().getBiomeDayNightTempModifier("Night", biomeName);
+            }
+            try {
+                if (plugin.isWeatherModuleLoaded()) {
+                    if (location.getWorld().hasStorm()) {
+                        temperature += plugin.config.getVariables().getBiomes().getGlobal().getBiomesWeatherTempModifier(biomeName);
+                    }
+                    temperature += plugin.getWeather().getWeatherTemp();
+                }
+            } catch (NullPointerException e) {
+                if (RealWeather.isDebug()) {
+                    RealWeather.log("Weather module is errorneous. Skipping weather temp.");
                 }
             }
-        }
-        if (RealWeather.isDebug()) {
-            RealWeather.log("Returning temperature: " + temperature);
+            temperature += (location.getY() - plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) / (location.getWorld().getMaxHeight() - plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) * plugin.config.getVariables().getBiomes().getGlobal().getTopTemp();
+            temperature += startTemp;
+            if (location.getBlock().getLightFromSky() < (byte) 4 && location.getY() < plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel()) {
+                double deepModifier;
+                if ((double) location.getY() >= (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d) {
+                    deepModifier = (((double) location.getY() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) / ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) + ((((double) location.getY() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d) / ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.8d)) - 1) * (-0.15d));
+                } else if ((double) location.getY() <= (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d) {
+                    if (temperature < 0) {
+                        temperature = (temperature * -1) / 2;
+                    }
+                    deepModifier = (((double) location.getY() - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) / (0 - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) + ((((double) location.getY() - (double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d) / (0 - ((double) plugin.config.getVariables().getBiomes().getGlobal().getSeaLevel() * 0.2d)) - 1) * (-0.15d));
+                } else {
+                    deepModifier = 0.15d;
+                }
+                if (RealWeather.isDebug()) {
+                    RealWeather.log("DeepModifier (Number between 1 and 0.15):" + deepModifier);
+                }
+                temperature = ((temperature - 10) * deepModifier) + 10;
+            }
+            temperature += checkHeatAround(player, location, plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
+            if (player != null) {
+                List<Entity> Entities = player.getNearbyEntities(plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius(), plugin.config.getVariables().getBiomes().getGlobal().getHeatCheckRadius());
+                for (Entity entity : Entities) {
+                    if (entity.getType().isAlive() && temperature <= 25) {
+                        temperature += plugin.config.getVariables().getBiomes().getGlobal().getPlayerHeat();
+                    }
+                }
+                if(temperature <= (20 - plugin.config.getVariables().getBiomes().getGlobal().getBedTemperatureBonus()) & checkPlayerInBed(player)) temperature += plugin.config.getVariables().getBiomes().getGlobal().getBedTemperatureBonus();
+            }
+            if (RealWeather.isDebug()) {
+                RealWeather.log("Returning temperature: " + temperature);
+            }
+        } catch (Exception e) {
+            RealWeather.log.log(Level.SEVERE, null, e);
+            plugin.sendStackReport(e);
         }
         return temperature;
     }
@@ -104,7 +114,7 @@ public class CheckCenter {
         return false;
     }
 
-    private static boolean CheckToTop(Block block, int MaxMapHeigh) {
+    private static boolean checkToTop(Block block, int MaxMapHeigh) {
         boolean IsUnderRoof = false;
         int heigh = block.getY();
         while (heigh < MaxMapHeigh) {
@@ -133,7 +143,7 @@ public class CheckCenter {
             if (RealWeather.isDebug()) {
                 RealWeather.log("simple selected");
             }
-            inside = CheckToTop(location.getBlock().getRelative(BlockFace.UP), location.getWorld().getMaxHeight() - 1);
+            inside = checkToTop(location.getBlock().getRelative(BlockFace.UP), location.getWorld().getMaxHeight() - 1);
         } else if (recognizer.equals("default")) {
             if (RealWeather.isDebug()) {
                 RealWeather.log("default selected");
@@ -148,7 +158,7 @@ public class CheckCenter {
             for (int radius = 1; radius <= checkRadius; radius++) {
                 if (checkOnce == true) {
                     checkOnce = false;
-                    inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                    inside = checkToTop(NowCheckingBlock, MaxHeigh);
                     if (inside == false) {
                         break;
                     }
@@ -161,7 +171,7 @@ public class CheckCenter {
                     switch (side) {
                         case 1:
                             for (int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                inside = checkToTop(NowCheckingBlock, MaxHeigh);
                                 if (inside == false) {
                                     break;
                                 }
@@ -170,7 +180,7 @@ public class CheckCenter {
                             break;
                         case 2:
                             for (int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                inside = checkToTop(NowCheckingBlock, MaxHeigh);
                                 if (inside == false) {
                                     break;
                                 }
@@ -179,7 +189,7 @@ public class CheckCenter {
                             break;
                         case 3:
                             for (int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                inside = checkToTop(NowCheckingBlock, MaxHeigh);
                                 if (inside == false) {
                                     break;
                                 }
@@ -188,7 +198,7 @@ public class CheckCenter {
                             break;
                         case 4:
                             for (int blocks = 1; blocks <= BlockNumInSide; blocks++) {
-                                inside = CheckToTop(NowCheckingBlock, MaxHeigh);
+                                inside = checkToTop(NowCheckingBlock, MaxHeigh);
                                 if (inside == false) {
                                     break;
                                 }
@@ -216,7 +226,7 @@ public class CheckCenter {
                 RealWeather.log("Heigh: " + ConvertIntToString(heigh));
             }
             for (int once = 1; once == 1; once++) {
-                inside = CheckToTop(playerPositionBlock, MaxHeigh);
+                inside = checkToTop(playerPositionBlock, MaxHeigh);
                 if (inside == false) {
                     break;
                 }
@@ -265,7 +275,7 @@ public class CheckCenter {
                 StartBlock = StartBlock.getRelative(BlockFace.EAST, RangeToEastSide);
                 for (int EastWestSize = 0; EastWestSize <= RangeToWestSide + RangeToEastSide; EastWestSize++) {
                     for (int NorthSouthSize = 0; NorthSouthSize <= RangeToNorthSide + RangeToSouthSide; NorthSouthSize++) {
-                        inside = CheckToTop(StartBlock.getRelative(NorthSouthSize, 0, EastWestSize), MaxHeigh);
+                        inside = checkToTop(StartBlock.getRelative(NorthSouthSize, 0, EastWestSize), MaxHeigh);
                         if (inside == false) {
                             break;
                         }
