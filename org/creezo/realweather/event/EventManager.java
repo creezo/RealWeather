@@ -9,8 +9,8 @@ import org.creezo.realweather.RealWeather;
  * @author Dodec
  */
 public class EventManager {
-    private PlayerListener playerListener;
-    private PacketListener packetListener;
+    private final PlayerListener playerListener;
+    private final PacketListener packetListener;
     
     private final RealWeather plugin;
     

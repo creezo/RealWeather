@@ -209,4 +209,7 @@ public class Configurations {
     public String getReportName() {
         return plugin.getConfig().getString("ErrorReportingName", "Unknown");
     }
+    public String getLanguage() {
+        return plugin.getConfig().getString("Language", "eng");
+    }
 }

@@ -28,3 +28,5 @@ BroadcastForecast: true
 
 ErrorReporting: true
 ErrorReportingName: Unknown
+
+Language: eng

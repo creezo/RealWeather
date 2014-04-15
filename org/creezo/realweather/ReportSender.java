@@ -22,6 +22,7 @@ public class ReportSender implements Runnable {
     /**
      *
      * @param version
+     * @param bukkit
      * @param stack
      * @param plugins
      */

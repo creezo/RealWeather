@@ -19,9 +19,9 @@ public class ThreadManager {
     private final RealWeather plugin;
     private final Configuration config;
     
-    private HashMap<Player, BukkitTask> playerTemperatureThreads;
-    private HashMap<Integer, Feature> independentThreads;
-    private ArrayList<Feature> dependentThreads;
+    private final HashMap<Player, BukkitTask> playerTemperatureThreads;
+    private final HashMap<Integer, Feature> independentThreads;
+    private final ArrayList<Feature> dependentThreads;
     
     public ThreadManager(BukkitScheduler scheduler, RealWeather plugin, Configuration config) {
         this.scheduler = scheduler;

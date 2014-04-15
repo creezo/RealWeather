@@ -44,7 +44,7 @@ public class WeatherAPI {
      * @return true if there is cover, false otherwise.
      */
     public boolean isInside(Location location, int CheckRadius, String recognizer) {
-        return plugin.checkCenter.checkPlayerInside(location, CheckRadius, recognizer);
+        return CheckCenter.checkPlayerInside(location, CheckRadius, recognizer);
     }
     /**
      * Gets heat around player/location.

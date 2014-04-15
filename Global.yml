@@ -1,4 +1,4 @@
-fileVersion: 4
+fileVersion: 5
 # Global does not depend on biome
 HeatCheckRadius: 3
 PlayerHeat: 1
@@ -8,7 +8,7 @@ ShowersRainChance: 25
 BiomesAverageTemp:
   SWAMPLAND: 15
   FOREST: 15
-  TAIGA: 0
+  TAIGA: 3
   DESERT: 30
   PLAINS: 20
   HELL: 30
@@ -29,6 +29,23 @@ BiomesAverageTemp:
   EXTREME HILLS EDGE: 12
   JUNGLE: 30
   JUNGLEHILLS: 25
+  JUNGLEEDGE: 25
+  DEEP OCEAN: 13
+  STONE BEACH: 13
+  COLD BEACH: 5
+  BIRCH FOREST: 15
+  BIRCH FOREST HILLS: 10
+  ROOFED FOREST: 15
+  COLD TAIGA: 0
+  COLD TAIGA HILLS: -3
+  MEGA TAIGA: 7
+  MEGA TAIGA HILLS: 2
+  EXTREME HILLS+: 12
+  SAVANNA: 25
+  SAVANNA PLATEAU: 22
+  MESA: 23
+  MESA PLATEAU: 20
+  MESA PLATEAU F: 17
 BiomesWeatherTempModifier:
   SWAMPLAND: -5
   FOREST: -5
@@ -53,6 +70,23 @@ BiomesWeatherTempModifier:
   EXTREME HILLS EDGE: -8
   JUNGLE: -5
   JUNGLEHILLS: -8
+  JUNGLEEDGE: -6
+  DEEP OCEAN: -5
+  STONE BEACH: -5
+  COLD BEACH: -8
+  BIRCH FOREST: -5
+  BIRCH FOREST HILLS: -12
+  ROOFED FOREST: -3
+  COLD TAIGA: -8
+  COLD TAIGA HILLS: -12
+  MEGA TAIGA: -5
+  MEGA TAIGA HILLS: -10
+  EXTREME HILLS+: -10
+  SAVANNA: -8
+  SAVANNA PLATEAU: -9
+  MESA: -8
+  MESA PLATEAU: -10
+  MESA PLATEAU F: -8
 BiomeDayNightTempModifier:
   SWAMPLAND:
     Day: 5
@@ -123,6 +157,57 @@ BiomeDayNightTempModifier:
   JUNGLEHILLS:
     Day: 7
     Night: -9
+  JUNGLEEDGE:
+    Day: 7
+    Night: -9
+  DEEP OCEAN:
+    Day: 7
+    Night: -9
+  STONE BEACH:
+    Day: 7
+    Night: -7
+  COLD BEACH:
+    Day: 9
+    Night: -9
+  BIRCH FOREST:
+    Day: 5
+    Night: -8
+  BIRCH FOREST HILLS:
+    Day: 6
+    Night: -8
+  ROOFED FOREST:
+    Day: 6
+    Night: -8
+  COLD TAIGA:
+    Day: 5
+    Night: -9
+  COLD TAIGA HILLS:
+    Day: 5
+    Night: -18
+  MEGA TAIGA:
+    Day: 5
+    Night: -8
+  MEGA TAIGA HILLS:
+    Day: 5
+    Night: -12
+  EXTREME HILLS+:
+    Day: 8
+    Night: -12
+  SAVANNA:
+    Day: 8
+    Night: -8
+  SAVANNA PLATEAU:
+    Day: 8
+    Night: -8
+  MESA:
+    Day: 8
+    Night: -15
+  MESA PLATEAU:
+    Day: 8
+    Night: -15
+  MESA PLATEAU F:
+    Day: 6
+    Night: -12
 HeatSources:
   LAVA: 20
   STATIONARY_LAVA: 20

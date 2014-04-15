@@ -5,14 +5,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -84,27 +82,9 @@ public class FeatureManager {
                     } else {
                         if(RealWeather.isDebug()) RealWeather.log("module.yml of " + featJar + " is missing! Skip.");
                     }
-                }/* catch (NoSuchMethodException ex) {
+                } catch (Exception ex) {
                     Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (MalformedURLException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (SecurityException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InstantiationException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalArgumentException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InvalidConfigurationException ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                }*/ catch (Exception ex) {
-                    Logger.getLogger(FeatureManager.class.getName()).log(Level.SEVERE, null, ex);
-                    plugin.sendStackReport(ex);
+                    RealWeather.sendStackReport(ex);
                 }
             }
         }

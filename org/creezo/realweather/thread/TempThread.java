@@ -16,7 +16,7 @@ import org.creezo.realweather.RealWeather;
 class TempThread implements Runnable {
     private final RealWeather plugin;
     private final Player player;
-    private DecimalFormat df = new DecimalFormat("##.#");
+    private final DecimalFormat df = new DecimalFormat("##.#");
 
     TempThread(RealWeather plugin, Player player) {
         this.plugin = plugin;
@@ -29,7 +29,7 @@ class TempThread implements Runnable {
             if(RealWeather.isGlobalyEnable() & !player.getGameMode().equals(GameMode.CREATIVE)) {
                 double temperature = plugin.checkCenter.getTemperature(player.getLocation(), player);
                 if(plugin.playerHeatShow.get(player.getEntityId()).equals(Boolean.TRUE)) {
-                    plugin.utils.sendMessage(player, plugin.localization.CurrentTemperature+df.format(temperature));
+                    plugin.utils.sendMessage(player, plugin.localization.getValue("CurrentTemperature")+df.format(temperature));
                 }
                 try{
                     if(plugin.playerClientMod.get(player.getEntityId())) {

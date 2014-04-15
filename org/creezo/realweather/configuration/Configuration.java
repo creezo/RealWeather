@@ -23,11 +23,11 @@ public class Configuration {
 
     private final File GlobalConfigFile;
     private final File ArmorConfigFile;
-    private FileConfiguration GlobalConf;
-    private FileConfiguration ArmorConf;
-    private int GlobalConfigFileVersion = 4;
-    private int ArmorConfigFileVersion = 1;
-    private int ConfigFileVersion = 3;
+    private final FileConfiguration GlobalConf;
+    private final FileConfiguration ArmorConf;
+    private final int GlobalConfigFileVersion = 5;
+    private final int ArmorConfigFileVersion = 1;
+    private final int ConfigFileVersion = 3;
     private Configurations variables;
     public List<String> ArmorTypes = new ArrayList<String>();
     private List<String> ArmorPieces = new ArrayList<String>();
@@ -126,6 +126,9 @@ public class Configuration {
             list.add("world_nether");
             list.add("world_the_end");
             plugin.getConfig().set("AffectedWorlds", list);
+        }
+        if (!plugin.getConfig().contains("Language")) {
+            plugin.getConfig().set("Language", "eng");
         }
     }
 
@@ -336,9 +339,9 @@ public class Configuration {
             }
             out.close();
             input.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             RealWeather.log.log(Level.SEVERE, null, e);
-            plugin.sendStackReport(e);
+            RealWeather.sendStackReport(e);
         }
     }
 }

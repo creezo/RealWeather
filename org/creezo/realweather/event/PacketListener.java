@@ -8,7 +8,7 @@ import org.creezo.realweather.RealWeather;
  *
  * @author Dodec
  */
-class PacketListener implements PluginMessageListener{
+public class PacketListener implements PluginMessageListener{
     private final RealWeather plugin;
     
     PacketListener(RealWeather plugin) {
@@ -17,10 +17,10 @@ class PacketListener implements PluginMessageListener{
     
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        RealWeather.log("Got mod message..." + new String(message));
         if(channel.equals("realweather") && player != null) {
             RealWeather.log("Player "+player.getPlayerListName()+" connected with RW client mod.");
             plugin.playerClientMod.put(player.getEntityId(), true);
         }
     }
-    
 }

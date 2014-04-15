@@ -1,8 +1,9 @@
 name: RealWeather
 main: org.creezo.realweather.RealWeather
-version: 1.6.4
+version: 1.7.2
 author: creezo
-softdepend: [Multiverse-Core]
+#depend: [PlayerSpeedAPI]
+softdepend: [Multiverse-Core, ProtocolLib, PlayerSpeedAPI]
 description: 'Makes the weather more dangerous by extending its effects.'
 website: http://dev.bukkit.org/server-mods/realwinter/
 dev-url: http://dev.bukkit.org/server-mods/realwinter/

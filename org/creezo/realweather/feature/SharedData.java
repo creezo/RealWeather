@@ -7,9 +7,9 @@ import java.util.HashMap;
  * @author Dodec
  */
 public class SharedData {
-    private HashMap<String, Object> data = new HashMap<String, Object>();
-    private HashMap<String, Feature> owner = new HashMap<String, Feature>();
-    private HashMap<String, Boolean> permission = new HashMap<String, Boolean>();
+    private final HashMap<String, Object> data = new HashMap<String, Object>();
+    private final HashMap<String, Feature> owner = new HashMap<String, Feature>();
+    private final HashMap<String, Boolean> permission = new HashMap<String, Boolean>();
     
     public Object getValue(String key) {
         return data.get(key);

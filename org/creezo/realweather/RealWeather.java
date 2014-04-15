@@ -1,5 +1,12 @@
 package org.creezo.realweather;
 
+/*import com.comphenix.protocol.Packets;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ConnectionSide;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;*/
 import org.creezo.realweather.localization.Localization;
 import org.creezo.realweather.util.Utils;
 import org.creezo.realweather.configuration.Configuration;
@@ -54,6 +61,7 @@ public class RealWeather extends JavaPlugin {
     //public HashMap<Player, Integer> PlayerRefreshing = new HashMap<Player, Integer>();
     static HashMap<Player, Double> playerTemperature = new HashMap<Player, Double>();
     private DecimalFormat df = new DecimalFormat("##.#");
+    //private ProtocolManager protocolManager;
 
     @Override
     public void onEnable() {
@@ -73,14 +81,15 @@ public class RealWeather extends JavaPlugin {
             featureManager = new FeatureManager(this);
             eventManager = new EventManager(this); //REQ: playerHeatShow, 
             threadManager = new ThreadManager(getServer().getScheduler(), this, config); //REQ: config
+            //protocolManager = ProtocolLibrary.getProtocolManager();
 
             //Load plugin
             loadConfig();
             config.initConfig();
             config.saveAll();
             //weathermanager.enable();
-            localization.firstLoadLanguage();
-            log("Language: " + localization.LanguageDescription);
+            localization.firstLoadLanguage(config.getVariables().getLanguage());
+            log("Language: " + localization.getValue("Description"));
             featureManager.init();
             featureManager.enable();
             featureManager.registerEvents(this.getServer().getPluginManager());
@@ -98,6 +107,26 @@ public class RealWeather extends JavaPlugin {
 
             log.log(Level.INFO, "[RealWeather] RealWeather enabled.");
             getServer().getServicesManager().register(WeatherAPI.class, weatherAPI, this, ServicePriority.Low);
+
+            /*protocolManager.addPacketListener(
+                    new PacketAdapter(this, ConnectionSide.SERVER_SIDE,
+                    ListenerPriority.NORMAL, Packets.Server.CUSTOM_PAYLOAD) {
+                @Override
+                public void onPacketSending(PacketEvent event) {
+                    // Item packets
+                    switch (event.getPacketID()) {
+                        case Packets.Server.CUSTOM_PAYLOAD:
+                            System.out.println("Packet recieved");
+                            String data = new String(event.getPacket().getByteArrays().read(0));
+                            System.out.println(data);
+                            if(data.startsWith("RW:")) {
+                                RealWeather.log("Player "+event.getPlayer().getPlayerListName()+" connected with RW client mod.");
+                                playerClientMod.put(event.getPlayer().getEntityId(), true);
+                            }
+                            break;
+                    }
+                }
+            });*/
         } catch (NullPointerException e) {
             log.log(Level.WARNING, null, e);
             sendStackReport(e);
@@ -160,9 +189,9 @@ public class RealWeather extends JavaPlugin {
                     utils.sendMessage(player, "No arguments set. Try '/rw help'.");
                     if (sender instanceof Player) {
                         if (playerTemperature.containsKey(player)) {
-                            utils.sendMessage(player, localization.Temperature + df.format(playerTemperature.get(player)));
+                            utils.sendMessage(player, localization.getValue("Temperature") + df.format(playerTemperature.get(player)));
                         }
-                        utils.sendMessage(player, localization.YourStamina + df.format(player.getSaturation()));
+                        utils.sendMessage(player, localization.getValue("YourStamina") + df.format(player.getSaturation()));
                         if (isWeatherModuleLoaded) {
                             utils.sendMessage(player, featureManager.getModule("weather").getConfig().getLocale().getValue("Today") + getWeather().getForecastMessage(getWeather().getCurrentWeather(2)));
                         }
@@ -181,10 +210,10 @@ public class RealWeather extends JavaPlugin {
                         if (sender instanceof Player) {
                             if (playerHeatShow.get(player.getEntityId()).equals(Boolean.FALSE)) {
                                 playerHeatShow.put(player.getEntityId(), Boolean.TRUE);
-                                utils.sendMessage(player, localization.TemperatureShow);
+                                utils.sendMessage(player, localization.getValue("TemperatureShow"));
                             } else {
                                 playerHeatShow.put(player.getEntityId(), Boolean.FALSE);
-                                utils.sendMessage(player, localization.TemperatureHide);
+                                utils.sendMessage(player, localization.getValue("TemperatureHide"));
                             }
                         } else {
                             utils.sendMessage(player, "Can not be executed from console.");
@@ -192,7 +221,7 @@ public class RealWeather extends JavaPlugin {
                     } else if ("stamina".equalsIgnoreCase(args[0])) {
                         if (sender instanceof Player) {
                             float stamina = player.getSaturation();
-                            utils.sendMessage(player, localization.YourStamina + Utils.convertFloatToString(stamina));
+                            utils.sendMessage(player, localization.getValue("YourStamina") + Utils.convertFloatToString(stamina));
                         } else {
 
                             try {
@@ -317,17 +346,17 @@ public class RealWeather extends JavaPlugin {
                          }*/
                     } else if ("lang".equalsIgnoreCase(args[0])) {
                         if (args.length == 1) {
-                            utils.sendMessage(player, "Language: " + localization.Language + ".");
-                            utils.sendMessage(player, "Available languages:");
-                            HashMap<String, String> langs = localization.GetLangList();
+                            utils.sendMessage(player, "Language: " + localization.lang + ".");
+                            utils.sendMessage(player, "List of available languages can be found on bukkitdev plugin page.");
+                            /*HashMap<String, String> langs = localization.GetLangList();
                             for (String lang : langs.keySet()) {
                                 utils.sendMessage(player, lang + " - " + langs.get(lang));
-                            }
+                            }*/
                         } else {
                             if (args.length == 2) {
                                 boolean result = this.command.Language(args[1]);
                                 if (result == true) {
-                                    utils.sendMessage(player, "Language changed to: " + localization.LanguageDescription + ".");
+                                    utils.sendMessage(player, "Language changed to: " + localization.getValue("Description") + ".");
                                 } else {
                                     utils.sendMessage(player, "Language load error!");
                                 }
@@ -388,7 +417,9 @@ public class RealWeather extends JavaPlugin {
     public static float getPlayerTemperature(Player player) {
         float f = 15;
         try {
-            if(playerTemperature.containsKey(player)) f = playerTemperature.get(player).floatValue();
+            if (playerTemperature.containsKey(player)) {
+                f = playerTemperature.get(player).floatValue();
+            }
         } catch (Exception e) {
             RealWeather.log.log(Level.SEVERE, null, e);
             RealWeather.sendStackReport(e);
@@ -473,10 +504,9 @@ public class RealWeather extends JavaPlugin {
     }
 
     /*public void sendStackReport(Exception ex) {
-        RealWeather.log("Sending error...");
-        sendStackReport(getDescription().getVersion(), ex);
-    }*/
-
+     RealWeather.log("Sending error...");
+     sendStackReport(getDescription().getVersion(), ex);
+     }*/
     public static void sendStackReport(Exception e) {
         if (RealWeather.config.getVariables().isReportingEnabled() & ((lastReport + 300000) < System.currentTimeMillis())) {
             RealWeather.log("Sending error...");
